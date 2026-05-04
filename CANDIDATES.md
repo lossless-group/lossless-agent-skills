@@ -1,3 +1,8 @@
+---
+name: skill-candidates
+description: Running backlog of potential future skills for the Lossless Group. Reference only - not a loadable skill.
+---
+
 # Skill Candidates — Running List
 
 A backlog of potential skills, captured as they surface. Not commitments. Not roadmap. Just **so good ideas don't fall on the floor.**
@@ -25,6 +30,7 @@ Developing them all at once would be a nightmare and would freeze conventions th
 | `astro-knots` | [`./astro-knots/`](./astro-knots/) | 2026-05-04 |
 | `pseudomonorepos` | [`./pseudomonorepos/`](./pseudomonorepos/) | 2026-05-04 |
 | `changelog-conventions` | [`./changelog-conventions/`](./changelog-conventions/) | 2026-05-04 |
+| `theme-system` | [`./theme-system/`](./theme-system/) | 2026-05-04 (scaffold) |
 
 ---
 
