@@ -69,7 +69,7 @@ pseudomonorepo/
 
 Each child also has its own `context-v/`. Specific implementation headaches → child's `context-v/issues/`. Cross-cutting patterns → parent's `context-v/blueprints/`.
 
-A dedicated `pseudomonorepos` skill is forthcoming.
+A dedicated `pseudomonorepos` skill **exists** — see `pseudomonorepos/SKILL.md`.
 
 ## SCM workflows (the "S" in Astro + Markdown + SCM + APIs)
 
@@ -98,7 +98,7 @@ Planned and in-progress skills related to Astro Knots:
 | `astro-knots` | ✅ this one | Umbrella vision + tech rules |
 | `context-vigilance` | ✅ shipped | `context-v/` documentation framework |
 | `lfm` | 🚧 planned | Lossless Flavored Markdown patterns and integration |
-| `pseudomonorepos` | 🚧 planned | Submodule-based context aggregation |
+| `pseudomonorepos` | ✅ shipped | Submodule-based context aggregation, search-first discipline |
 | `lossless-house-style` | 💭 candidate | Voice, formatting, citation conventions for prose |
 | `monorepo-nav` | 💭 candidate | Quick orientation map for `lossless-monorepo` |
 

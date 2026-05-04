@@ -86,7 +86,7 @@ Our coined term — see `references/pseudomonorepos.md`. Brief: a parent repo th
 
 Implication: when working in a child repo, also check the parent's `context-v/` for relevant blueprints/specs. Headaches in implementation often have answers in the parent.
 
-A dedicated `pseudomonorepos` skill is **forthcoming**.
+A dedicated `pseudomonorepos` skill **exists** — load it whenever working in this tree. It encodes the search-first discipline that composes with everything else.
 
 ## How to behave (decision rules)
 
@@ -106,7 +106,8 @@ When the user asks for X, default behavior:
 ## Cross-skill ties
 
 - **`context-vigilance`** governs *how* we document. **`astro-knots`** governs *what* we build (and the values around it). They compose: blueprints in a project's `context-v/blueprints/` should reflect Astro Knots tech principles.
-- Forthcoming: **`lfm`** (Lossless Flavored Markdown), **`pseudomonorepos`**.
+- **`pseudomonorepos`** — shipped. Composes directly with this skill: walk the tree, search before creating, log refactor debt when shipping fast.
+- Forthcoming: **`lfm`** (Lossless Flavored Markdown).
 
 ## See also
 
