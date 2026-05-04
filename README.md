@@ -12,9 +12,12 @@ If a skill here helps you, take it. If you find a sharper way to express it, ope
 
 ## Skills
 
-| Skill | Purpose |
-|---|---|
-| [`context-vigilance/`](./context-vigilance/) | Lossless Group's framework for managing `context-v/` directories (specs, prompts, blueprints, reminders, explorations, issues) with four-part `epoch.major.minor.patch` versioning and Train-Case conventions. See <https://www.lossless.group/projects/gallery/context-vigilance>. |
+| Skill | Status | Purpose |
+|---|---|---|
+| [`context-vigilance/`](./context-vigilance/) | ✅ | Framework for managing `context-v/` directories (specs, prompts, blueprints, reminders, explorations, issues) with four-part `epoch.major.minor.patch` versioning and Train-Case conventions. See <https://www.lossless.group/projects/gallery/context-vigilance>. |
+| [`astro-knots/`](./astro-knots/) | ✅ | Vision and tech conventions for the family of ~10+ Astro sites: Tech Hierarchy (HTML/CSS first), approved frameworks (Astro, Svelte, GSAP, Reveal), hard prohibitions (React, JSX, Angular). See <https://www.lossless.group/projects/gallery/astro-knots>. |
+| `lfm/` | 🚧 planned | [Lossless Flavored Markdown](https://jsr.io/@lossless-group/lfm) — patterns, component triggers, integration. |
+| `pseudomonorepos/` | 🚧 planned | Submodule-based context aggregation pattern. |
 
 ## Install
 
