@@ -4,6 +4,12 @@ The Lossless Group's agent skills collection — across projects and people.
 
 A shared library of [Agent Skills](https://agentskills.io/specification) used by Lossless team members and AI coding agents on Lossless projects. Skills here are tool-agnostic: they work with [pi-coding-agent](https://github.com/badlogic/pi-mono), Claude Code, OpenAI Codex, and anything else that follows the Agent Skills standard.
 
+## Built in public
+
+This repo is part of [The Lossless Group's](https://www.lossless.group) **Lost in Public** practice: developing methods, tooling, and institutional knowledge openly so others can adopt, adapt, critique, and contribute. Expect frequent commits, occasional churn, and skills that evolve as the team's real workflows reveal what works.
+
+If a skill here helps you, take it. If you find a sharper way to express it, open a PR. If you disagree with a convention, open an issue — we'd rather argue in public than silently diverge.
+
 ## Skills
 
 | Skill | Purpose |
@@ -98,4 +104,4 @@ Skills here represent shared Lossless conventions. Before adding or changing a s
 
 ## License
 
-MIT (see [LICENSE](./LICENSE)) — to be added.
+[MIT](./LICENSE) © The Lossless Group
