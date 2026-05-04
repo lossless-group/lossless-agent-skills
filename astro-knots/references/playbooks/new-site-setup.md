@@ -119,6 +119,9 @@ Ask the user:
 
 **Soft rule:** anything going to production should eventually follow Lossless frontend design-system standards (two-tier tokens, theme.css, mode switcher). But improvisation before codification is normal.
 
+**Critical: Vibrant mode must be visually distinct from light mode**  
+A recurring setup error: vibrant mode inherits light mode colors and looks identical. Vibrant mode is **dark-based** (like dark mode), not light-based. See "Vibrant Mode Implementation" below.
+
 ### 9. Two-tier token system — named + semantic
 
 When theme/brand decisions solidify (or immediately if they're known):
@@ -127,7 +130,11 @@ When theme/brand decisions solidify (or immediately if they're known):
 ```css
 :root {
   --color__blue-azure: #1f7ae0;
-  --color__rose-quartz: #e91e63;
+  --color__cyan-bright: #06b6d4;
+  --color__violet-deep: #7c3aed;
+  --color__lime-terminal: #84cc16;
+  --color__slate-950: #020617;
+  --color__white: #ffffff;
   --font__lato: 'Lato', system-ui, sans-serif;
 }
 ```
@@ -136,7 +143,7 @@ When theme/brand decisions solidify (or immediately if they're known):
 ```css
 .theme-default {
   --color-primary: var(--color__blue-azure);
-  --color-accent: var(--color__rose-quartz);
+  --color-accent: var(--color__lime-terminal);
   --font-body: var(--font__lato);
 }
 ```
@@ -148,7 +155,64 @@ When theme/brand decisions solidify (or immediately if they're known):
 
 **Tailwind v4 only generates utilities for kebab-case tokens** — the semantic tier must stay kebab-case.
 
+**Mode-specific semantic tokens:**  
+Each mode (`[data-mode="light"]`, `[data-mode="dark"]`, `[data-mode="vibrant"]`) redefines semantic tokens for its context. Components read `var(--color-surface)`, which resolves differently per mode.
+
 Full spec: `astro-knots/context-v/blueprints/Maintain-Themes-Mode-Across-CSS-Tailwind.md` §2.1.
+
+### 9a. Vibrant Mode Implementation (Critical)
+
+**The error:** Setting vibrant mode to just override a couple tokens like `--fx-glow-opacity` causes it to inherit light mode's surface/text colors, making light and vibrant indistinguishable.
+
+**The pattern (per fullstack-vc reference):**
+
+Vibrant mode is **dark-based**, not light-based. It's "dark mode but louder."
+
+```css
+[data-mode="vibrant"] {
+  /* Dark background like dark mode */
+  --color-background: var(--color__black);
+  --color-surface: color-mix(in srgb, var(--color__violet-deep) 20%, var(--color__slate-950));
+  --color-text: var(--color__white);
+  --color-text-muted: color-mix(in srgb, var(--color__cyan-bright) 60%, var(--color__white));
+  --color-border: var(--color__blue-azure);  /* neon borders */
+  
+  /* Effect tokens — maximum intensity */
+  --fx-glow-opacity: 0.55;  /* vs 0.22 in dark, 0.06 in light */
+  --fx-glow-spread: 48px;   /* vs 24px in dark, 8px in light */
+  
+  /* Multi-color neon gradients */
+  --fx-headline-gradient: linear-gradient(
+    120deg,
+    var(--color__lime-terminal) 0%,
+    var(--color__cyan-bright) 40%,
+    var(--color__blue-azure) 70%,
+    var(--color__violet-deep) 100%
+  );
+  
+  /* Glassmorphic card shadows with color-mix */
+  --fx-card-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color__blue-azure) 50%, transparent),
+    0 0 24px color-mix(in srgb, var(--color__blue-azure) 30%, transparent);
+}
+```
+
+**Key vibrant characteristics:**
+- **Dark background** (black or deep slate, not white)
+- **Glassmorphic surfaces** using `color-mix()` with transparency
+- **Neon borders** (bright accent colors, not muted grays)
+- **Multi-stop gradients** (4+ colors: lime → cyan → blue → violet)
+- **High glow/shadow opacity** (0.5+, not 0.1)
+- **Large glow spread** (40px+, not 8px)
+
+**Reference implementation:** `sites/fullstack-vc/src/styles/theme.css` lines 90-130.
+
+**Verify vibrant works:**
+1. Toggle to vibrant mode
+2. Background should be **dark** (not white)
+3. Borders should be **neon bright** (not gray)
+4. Headline gradient should be **multi-color** (not subtle two-color)
+5. Light and vibrant should be **obviously different** at a glance
 
 ### 10. Content collections: immediately only `changelog/`
 
