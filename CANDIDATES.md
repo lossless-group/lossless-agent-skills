@@ -68,6 +68,25 @@ When a candidate ships, move it to the README's Skills table and add a status up
 - **Source:** mentioned in `pseudomonorepos/references/anatomy.md` ("foot-gun")
 - **Why someday:** existing scripts (`reattach-all-submodule-remotes.sh`, etc.) embody the workflow; agents could invoke them with the right context
 - **Effort:** low. Mostly wrapping existing scripts in a skill that knows when to reach for them
+- **Confirmed:** 2026-05-03
+
+### 💭 `astro-component-patterns` — the conventions that compound across sites
+
+- **Trigger:** building, refactoring, or scaffolding Astro components in any Astro Knots site
+- **Source:** ~10+ Astro Knots sites with accumulated shared patterns (layouts, content collection rendering, image handling, view transitions, partial hydration choices)
+- **Why someday:** each new site ships faster than the last because patterns compound — making those patterns explicit means an agent can apply them on day one of a new site instead of having to re-derive
+- **Effort:** medium-high. Requires surveying current sites for what's converged vs. still divergent
+- **Note:** could be its own skill *or* a sub-tree of `astro-knots/references/`. Probably its own skill once `astro-knots` proves out.
+- **Confirmed:** 2026-05-03
+
+### 💭 `changelog-conventions` — the Progress + Publish format
+
+- **Trigger:** writing a `changelog/` entry at any repo level (project or pseudomonorepo)
+- **Source:** TBD list in `pseudomonorepos/references/lifecycle-workflow.md`; existing example `ai-labs/context-v/changelog/2026-05-02_01.md` (filename pattern `YYYY-MM-DD_NN.md`)
+- **Why someday:** the Progress and Publish phases of the `lossless-loop` both write to changelogs — a shared format makes them comparable across projects and renderable on Astro Knots sites (changelog pages already exist for the platform and for Laerdal)
+- **Effort:** low. Mostly capturing existing format + frontmatter conventions
+- **Note:** likely a chapter of the forthcoming `lossless-loop` skill, but could ship earlier as its own thing if needed
+- **Confirmed:** 2026-05-03
 
 ---
 
