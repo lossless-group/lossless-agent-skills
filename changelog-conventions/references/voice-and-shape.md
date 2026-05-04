@@ -44,7 +44,7 @@ List views and preview cards on the rendered site use the **first sections** of 
 │                                     │  ← preview-friendly
 │ Audience-facing answer.             │     (often shown in lists)
 ├─────────────────────────────────────┤
-│ ## What's New                       │
+│ ## What's New?                      │
 │                                     │  ← preview-friendly
 │ Concrete summary.                   │     (often shown in lists)
 ├─────────────────────────────────────┤
@@ -58,14 +58,16 @@ List views and preview cards on the rendered site use the **first sections** of 
 
 The first two sections must be able to **stand alone** as a preview. The reader who never clicks through still gets the value. The reader who does click through gets the depth.
 
-## Why "Why Care?" comes before "What's New"
+## Why "Why Care?" comes before "What's New?"
 
 The audience cares about **impact** before **inventory**.
 
-- "What's new" answers: *what did you ship?* (inventory question)
-- "Why care?" answers: *why should I read further?* (impact question)
+- "What's New?" answers: *what did you ship?* (inventory question)
+- "Why Care?" answers: *why should I read further?* (impact question)
 
 Contributors might prefer the inventory first. The audience won't. Default to the audience unless the entry is explicitly internal.
+
+Both headings are phrased as **questions** because they *are* questions — questions the reader is silently asking when they land on a changelog entry. Answering the question by name signals that you know they're asking it, and that you respect them enough to address it directly.
 
 ## Story arcs that work
 
