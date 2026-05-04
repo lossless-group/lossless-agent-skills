@@ -116,7 +116,50 @@ Also included:
 - Removed debug console.log from Header.astro
 ```
 
-### 5. Key Principles
+### 5. Pre-Commit Checklist: Changelogs & Context-v
+
+**Before you commit, CONSIDER (don't assume) two things:**
+
+#### Should a changelog be written?
+
+**When to write a changelog:**
+- At the **conclusion or final stages** of a coherent flow of work
+- When implementing a spec or completing a sequence of related prompts
+- When something of substance changed that matters to humans, the team, or users
+
+**Frequency expectations:**
+- **1 or fewer per day** = meeting expectations
+- **Up to 5 per day** on heavy shipping days
+- It depends on the coherence of the commit set
+
+**Why this matters:**
+- Changelogs are a **trust-reinforcing rhythm**
+- They're **breadcrumbs** on progress/decisions/changes of substance
+- They're for humans, not machines
+
+**Common mistake:** Rushing to commit without considering if a changelog is needed, then having to make a tiny "oops(changelog): add missing entry" commit or amend+force-push. Causes drag.
+
+#### Do README or context-v files need updating?
+
+**Not a hard rule**, but worth considering:
+- Has the project's purpose shifted? Update README.
+- Did we make decisions that should be documented? Update `context-v/` files.
+- Are specs, blueprints, or prompts now stale? Flag or update them.
+
+**Why this matters:**
+- Keeps `context-v/` accurate to current thinking and practice
+- Prevents future confusion about why decisions were made
+- Reduces "wait, why did we do it this way?" conversations
+
+**Common mistake:** Same as changelogs — rushing to commit, then realizing context is stale, then making an "oops(context-v): update stale spec" commit.
+
+**The discipline:** Pause before `git commit`. Ask:
+1. Is this the end of a coherent flow of work? → Consider changelog.
+2. Did we make decisions or changes that shift context? → Consider updating `context-v/` or README.
+
+If yes to either, do it **in the same commit** or **before committing**. Don't rush.
+
+### 6. Key Principles
 
 **Sense-making first:** The first paragraph should explain what and why in plain language. Assume the reader knows nothing about the context.
 
@@ -128,7 +171,43 @@ Also included:
 
 **Affected files consistency:** Files listed should match the effort groupings in the header. If the header says `(mode-switcher, theme.css)`, those files should appear in the body.
 
-## Common Mistakes
+## Pre-Commit Anti-Patterns
+
+❌ **Rush to commit without considering changelog:**
+```bash
+git commit -m "feat: implement new feature"
+# Later: "Oh, I should have written a changelog"
+# Now: Either make tiny oops commit or amend+force-push
+```
+
+✅ **Pause, consider, include if needed:**
+```bash
+# Write changelog entry if this completes coherent work
+vim changelog/2026-05-04_02.md
+git add changelog/
+git commit -m "feat: implement new feature
+
+See changelog/2026-05-04_02.md for details."
+```
+
+❌ **Rush to commit with stale context-v:**
+```bash
+git commit -m "refactor: change approach"
+# Later: "The spec is now wrong"
+# Now: Either update separately or amend
+```
+
+✅ **Update context-v in same commit:**
+```bash
+# Update stale spec while making the change
+vim context-v/specs/Feature-Spec.md
+git add context-v/
+git commit -m "refactor: change approach
+
+Updated spec to reflect new implementation strategy."
+```
+
+## Common Mistakes (Headers & Bodies)
 
 ❌ **Vague headers:**
 ```
