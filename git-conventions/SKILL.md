@@ -1,0 +1,190 @@
+---
+name: git-conventions
+description: The Lossless Group's git commit message conventions — structured headers with action verbs and effort groupings, paragraph-spaced bodies that explain impact before implementation, and "Also included" riders for minor changes. Use when writing commit messages, reviewing commits, or when the user mentions "commit message format", "git conventions", or asks how to structure a commit.
+---
+
+# Git Conventions
+
+The Lossless Group's conventions for git commit messages — making history readable, searchable, and useful for future-you.
+
+**Status:** Initial scaffold (May 2026) — documenting observed patterns from lossless-monorepo.
+
+## When to use this skill
+
+- Writing commit messages (any repo)
+- Reviewing commits before push
+- Teaching commit conventions to collaborators
+- User asks "how should I format this commit?"
+- User mentions "commit message", "git conventions", "effort grouping"
+
+## Core Patterns
+
+### 1. Header Syntax
+
+Two accepted patterns:
+
+**Pattern A: Single effort grouping**
+```
+{action}({effort-grouping}): {narrative description}
+```
+
+**Pattern B: Multiple effort groupings or chained actions**
+```
+{action}({effort-1}, {effort-2}): {narrative description}
+{action}({effort-1}), {action}({effort-2}): {narrative description}
+```
+
+**Examples:**
+```
+feat(theme-system): Add vibrant mode verification checklist
+fix(mode-switcher, theme.css): Vibrant mode now dark-based with neon effects
+doc(README), skill(astro-knots): Update vibrant mode guidance
+```
+
+### 2. Common Action Verbs
+
+| Action | When to use |
+|--------|-------------|
+| `feat` | New feature, new capability |
+| `fix` | Bug fix, correction |
+| `doc` | Documentation changes |
+| `refactor` | Code restructure without behavior change |
+| `style` | Formatting, whitespace (no logic change) |
+| `test` | Adding/updating tests |
+| `chore` | Maintenance, deps, tooling |
+| `skill` | Skill file changes (lossless-skills repo) |
+| `changelog` | Changelog entry added/updated |
+
+### 3. Effort Groupings
+
+**What is an effort grouping?** The part of the codebase this commit touches — a package, a site, a system, a concern.
+
+**Examples:**
+- `skill(theme-system)` — changes to theme-system skill
+- `feat(reach-edu-hub)` — new feature in reach-edu-hub site
+- `fix(mode-switcher, theme.css)` — bug fix touching both files/systems
+- `doc(README, CANDIDATES)` — documentation changes in both files
+
+**Guideline:** Use the most specific grouping that makes sense. If a commit touches multiple unrelated areas, consider splitting into multiple commits.
+
+### 4. Body Structure (The Important Part)
+
+**Rule: Use paragraph spacing to separate concerns. Do not lump.**
+
+**Structure:**
+
+1. **First paragraph: Sense-making summary**  
+   Anyone (future-you, a new contributor, a stakeholder) should understand what this commit does and why.
+
+2. **Second paragraph: Impact**  
+   What changes does this commit introduce? Focus on **what the changes do**, not how they're implemented.
+
+3. **Third+ paragraphs: Breakdown by concern**  
+   Cluster related changes. One paragraph per cluster. Each paragraph explains a cohesive set of changes.
+
+4. **Affected files list**  
+   List files changed that align with the header. Makes git log searchable.
+
+5. **"Also included:" section (optional)**  
+   Minor changes, formatting tweaks, riders that aren't worth their own commit. Keeps commit history clean.
+
+**Example structure:**
+```
+fix(mode-switcher, theme.css): Vibrant mode now dark-based with neon effects
+
+Problem: Light and vibrant modes were indistinguishable because vibrant
+mode only set effect tokens and inherited light mode's white background.
+
+Solution: Vibrant mode now comprehensively overrides all surface/text/border
+tokens. Uses color-mix() for glassmorphic surfaces, multi-color neon gradients
+(lime → cyan → blue → violet), and high glow opacity (0.55 vs 0.22 in dark).
+
+CSS changes (theme.css):
+- Added named tokens for vibrant palette (cyan-bright, violet-deep, lime-terminal)
+- Vibrant mode block now sets background, surface, text, border
+- Multi-stop gradient definition for headlines
+
+Mode switcher (mode-switcher.js):
+- No changes needed — switcher already supported three modes
+
+Files changed:
+- src/styles/global.css
+- src/pages/brand-kit/index.astro
+
+Also included:
+- Fixed typo in README
+- Removed debug console.log from Header.astro
+```
+
+### 5. Key Principles
+
+**Sense-making first:** The first paragraph should explain what and why in plain language. Assume the reader knows nothing about the context.
+
+**Impact over implementation:** Explain what changes, not how you changed it. "Vibrant mode now dark-based" (impact) before "Changed --color-surface value" (implementation).
+
+**Paragraph spacing matters:** Blank lines between concerns makes commits scannable. Lumped paragraphs are hard to parse.
+
+**List riders explicitly:** If you're sneaking in unrelated changes (typo fix, debug cleanup), list them under "Also included:" so they don't pollute the main narrative.
+
+**Affected files consistency:** Files listed should match the effort groupings in the header. If the header says `(mode-switcher, theme.css)`, those files should appear in the body.
+
+## Common Mistakes
+
+❌ **Vague headers:**
+```
+fix: updates
+feat: changes to theme
+```
+
+✅ **Specific headers:**
+```
+fix(mode-switcher): Vibrant mode toggle now persists to localStorage
+feat(theme-system): Add two-tier token architecture reference
+```
+
+❌ **Lumped body:**
+```
+Fixed vibrant mode and also updated docs and added new tokens and fixed a typo in README and changed the mode switcher and...
+```
+
+✅ **Paragraph-spaced body:**
+```
+Fixed vibrant mode by making it dark-based instead of light-based.
+
+Theme changes:
+- Added cyan-bright, violet-deep, lime-terminal named tokens
+- Vibrant mode block now sets all surface/text/border tokens
+
+Documentation:
+- Updated setup playbook with vibrant verification checklist
+- Added examples to quickstart guide
+
+Also included:
+- Fixed typo in README
+```
+
+## Cross-skill ties
+
+- **`changelog-conventions`** — commit messages often become changelog entries
+- **`context-vigilance`** — commit message structure mirrors document frontmatter discipline
+
+## What's Not Here Yet (TBD)
+
+- [ ] `references/header-patterns.md` — comprehensive action verb + effort grouping catalog
+- [ ] `references/body-structure.md` — deep dive on paragraph spacing and impact-first writing
+- [ ] `references/examples.md` — 10+ real commit messages from lossless repos annotated
+- [ ] `templates/commit-message-template.txt` — boilerplate for git commit.template
+
+## Development Notes
+
+This skill is being extracted from commit history across:
+- `lossless-skills` repo
+- `astro-knots` monorepo
+- Individual site repos (reach-edu-hub, fullstack-vc, etc.)
+
+Observed patterns will be documented incrementally.
+
+## See also
+
+- Changelog conventions skill (similar structured writing discipline)
+- Context-vigilance skill (frontmatter structure parallels commit headers)

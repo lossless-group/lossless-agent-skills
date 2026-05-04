@@ -31,6 +31,7 @@ Developing them all at once would be a nightmare and would freeze conventions th
 | `pseudomonorepos` | [`./pseudomonorepos/`](./pseudomonorepos/) | 2026-05-04 |
 | `changelog-conventions` | [`./changelog-conventions/`](./changelog-conventions/) | 2026-05-04 |
 | `theme-system` | [`./theme-system/`](./theme-system/) | 2026-05-04 (scaffold) |
+| `git-conventions` | [`./git-conventions/`](./git-conventions/) | 2026-05-04 (scaffold) |
 
 ---
 

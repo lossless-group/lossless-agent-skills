@@ -24,6 +24,7 @@ If a skill here helps you, take it. If you find a sharper way to express it, ope
 | [`pseudomonorepos/`](./pseudomonorepos/) | ✅ | Coined Lossless pattern: parent repos that aggregate children (often submodules) primarily to host a parent-level `context-v/`. Encodes the search-first-before-creating discipline and the tree-walking routine. |
 | [`changelog-conventions/`](./changelog-conventions/) | ✅ | How to write `changelog/` entries: strict frontmatter (`publish: true`, `lede`, ISO dates, ul-format `authors`), `YYYY-MM-DD_NN.md` filenames, `releases/` subfolder for product-style projects, show-don't-enforce ethos. |
 | [`theme-system/`](./theme-system/) | 🚧 scaffold | Theme & mode architecture: two-tier tokens, three-mode contract (light/dark/vibrant), theme.css organization. Actively developing from astro-knots patterns. |
+| [`git-conventions/`](./git-conventions/) | 🚧 scaffold | Commit message conventions: structured headers with action verbs and effort groupings, paragraph-spaced bodies focused on impact, "Also included" riders. |
 | `lfm/` | 🚧 planned | [Lossless Flavored Markdown](https://jsr.io/@lossless-group/lfm) — patterns, component triggers, integration. |
 | `lossless-loop/` | 🚧 planned | The 5-phase Start → Progress → Reflect → Publish → Market lifecycle for any meaningful unit of work. Diagram & spec live at `pseudomonorepos/references/lifecycle-workflow.md` until the skill graduates. |
 
