@@ -22,7 +22,7 @@ tags:
 
 The headline change. Why does this release matter to the people using PRODUCT? One paragraph, audience-facing.
 
-## What's New
+## What's New?
 
 ### Highlights
 

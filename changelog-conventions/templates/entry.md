@@ -23,7 +23,7 @@ Audience-facing answer. One to three short paragraphs that work as a standalone 
 
 If you can't write this section without referring to internal jargon or prior context, the work might not be ready for a public changelog yet — or might need a different framing.
 
-## What's New
+## What's New?
 
 Concrete summary of what shipped. Bullet list or short paragraphs.
 
