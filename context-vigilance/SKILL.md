@@ -5,7 +5,9 @@ description: Lossless Group's framework for managing context-v/ directories in a
 
 # Context Vigilance
 
-A framework for Human + AI collaboration: **manage the context available to AI and collaborators with the same rigor you manage code.** Every Lossless project has a `context-v/` directory with up to six subdirectories, organized into three cognitive modes.
+A framework for Human + AI collaboration: **manage the context available to AI and collaborators with the same rigor you manage code.** Every Lossless project has a `context-v/` directory with (commonly) six subdirectories, organized into three cognitive modes.
+
+**Norms, not rules.** Patterns here are loosely enforced. The team is generative-first; consistency emerges when attention focuses on a project, file, or pattern. Be generous reading existing files (they may pre-date current norms or be experiments) and careful writing new ones. See `references/philosophy.md` for the deeper rationale.
 
 Reference: <https://www.lossless.group/projects/gallery/context-vigilance>
 
@@ -35,9 +37,18 @@ Reference: <https://www.lossless.group/projects/gallery/context-vigilance>
 - **`context-v/explorations/`** — Documents where the destination is unclear. Research, prototype tradeoffs, option-space mapping, thinking out loud with AI as partner. Ends when you've learned enough to write a spec — or decided you don't need one.
 - **`context-v/issues/`** — Issue-resolution journey logs. The painful, winding path through debugging. Capture so no human or AI has to retrace it.
 
-## Mandatory Frontmatter
+### When you find a seventh folder
 
-Every document under `context-v/` starts with this YAML frontmatter:
+The six are convention, not a closed set. Experimentation is normal — you'll encounter folders that don't match the six (e.g., `notes/`, `decisions/`, `changelog/`, `plans/`, `research/`). When that happens:
+
+1. **Don't fight it.** Read what's there.
+2. **Identify the cognitive mode** (planning / reflection / journey / something new).
+3. **Discuss with the user** whether the folder should be assimilated (promoted to a new convention), folded (contents moved into one of the six), or kept as project-specific.
+4. **Default to keeping it** if unsure. Re-organizing someone's mental model mid-session is rude.
+
+## Conventional Frontmatter
+
+Frontmatter in `context-v/` is **scattered in practice** — some files have lots of properties, some have very few. When creating new files, lead with this baseline:
 
 ```yaml
 ---
@@ -53,7 +64,9 @@ tags:
 ---
 ```
 
-Key rules (full details in `references/frontmatter-spec.md`):
+When editing existing files, **respect what's there**. Don't add fields the file didn't have unless they're genuinely useful. Don't remove fields you don't recognize.
+
+Key conventions (full details in `references/frontmatter-spec.md`):
 
 - Update `date_modified` whenever you edit the file
 - `semantic_version` is **four-part `epoch.major.minor.patch`** — see `references/versioning.md`
@@ -62,11 +75,33 @@ Key rules (full details in `references/frontmatter-spec.md`):
 
 ## Cross-references
 
-Use `[[wikilinks]]` to reference other `context-v/` documents. Prefer:
+Cross-referencing is how humans and agents focus on a limited scope at any moment — **humans have context windows too.** Three styles, all valid:
+
+1. **Obsidian-style backlinks (preferred):** `[[path/to/Filename.md]]` or `[[Filename]]`
+2. **Standard Markdown links:** `[link text](../specs/Some-Spec.md)`
+3. **Backtick paths:** `` `context-v/specs/Some-Spec.md` `` for references the reader isn't expected to click
+
+Use whichever serves the reader. Backlinks are preferred because most `context-v/` directories are symlinked into Obsidian vaults, where `[[wikilinks]]` unlock graph view, autocomplete, and backlink panes.
+
+Common linking patterns:
 
 - prompts → link the spec they implement
 - reminders → link the blueprint that explains the pattern
 - explorations & issues → link whatever they relate to
+
+## Audience: User + Agent + Reader
+
+Almost everything in `context-v/` is destined for public web publishing through one of the Lossless [Astro Knots](https://www.lossless.group/projects/gallery/astro-knots) sites. So every document balances three audiences:
+
+1. **The User** writing or editing it
+2. **The Agent** that will load it as context in some future session
+3. **The Reader** who lands on it on the web with no prior context
+
+Practical implications:
+
+- **Lead with marketing. Lead with why. Lead with something anyone can understand.** Get into technical detail deeper in the doc.
+- **The first paragraph should be readable by an outsider.** The rest can be specialized.
+- **If the doc is getting too long, split it.** Common split: marketing/why stays at the top (or its own short doc), pattern/architecture → blueprint, thing-being-built → spec, how-to-build-it → prompt. Whatever fits.
 
 ## Filename conventions
 
@@ -94,20 +129,27 @@ When creating a new file, start from the matching template in `templates/`:
 - `templates/exploration.md`
 - `templates/issue.md`
 
-## Steps for any context-v/ task
+## Typical flow for a `context-v/` task
+
+Not a checklist — a default rhythm. Adjust to the situation.
 
 1. **Locate the project's `context-v/`.** Walk up from cwd if needed. Some repos have multiple (e.g., one per sub-project).
-2. **Pick the folder** using the decision tree above.
-3. **If the folder doesn't exist, create it** — don't ask, just make it. The framework expects all six.
-4. **Copy the matching template** from `templates/` and fill it in.
+2. **Survey what's there.** Look at sibling files for tone, depth, and frontmatter conventions. Match them.
+3. **Pick the folder** using the decision tree. If nothing fits, see *When you find a seventh folder* above.
+4. **Copy the matching template** from `templates/` if helpful, or write from scratch matching nearby files.
 5. **Frontmatter:** today's date for both `date_created` and `date_modified`. Start at `0.0.0.1`. Add the user as author; add yourself if you wrote substantial content.
-6. **Add `[[wikilinks]]`** to related docs.
-7. **Filename & tags:** Train-Case (`My-New-Doc.md`, tags like `- New-Pattern`).
-8. **When editing an existing doc:** bump `semantic_version` per `references/versioning.md` and update `date_modified`.
+6. **Lead with the why.** First paragraph readable by an outsider.
+7. **Cross-link** to related docs using `[[wikilinks]]`.
+8. **Filename & tags:** Train-Case (`My-New-Doc.md`, tags like `- New-Pattern`).
+9. **When editing an existing doc:** bump `semantic_version` per `references/versioning.md` and update `date_modified`. Respect existing frontmatter shape.
+10. **If the doc is ballooning, propose a split** before continuing. Better two clean docs than one bloated one.
 
 ## The philosophy (tl;dr)
 
 - AI doesn't learn between sessions → externalize memory as loadable docs
-- Context windows have limits → modular docs designed for selective loading
+- Context windows have limits (humans too) → modular docs designed for selective loading and cross-linking
 - Specs align everyone again, better → AI makes specs cheap to write and cheaper to keep current
-- This scales to teams → a `context-v/` answers "where's the context?" before it's asked
+- We publish in public → docs serve users, agents, and outside readers simultaneously
+- Norms over rules → generative first, consistency emerges with attention
+
+For the deeper version, see `references/philosophy.md`.

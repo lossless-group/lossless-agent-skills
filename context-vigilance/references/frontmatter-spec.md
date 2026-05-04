@@ -1,6 +1,8 @@
 # Frontmatter Spec for `context-v/` Documents
 
-Every Markdown file under any `context-v/` directory MUST start with YAML frontmatter delimited by `---` lines.
+> **In practice, frontmatter is scattered.** Some files are richly tagged with status, supersedes, related, aliases. Others have only `title` and `date_created`. Both are fine. This document describes the *aspirational* baseline for new files — not a validator's checklist.
+
+Most Markdown files under `context-v/` start with YAML frontmatter delimited by `---` lines. Be generous reading; be thoughtful writing.
 
 ## Canonical example
 
@@ -20,7 +22,7 @@ tags:
 ---
 ```
 
-## Required fields
+## Baseline fields (recommended for new files)
 
 | Field | Type | Notes |
 |---|---|---|
@@ -30,6 +32,8 @@ tags:
 | `authors` | list of strings | Always a list, even with one entry. |
 | `semantic_version` | string `e.M.m.p` | Four-part. See `versioning.md`. New docs start at `0.0.0.1`. |
 | `tags` | list of strings | **Train-Case** (e.g., `Markdown-Rendering`). At least one tag. |
+
+If an existing file is missing any of these, **don't silently add them while doing unrelated edits** — surface the gap to the user first. Frontmatter changes are a separate concern from content changes.
 
 ## Optional fields
 
@@ -76,4 +80,6 @@ When in doubt, double-quote.
 
 ## Validation philosophy
 
-The Lossless team **does not hard-validate** frontmatter (this is itself a reminder). Be lenient about reading existing files; be careful when writing new ones.
+The Lossless team **does not hard-validate** frontmatter (this is itself a reminder). Be lenient about reading existing files; be thoughtful when writing new ones. Files older than current conventions are not bugs.
+
+If a file's frontmatter is genuinely broken (malformed YAML, missing `title`), fix it as a `patch` bump and note the fix in the body or a commit message. Don't auto-migrate property names or styles unless explicitly asked.
