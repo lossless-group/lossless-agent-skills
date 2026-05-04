@@ -70,10 +70,13 @@ When editing existing files, **respect what's there**. Don't add fields the file
 
 Key conventions (full details in `references/frontmatter-spec.md`):
 
+- **All property names are `snake_case`** — enforced by Obsidian's frontmatter rendering. Never camelCase or kebab-case keys.
 - Update `date_modified` whenever you edit the file
 - `semantic_version` is **four-part `epoch.major.minor.patch`** — see `references/versioning.md`
 - `authors` is **humans only**, always a list. AI agents are tracked separately under `augmented_with` (format: `Pi on Claude Sonnet 4.5`). See `references/frontmatter-spec.md`.
-- `tags` use **Train-Case** (e.g., `Markdown-Rendering`, `Issue-Resolution`) — Obsidian convention
+- `tags` use **Train-Case** values (e.g., `Markdown-Rendering`, `Issue-Resolution`) — Obsidian convention
+- `status` uses **Train-Case** values too — it's a display string, not a machine enum
+- `lede` (or `description`) is optional on any doc-type — a one-sentence newsroom hook for preview cards / OG snippets / list views
 
 ## Cross-references
 
@@ -145,6 +148,10 @@ Not a checklist — a default rhythm. Adjust to the situation.
 8. **Filename & tags:** Train-Case (`My-New-Doc.md`, tags like `- New-Pattern`).
 9. **When editing an existing doc:** bump `semantic_version` per `references/versioning.md` and update `date_modified`. Respect existing frontmatter shape.
 10. **If the doc is ballooning, propose a split** before continuing. Better two clean docs than one bloated one.
+
+## Developing a spec (the rich case)
+
+Specs have more rhythm than the other doc-types: stub-first, discuss-then-write, handle stale prior art without hijacking the primary dialog, sign-off gate before implementation, narrative pass *after* sign-off, and pair with prompts for chunked execution. The full rhythm lives in `references/developing-a-spec.md` — load it whenever you're initiating or developing a spec with the user.
 
 ## The philosophy (tl;dr)
 

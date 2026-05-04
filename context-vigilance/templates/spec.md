@@ -1,5 +1,6 @@
 ---
 title: "TITLE HERE"
+lede: "One sentence that makes a reader want to keep reading. Newsroom-style hook — not a description."
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 authors:
@@ -9,7 +10,7 @@ augmented_with:
 semantic_version: 0.0.0.1
 tags:
   - Spec
-status: draft
+status: Draft
 ---
 
 # TITLE HERE

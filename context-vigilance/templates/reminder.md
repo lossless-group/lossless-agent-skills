@@ -1,5 +1,6 @@
 ---
 title: "Reminder: TITLE HERE"
+# lede: "Optional one-sentence hook — newsroom-style. Often skipped for reminders since they're already terse, but available if the reminder will be surfaced in a list view."
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 authors:

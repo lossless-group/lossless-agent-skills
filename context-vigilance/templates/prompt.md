@@ -1,5 +1,6 @@
 ---
 title: "Prompt: TITLE HERE"
+# lede: "Optional one-sentence hook — newsroom-style. Add when this doc may be published or surfaced in a list/preview view."
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 authors:

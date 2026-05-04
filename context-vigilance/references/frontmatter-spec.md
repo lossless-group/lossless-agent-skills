@@ -4,11 +4,28 @@
 
 Most Markdown files under `context-v/` start with YAML frontmatter delimited by `---` lines. Be generous reading; be thoughtful writing.
 
+## Property names: always `snake_case`
+
+**All frontmatter property names in `context-v/` are `snake_case`.** This is not a stylistic preference — **Obsidian's frontmatter rendering and property indexing enforce it**, and most Lossless `context-v/` directories are symlinked into Obsidian vaults. camelCase and kebab-case keys break Obsidian's property panel and graph indexing.
+
+- ✅ `date_created`, `augmented_with`, `semantic_version`, `superseded_by`, `implements_spec`, `related_blueprint`
+- ❌ `dateCreated`, `augmented-with`, `SemanticVersion`, `supersededBy`
+
+The rule applies to **keys only.** Values are governed separately:
+
+- `tags` values → **Train-Case** (e.g., `Markdown-Rendering`)
+- `status` values → **Train-Case** (e.g., `In-Discussion`, `Signed-Off`) — see the `status` row below
+- `authors`, `augmented_with` values → free-form human-readable strings
+- Dates → `YYYY-MM-DD`
+
+When introducing a new property anywhere in the tree (in a doc, a template, a tool, a script): name the key in `snake_case`, no exceptions. When you encounter an existing file with a non-`snake_case` key, surface it to the user rather than silently renaming — some sites' build tooling or content collections may be reading the field by its current name.
+
 ## Canonical example
 
 ```yaml
 ---
 title: "Maintain an Extended Markdown Render Pipeline"
+lede: "Why our markdown pipeline is the asset — and where it's heading next."
 date_created: 2026-03-30
 date_modified: 2026-05-03
 authors:
@@ -28,6 +45,7 @@ tags:
 | Field | Type | Notes |
 |---|---|---|
 | `title` | string | Human-readable. Quote it if it contains a colon. Title Case. |
+| `lede` *(or `description`)* | string | **Optional on any `context-v/` doc-type** — spec, prompt, blueprint, exploration, reminder, issue. Newsroom-style hook: one sentence that makes a reader want to keep reading. **`lede` is preferred** over `description` because the word itself signals the job (*grab attention*); both are accepted. Many `context-v/` docs are destined for public web rendering through Astro Knots sites, so the lede also doubles as the OpenGraph / preview-card / list-view summary. Add it whenever the doc might be surfaced anywhere a reader sees only one line before deciding to click. See the `changelog-conventions` skill for the deeper rationale and concrete examples. |
 | `date_created` | YYYY-MM-DD | Set once on creation. Never change. |
 | `date_modified` | YYYY-MM-DD | Update on every meaningful edit. |
 | `authors` | list of strings | **Humans only.** Always a list, even with one entry. |
@@ -43,7 +61,7 @@ Add as needed; do not invent fields without precedent in the project. Common one
 
 | Field | Purpose |
 |---|---|
-| `status` | e.g., `draft`, `proposed`, `accepted`, `superseded` |
+| `status` | **Train-Case display string** (e.g., `Draft`, `In-Discussion`, `Signed-Off`, `Implementing`, `Shipped`, `Stale`, `Superseded`). Treat as a rendering string for humans, **not a machine enum** — don't switch on these values in code, since spelling and casing drift across files. The Train-Case casing is the signal: "this property exists for display, not for build/render-pipeline branching." Spec-specific progression lives in `developing-a-spec.md`. |
 | `supersedes` | wikilink or filename of the doc this one replaces |
 | `superseded_by` | reverse of above |
 | `related` | list of `[[wikilinks]]` to related docs |

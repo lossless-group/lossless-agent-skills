@@ -6,6 +6,15 @@ When a candidate ships, move it to the README's Skills table and add a status up
 
 > **How this list is maintained:** Update freely as ideas come up. Each entry should be brief enough to fit in one head (one head with ADHD), specific enough that a future-you remembers the trigger, and honest about whether it's a real skill or just a tag for a thing.
 
+## What counts as a candidate
+
+Skills come from two directions, and both are welcome here:
+
+- **Third-party / established** — a package, spec, or tool with its own docs (e.g. an LFM plugin, an Astro integration, an Obsidian convention). The skill wraps it: when to reach for it, how we use it, the gotchas we've hit.
+- **Homegrown** — patterns we coined while working together (`pseudomonorepos`, `context-vigilance`, the 5-phase loop). These start as a name we keep saying out loud, get jotted here, and only earn a `SKILL.md` once the pattern has stabilized.
+
+Developing them all at once would be a nightmare and would freeze conventions that are still moving. The motion we respect is **experimenting → codifying → standardizing**: live with a pattern long enough to know its shape, write it down once it stops shifting, promote it to a skill once it's worth loading into every session. CANDIDATES.md is the holding pen for everything in the first two stages — so good ideas don't fall on the floor while they're still maturing.
+
 ---
 
 ## Promoted to skills (✅ shipped)

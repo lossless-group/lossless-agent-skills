@@ -103,6 +103,18 @@ When the user asks for X, default behavior:
 | "Build a slide deck" | Markdown + Reveal (or one of the other two). |
 | "Document this work" | Use `context-v/` per the `context-vigilance` skill. |
 
+## Initiating a new Astro-Knots project
+
+A new Astro-Knots site (or package, or study) gets initiated **through a spec**, not by jumping straight into `pnpm create astro`. The *how* of developing that spec is generic and lives in the `context-vigilance` skill — specifically `references/developing-a-spec.md`. Load that reference whenever the user wants to initiate a new project.
+
+Before writing any spec stub:
+
+1. **Check whether the parent dir is a pseudomonorepo.** Walk up from cwd; load the `pseudomonorepos` skill. If yes, the new spec almost certainly belongs in the **parent's** `context-v/specs/`, not in a not-yet-created child's. Confirm with the user.
+2. **Drop a stub** in the right `context-v/specs/` (frontmatter + H1 only), then return focus to discussion. Don't try to draft the spec body in advance of the conversation.
+3. **Then proceed through the rhythm in `developing-a-spec.md`** — receive prior art, discuss → write → discuss, surface stale context-v files, sign-off gate, narrative pass, prompt-pairing.
+
+**After spec sign-off, before implementation:** load the setup playbook at `references/playbooks/new-site-setup.md` — the 12-step flow from repo creation through deploy config. For executable commands and file templates, cross-reference `astro-knots/context-v/prompts/New-Site-Quickstart-Guide.md` in the monorepo.
+
 ## Cross-skill ties
 
 - **`context-vigilance`** governs *how* we document. **`astro-knots`** governs *what* we build (and the values around it). They compose: blueprints in a project's `context-v/blueprints/` should reflect Astro Knots tech principles.
