@@ -72,7 +72,7 @@ Key conventions (full details in `references/frontmatter-spec.md`):
 
 - Update `date_modified` whenever you edit the file
 - `semantic_version` is **four-part `epoch.major.minor.patch`** — see `references/versioning.md`
-- `authors` is always a list, even with one author. Add yourself when you co-author (use the model name, e.g., "Claude Sonnet 4.5")
+- `authors` is **humans only**, always a list. AI agents are tracked separately under `augmented_with` (format: `Pi on Claude Sonnet 4.5`). See `references/frontmatter-spec.md`.
 - `tags` use **Train-Case** (e.g., `Markdown-Rendering`, `Issue-Resolution`) — Obsidian convention
 
 ## Cross-references
@@ -139,7 +139,7 @@ Not a checklist — a default rhythm. Adjust to the situation.
 2. **Survey what's there.** Look at sibling files for tone, depth, and frontmatter conventions. Match them.
 3. **Pick the folder** using the decision tree. If nothing fits, see *When you find a seventh folder* above.
 4. **Copy the matching template** from `templates/` if helpful, or write from scratch matching nearby files.
-5. **Frontmatter:** today's date for both `date_created` and `date_modified`. Start at `0.0.0.1`. Add the user as author; add yourself if you wrote substantial content.
+5. **Frontmatter:** today's date for both `date_created` and `date_modified`. Start at `0.0.0.1`. Add the user as author. If you (an AI) contributed materially, add yourself under `augmented_with` (e.g., `Pi on Claude Sonnet 4.5`) — not under `authors`.
 6. **Lead with the why.** First paragraph readable by an outsider.
 7. **Cross-link** to related docs using `[[wikilinks]]`.
 8. **Filename & tags:** Train-Case (`My-New-Doc.md`, tags like `- New-Pattern`).

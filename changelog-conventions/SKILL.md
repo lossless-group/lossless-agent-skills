@@ -58,9 +58,10 @@ date_modified: YYYY-MM-DD      # ISO. Updated on every edit. Obsidian template o
 title: "Human-readable title"
 lede: "Subtitle that grabs attention — used where the point is to make the reader keep reading"
 publish: true                  # Obsidian publisher convention. STRICTLY ENFORCED. Do not deviate.
-authors:                       # Always a list. Preferred ul format (not [a, b] inline). One item per line.
+authors:                       # Humans only. Always a list. Preferred ul format (not [a, b] inline).
   - Firstname Lastname
-  - Claude Sonnet 4.5
+augmented_with:                # AI tools used. Format: "<tool> on <model name version>".
+  - Pi on Claude Sonnet 4.5
 ---
 ```
 
@@ -68,7 +69,8 @@ authors:                       # Always a list. Preferred ul format (not [a, b] 
 
 - **`publish: true`** is set by Obsidian publisher and is strictly enforced there. Do not toggle it off without understanding the publishing implications.
 - **`lede`** is intentional — not "subtitle" or "description". The word signals: *write something that grabs attention*. The reader should want to keep reading.
-- **`authors`** preferred form is the YAML list (one author per line), not inline `[a, b]`. Add yourself when you wrote substantial content. Use the model name (e.g., `Claude Sonnet 4.5`).
+- **`authors`** is for **humans only**. Preferred form is the YAML list (one author per line), not inline `[a, b]`. AI agents do not go here, even when they wrote substantial content.
+- **`augmented_with`** is for the AI tooling that helped produce the entry. Format is **`<tool> on <model name version>`**, e.g., `Pi on Claude Sonnet 4.5`, `Claude Code on Claude Opus 4`, `Cursor on GPT-5`. Same ul-list preference as `authors`. Include this field whenever an AI agent contributed materially — honesty about augmentation matters more than authorship credit.
 - **ISO dates with dashes for everything** — both dates and timestamps. Never `2026/05/04` or `May 4, 2026`.
 
 See `references/frontmatter-spec.md` for edge cases and optional fields.

@@ -13,7 +13,8 @@ date_created: 2026-03-30
 date_modified: 2026-05-03
 authors:
   - Michael Staton
-  - Claude Sonnet 4.5
+augmented_with:
+  - Pi on Claude Sonnet 4.5
 semantic_version: 0.1.2.0
 tags:
   - Markdown
@@ -29,7 +30,8 @@ tags:
 | `title` | string | Human-readable. Quote it if it contains a colon. Title Case. |
 | `date_created` | YYYY-MM-DD | Set once on creation. Never change. |
 | `date_modified` | YYYY-MM-DD | Update on every meaningful edit. |
-| `authors` | list of strings | Always a list, even with one entry. |
+| `authors` | list of strings | **Humans only.** Always a list, even with one entry. |
+| `augmented_with` | list of strings | AI tools used. Format: `<tool> on <model name version>`. Include whenever an AI agent contributed materially. |
 | `semantic_version` | string `e.M.m.p` | Four-part. See `versioning.md`. New docs start at `0.0.0.1`. |
 | `tags` | list of strings | **Train-Case** (e.g., `Markdown-Rendering`). At least one tag. |
 
@@ -49,10 +51,22 @@ Add as needed; do not invent fields without precedent in the project. Common one
 
 ## Author conventions
 
+**Strong Lossless preference: `authors` is for humans only.** Even when an AI agent produced most of the prose, the human directing the work is the author. AI tooling is tracked separately under `augmented_with`.
+
+### `authors`
+
 - Use the human's full preferred name (not a handle)
-- For AI co-authors, name the model: `Claude Sonnet 4.5`, `GPT-5`, `Gemini 2.5 Pro`. Avoid generic "AI Assistant".
-- Order: humans first, AI last
-- Add yourself when you contributed substantial content (more than a typo fix)
+- Always a list, even with one entry
+- Order: alphabetical or by contribution — team's call, no hard rule
+
+### `augmented_with`
+
+- The AI tool(s) used. Format: `<tool> on <model name and version>`
+- Examples: `Pi on Claude Sonnet 4.5`, `Claude Code on Claude Opus 4`, `Cursor on GPT-5`, `Aider on Claude Sonnet 3.7`
+- ul-list form, one entry per tool/model pair
+- Include this field whenever an AI agent contributed materially — the more, the more important to disclose
+- Avoid generic strings (`"AI Assistant"`, `"ChatGPT"`) — always specify both tool and model
+- The point: honesty about augmentation matters more than credit allocation
 
 ## Tag conventions
 

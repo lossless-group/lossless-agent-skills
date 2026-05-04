@@ -4,6 +4,8 @@ date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 authors:
   - AUTHOR
+augmented_with:
+  - Pi on Claude Sonnet 4.5
 semantic_version: 0.0.0.1
 tags:
   - Spec

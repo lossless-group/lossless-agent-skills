@@ -6,6 +6,8 @@ lede: "What this release does in one attention-grabbing sentence"
 publish: true
 authors:
   - Firstname Lastname
+augmented_with:
+  - Pi on Claude Sonnet 4.5
 release_version: "X.Y.Z"
 tags:
   - Release

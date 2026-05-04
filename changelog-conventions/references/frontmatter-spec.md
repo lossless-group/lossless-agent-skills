@@ -13,6 +13,8 @@ lede: "Attention-grabbing one-line subtitle"
 publish: true
 authors:
   - Firstname Lastname
+augmented_with:
+  - Pi on Claude Sonnet 4.5
 ---
 ```
 
@@ -50,17 +52,29 @@ authors:
 - This is the most strictly enforced field on the platform
 
 #### `authors`
+- **Humans only.** AI agents are tracked separately under `augmented_with` (see below).
 - Always a YAML list, even with one author
 - **Preferred form:** ul list (one author per line)
   ```yaml
   authors:
     - Michael Staton
-    - Claude Sonnet 4.5
   ```
-- **Tolerated form:** inline list (`[Michael Staton, Claude Sonnet 4.5]`) — works but harder to diff and read
+- **Tolerated form:** inline list (`[Michael Staton, Other Person]`) — works but harder to diff and read
 - Use the human's full preferred name
-- For AI co-authors, name the model: `Claude Sonnet 4.5`, `GPT-5`, `Gemini 2.5 Pro`. Avoid generic "AI Assistant".
-- Order: humans first, AI last (when both)
+
+#### `augmented_with`
+- The AI tool(s) used to produce the entry. Tracked separately from `authors` because **AI agents augment human authorship; they don't co-author.**
+- Format: `<tool> on <model name and version>`
+  - ul-list, one entry per tool/model pair
+- Examples:
+  ```yaml
+  augmented_with:
+    - Pi on Claude Sonnet 4.5
+    - Claude Code on Claude Opus 4
+    - Cursor on GPT-5
+  ```
+- Include this field whenever an AI agent contributed meaningfully — even (especially) when it produced most of the words. Honesty about augmentation matters more than authorship credit.
+- Avoid generic strings like `"AI Assistant"` or `"ChatGPT"`. Specify the tool *and* the model.
 
 ## Optional fields (use as needed)
 

@@ -6,6 +6,8 @@ lede: "Attention-grabbing one-line subtitle that makes the reader want to keep r
 publish: true
 authors:
   - Firstname Lastname
+augmented_with:
+  - Pi on Claude Sonnet 4.5
 tags:
   - Relevant-Tag
 ---
