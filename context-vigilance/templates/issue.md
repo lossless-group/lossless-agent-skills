@@ -1,0 +1,57 @@
+---
+title: "Issue: TITLE HERE"
+date_created: YYYY-MM-DD
+date_modified: YYYY-MM-DD
+authors:
+  - AUTHOR
+semantic_version: 0.0.0.1
+tags:
+  - Issue
+status: open
+---
+
+# Issue: TITLE HERE
+
+## Symptom
+
+What the user / system actually saw. Error messages, screenshots, reproductions.
+
+```
+paste exact error here
+```
+
+## Environment
+
+- OS / runtime / versions
+- Branch / commit
+- Anything unusual about the setup
+
+## Hypothesis log
+
+Append-only. Don't delete wrong guesses — they're the value of this doc.
+
+### H1 — ...
+
+**Reasoning:** ...
+**Test:** ...
+**Result:** ❌ / ✅
+**Learned:** ...
+
+### H2 — ...
+
+...
+
+## Root cause
+
+(Fill in when found.) The actual cause, distinguished from the contributing factors.
+
+## Fix
+
+What was changed. Link to the commit / PR.
+
+## Prevention
+
+Was a reminder or blueprint created to prevent recurrence? Link it.
+
+- [[Reminder-...]]
+- [[Blueprint-...]]
