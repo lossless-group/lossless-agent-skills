@@ -144,6 +144,8 @@ For details, current state, and intent-vs-reality notes, see `references/the-tre
 
 > **Honest note:** The root and most pseudomonorepos are **imperfectly maintained**. Don't assume `context-v/` is complete or current. Search it; treat what you find as starting points; surface gaps when you see them.
 
+> **Drift policy:** Walking the tree will reveal far more inconsistencies than consistencies. **Observe, note, surface — but do not auto-clean** as a side effect of unrelated work. Normalization is a separate, explicitly-authorized task. The user runs parallel agent sessions; silent fixes break others' work. Full policy in `~/.pi/agent/AGENTS.md`.
+
 ## Cross-skill ties
 
 This skill is **not a silo** — it composes with the others:

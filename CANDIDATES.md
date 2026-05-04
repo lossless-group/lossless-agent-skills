@@ -10,11 +10,12 @@ When a candidate ships, move it to the README's Skills table and add a status up
 
 ## Promoted to skills (✅ shipped)
 
-| Skill | Where |
-|---|---|
-| `context-vigilance` | [`./context-vigilance/`](./context-vigilance/) |
-| `astro-knots` | [`./astro-knots/`](./astro-knots/) |
-| `pseudomonorepos` | [`./pseudomonorepos/`](./pseudomonorepos/) |
+| Skill | Where | Shipped |
+|---|---|---|
+| `context-vigilance` | [`./context-vigilance/`](./context-vigilance/) | 2026-05-04 |
+| `astro-knots` | [`./astro-knots/`](./astro-knots/) | 2026-05-04 |
+| `pseudomonorepos` | [`./pseudomonorepos/`](./pseudomonorepos/) | 2026-05-04 |
+| `changelog-conventions` | [`./changelog-conventions/`](./changelog-conventions/) | 2026-05-04 |
 
 ---
 
@@ -79,14 +80,9 @@ When a candidate ships, move it to the README's Skills table and add a status up
 - **Note:** could be its own skill *or* a sub-tree of `astro-knots/references/`. Probably its own skill once `astro-knots` proves out.
 - **Confirmed:** 2026-05-03
 
-### 💭 `changelog-conventions` — the Progress + Publish format
+### ~~💭 `changelog-conventions`~~ — ~~the Progress + Publish format~~
 
-- **Trigger:** writing a `changelog/` entry at any repo level (project or pseudomonorepo)
-- **Source:** TBD list in `pseudomonorepos/references/lifecycle-workflow.md`; existing example `ai-labs/context-v/changelog/2026-05-02_01.md` (filename pattern `YYYY-MM-DD_NN.md`)
-- **Why someday:** the Progress and Publish phases of the `lossless-loop` both write to changelogs — a shared format makes them comparable across projects and renderable on Astro Knots sites (changelog pages already exist for the platform and for Laerdal)
-- **Effort:** low. Mostly capturing existing format + frontmatter conventions
-- **Note:** likely a chapter of the forthcoming `lossless-loop` skill, but could ship earlier as its own thing if needed
-- **Confirmed:** 2026-05-03
+**Shipped 2026-05-04** — lives at [`./changelog-conventions/`](./changelog-conventions/). First entry is `changelog/2026-05-04_01.md`.
 
 ---
 

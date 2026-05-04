@@ -9,6 +9,8 @@ A framework for Human + AI collaboration: **manage the context available to AI a
 
 **Norms, not rules.** Patterns here are loosely enforced. The team is generative-first; consistency emerges when attention focuses on a project, file, or pattern. Be generous reading existing files (they may pre-date current norms or be experiments) and careful writing new ones. See `references/philosophy.md` for the deeper rationale.
 
+**Drift policy:** When you encounter inconsistencies (mismatched frontmatter, deviating filenames, partial-convention adoption), **observe, note, surface, but do not auto-fix as a side effect of unrelated work.** Cleanup happens only with explicit user permission. The user runs parallel agent sessions; silent normalization creates conflicts. (This rule lives globally in `~/.pi/agent/AGENTS.md`; restated here for redundancy.)
+
 Reference: <https://www.lossless.group/projects/gallery/context-vigilance>
 
 ## When to use this skill
