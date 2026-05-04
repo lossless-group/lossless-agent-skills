@@ -9,6 +9,8 @@ authors:
 augmented_with:
   - Pi on Claude Sonnet 4.5
 release_version: "X.Y.Z"
+files_changed:
+  - path/from/project-root/src/important-file.ts
 tags:
   - Release
   - PRODUCT-NAME
@@ -16,37 +18,50 @@ tags:
 
 # PRODUCT vX.Y.Z — Release Title
 
-Open with the headline change. What's the most important thing this release delivers?
+## Why Care?
 
-## Highlights
+The headline change. Why does this release matter to the people using PRODUCT? One paragraph, audience-facing.
+
+## What's New
+
+### Highlights
 
 - Top 3-5 user-facing changes
 - Each one phrased as a benefit, not a task
 
-## Added
+### Added
 
 - New features or capabilities
 
-## Changed
+### Changed
 
 - Behavior changes that existing users will notice
 - Note any breaking changes prominently
 
-## Fixed
+### Fixed
 
 - Bug fixes worth calling out
 
-## Deprecated
+### Deprecated
 
 - Anything being phased out, with the timeline if known
 
-## Removed
+### Removed
 
 - Anything taken away in this release
 
-## Upgrade notes
+## Upgrade Notes
 
-If users need to do anything to upgrade — say so. Migration scripts, config changes, etc.
+If users need to do anything to upgrade — say so. Migration scripts, config changes, before/after examples.
+
+```diff
+- old usage
++ new usage
+```
+
+## The Story Behind This Release
+
+> *(Optional.)* What shaped this release? What did we learn between the last release and this one? What was hard, what surprised us, what we'd do differently.
 
 ## Thanks
 
