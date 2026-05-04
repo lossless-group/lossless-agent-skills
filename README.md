@@ -1,57 +1,101 @@
-# Pi Skills — mpstaton
+# Lossless Skills
 
-Personal [pi-coding-agent](https://github.com/badlogic/pi-mono) skills, kept under version control so they sync across machines and have a history.
+The Lossless Group's agent skills collection — across projects and people.
 
-This directory is the global pi skills location: `~/.pi/agent/skills/`. Pi loads every subdirectory containing a `SKILL.md` on startup.
+A shared library of [Agent Skills](https://agentskills.io/specification) used by Lossless team members and AI coding agents on Lossless projects. Skills here are tool-agnostic: they work with [pi-coding-agent](https://github.com/badlogic/pi-mono), Claude Code, OpenAI Codex, and anything else that follows the Agent Skills standard.
 
 ## Skills
 
 | Skill | Purpose |
 |---|---|
-| [`context-vigilance/`](./context-vigilance/) | Lossless Group's framework for managing `context-v/` directories (specs, prompts, blueprints, reminders, explorations, issues) with four-part `epoch.major.minor.patch` versioning and Train-Case conventions. |
+| [`context-vigilance/`](./context-vigilance/) | Lossless Group's framework for managing `context-v/` directories (specs, prompts, blueprints, reminders, explorations, issues) with four-part `epoch.major.minor.patch` versioning and Train-Case conventions. See <https://www.lossless.group/projects/gallery/context-vigilance>. |
 
-## Layout convention
+## Install
+
+### Pi (recommended for Lossless contributors)
+
+```bash
+pi install git:github.com/lossless-group/lossless-skills
+```
+
+Or clone directly into the global skills directory:
+
+```bash
+git clone https://github.com/lossless-group/lossless-skills.git ~/.pi/agent/skills
+```
+
+In an active pi session, run `/reload` to pick up changes without restarting.
+
+### Claude Code
+
+Clone into Claude's skills directory:
+
+```bash
+git clone https://github.com/lossless-group/lossless-skills.git ~/.claude/skills
+```
+
+### OpenAI Codex / other harnesses
+
+Clone anywhere and point your tool's skills configuration at the directory.
+
+### Cross-tool sharing on one machine
+
+Use the `~/.agents/skills/` location (read by pi and other Agent-Skills-compatible tools), or symlink:
+
+```bash
+ln -s ~/.pi/agent/skills ~/.agents/skills
+```
+
+## Layout
+
+Each skill is a directory with a `SKILL.md` file:
 
 ```
 <skill-name>/
-├── SKILL.md              # required: frontmatter (name, description) + instructions
-├── references/           # deep-dive docs the agent loads on demand
-└── templates/            # scaffolds for new files
+├── SKILL.md              # Required: frontmatter (name, description) + instructions
+├── references/           # Deep-dive docs the agent loads on demand
+├── templates/            # Scaffolds for new files
+└── scripts/              # Helper scripts (when needed)
 ```
 
-See the [Agent Skills spec](https://agentskills.io/specification) and [pi skills docs](https://github.com/badlogic/pi-mono/blob/main/packages/pi-coding-agent/docs/skills.md).
+The `description` in `SKILL.md` frontmatter determines when an agent will auto-load the skill. Be specific.
 
-## Working with this repo
+## Contributing
 
-```bash
-cd ~/.pi/agent/skills
+Skills here represent shared Lossless conventions. Before adding or changing a skill:
 
-# After editing a skill:
-git add <skill>
-git commit -m "skill(<name>): <change>"
-git push
+1. **Discuss first** if it changes how the team works (open an issue or a draft PR with rationale).
+2. **Match existing conventions:**
+   - Skill directory and `name:` field: lowercase with hyphens (e.g., `context-vigilance`)
+   - Filenames inside skills: `Train-Case.md`
+   - Frontmatter follows the Agent Skills spec
+3. **Test the skill** in a real session before committing — verify the agent loads it when you'd expect.
+4. **Commit message convention:**
+   ```
+   skill(<skill-name>): short description
+   ```
 
-# In an active pi session, pick up changes without restarting:
-# /reload
-```
+### Adding a new skill
 
-## Sharing with Claude Code / Codex
-
-Pi follows the Agent Skills standard, so these skills work in other harnesses. To share, either:
-
-1. Symlink: `ln -s ~/.pi/agent/skills ~/.agents/skills`
-2. Or add to your other tool's settings to read this directory.
-
-## Adding a new skill
-
-1. `mkdir <skill-name>` (lowercase, hyphens, matches `name:` in frontmatter)
-2. Create `SKILL.md` with required frontmatter:
+1. `mkdir <skill-name>` (lowercase, hyphens, must match `name:` in frontmatter)
+2. Create `SKILL.md`:
    ```yaml
    ---
    name: <skill-name>
-   description: When the agent should load this skill. Be specific.
+   description: When the agent should load this skill. Be specific about triggers.
    ---
    ```
-3. Optional: `references/` for deep docs, `templates/` for scaffolds, `scripts/` for helpers
-4. `/reload` in pi or restart
-5. Commit
+3. Add `references/`, `templates/`, `scripts/` as needed
+4. Update the **Skills** table in this README
+5. Open a PR
+
+## References
+
+- [Agent Skills Specification](https://agentskills.io/specification)
+- [pi skills documentation](https://github.com/badlogic/pi-mono/blob/main/packages/pi-coding-agent/docs/skills.md)
+- [Context Vigilance project](https://www.lossless.group/projects/gallery/context-vigilance)
+- [The Lossless Group](https://www.lossless.group)
+
+## License
+
+MIT (see [LICENSE](./LICENSE)) — to be added.
