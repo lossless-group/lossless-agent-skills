@@ -43,7 +43,8 @@ Now the site lives as a submodule under `astro-knots/sites/`.
 
 - **Add to `pnpm-workspace.yaml`** for development convenience only: `- sites/<site-name>`
 - **Do NOT use `workspace:*` dependencies** in the site's `package.json` — sites install published packages (like `@lossless-group/lfm`) from registries, not from the workspace
-- Verify the site can `pnpm install && pnpm build` from its own directory alone, without the parent
+- **Every site has its own `pnpm-lock.yaml`** at the site root (in addition to the parent monorepo's lockfile). The parent's lockfile is invisible to a standalone clone, so without a site-local one, every Vercel deploy fails with `Headless installation requires a pnpm-lock.yaml file`. Generate it with `pnpm install --ignore-workspace --lockfile-only` from the site directory and commit it. Step 12 covers the full deploy-config dance.
+- Verify the site can `pnpm install --ignore-workspace && pnpm build` from its own directory alone, without the parent.
 
 See the "Site Independence Model" section in `astro-knots/CLAUDE.md` for the full rationale.
 
@@ -249,7 +250,7 @@ Both pages must:
 
 Full conventions: `astro-knots/context-v/blueprints/Maintain-Design-System-and-Brandkit-Motions.md`.
 
-### 12. Deploy config: Vercel adapter, `.npmrc`, `.gitattributes`
+### 12. Deploy config: Vercel adapter, JSR `.npmrc`, site-local lockfile, `vercel.json`, `.gitattributes`
 
 Before first deploy:
 
@@ -260,13 +261,50 @@ pnpm astro add vercel
 
 This installs `@astrojs/vercel` and configures `astro.config.mjs`.
 
-**`.npmrc` (for GitHub Packages access):**
+**`.npmrc` (JSR registry — public, no auth):**
 ```
-@lossless-group:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+@jsr:registry=https://npm.jsr.io
 ```
 
-Sites need this to install `@lossless-group/lfm` and any future Lossless packages.
+That's the entire file. JSR is the canonical registry for Lossless packages — it's public and requires no token. Install `@lossless-group/*` packages with the `jsr` CLI:
+
+```bash
+pnpx jsr add @lossless-group/lfm
+```
+
+This rewrites the dep in `package.json` to `"@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@^x.y.z"` (the JSR npm-compat scope). Imports stay the same: `import { parseMarkdown } from '@lossless-group/lfm'`.
+
+> ⛔ **Do not** use `@lossless-group:registry=https://npm.pkg.github.com` with a `GITHUB_TOKEN`. The GitHub Packages path requires a Vercel env var, fails on fresh CI clones, and contradicts the astro-knots playbook. Always JSR.
+
+**Site-local `pnpm-lock.yaml` (mandatory — sites must deploy independently):**
+
+Pseudomonorepo sites are deployed from their own GitHub repo, not from the parent monorepo. Vercel clones just the site repo, so it needs `pnpm-lock.yaml` at the **site root**. The parent workspace's lockfile (at the monorepo root) isn't visible to a standalone clone.
+
+After scaffolding, before first deploy:
+
+```bash
+cd sites/<site-name>
+pnpm install --ignore-workspace --lockfile-only
+git add pnpm-lock.yaml
+```
+
+- `--ignore-workspace` tells pnpm to treat this site as standalone (instead of looking up to the parent workspace and using its lockfile).
+- `--lockfile-only` writes `pnpm-lock.yaml` without touching `node_modules`.
+
+Commit `pnpm-lock.yaml`. Without it, the first Vercel deploy fails with `ERROR Headless installation requires a pnpm-lock.yaml file`.
+
+**This is a recurring foot-gun.** Every Astro Knots site has its own `pnpm-lock.yaml` at the site root, in parallel with the parent monorepo's lockfile. Both are maintained.
+
+**`vercel.json` (force pnpm, frozen lockfile):**
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm build"
+}
+```
+
+Without this, Vercel may auto-detect the wrong package manager and fall back to `npm install`, which doesn't honor `pnpm-lock.yaml` and fails differently. Pinning is non-negotiable: **frozen lockfile, always.**
 
 **`.gitattributes` (for large assets as they're added):**
 ```
@@ -278,7 +316,7 @@ Sites need this to install `@lossless-group/lfm` and any future Lossless package
 
 Optional at setup, but helpful to have in place early.
 
-**`.env.example` and `.env`:** projects have similar-but-differing needs. Create stubs at setup, fill during development. Typical vars: `PUBLIC_SITE_URL`, `PUBLIC_BRAND`, `GITHUB_TOKEN`, feature flags.
+**`.env.example` and `.env`:** projects have similar-but-differing needs. Create stubs at setup, fill during development. Typical vars: `PUBLIC_SITE_URL`, `PUBLIC_BRAND`, feature flags. **Do not** add `GITHUB_TOKEN` — JSR is public, no auth needed.
 
 See Quickstart Guide for full file templates.
 
