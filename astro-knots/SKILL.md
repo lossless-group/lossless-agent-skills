@@ -115,6 +115,8 @@ Before writing any spec stub:
 
 **After spec sign-off, before implementation:** load the setup playbook at `references/playbooks/new-site-setup.md` — the 12-step flow from repo creation through deploy config. For executable commands and file templates, cross-reference `astro-knots/context-v/prompts/New-Site-Quickstart-Guide.md` in the monorepo.
 
+**Deploying to GitHub Pages instead of Vercel** (for splash pages, per-repo landing sites, free static hosts): load `references/playbooks/github-pages-deploy.md`. It captures the canonical workflow shape, the `astro.config.mjs` `base` setting, and the three setup-time gotchas every new GitHub Pages repo hits — Pages-not-provisioned (`enablement: true`), branch-not-allowed (environment protection rule), and Source-still-on-"Deploy from a branch". Pay the setup tax once per repo, then the workflow handles itself.
+
 ## Cross-skill ties
 
 - **`context-vigilance`** governs *how* we document. **`astro-knots`** governs *what* we build (and the values around it). They compose: blueprints in a project's `context-v/blueprints/` should reflect Astro Knots tech principles.
@@ -126,3 +128,5 @@ Before writing any spec stub:
 - `references/philosophy.md` — the vision in depth, build-in-public practice
 - `references/tech-stack.md` — full rationale for each approved/prohibited tech
 - `references/ecosystem.md` — the family of sites, LFM, pseudomonorepos, roadmap
+- `references/playbooks/new-site-setup.md` — the 12-step new-site flow (default-Vercel deploy)
+- `references/playbooks/github-pages-deploy.md` — workflow shape, `astro.config.mjs` `base`, and the three setup-time gotchas every new GitHub Pages repo hits

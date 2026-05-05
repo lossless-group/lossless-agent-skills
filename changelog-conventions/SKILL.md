@@ -91,6 +91,18 @@ Changelogs are written **for the public web**. Assume:
 
 A long-running goal: aggregate all changelogs across all Lossless repos via the GitHub API into a "Lossless Changelog" umbrella view. Write entries that would render well in that aggregated context.
 
+## Roll-up at every level
+
+The same aggregation principle applies **at every parent → children boundary**, not only at the org-wide top. A pseudomonorepo's splash, site, or gallery should surface its own `changelog/` *and* roll up the changelogs of its submodules into one feed. A reader landing on `content-farm/splash/changelog/` should see ship notes from `image-gin`, `cite-wide`, `perplexed`, and the rest — not just from content-farm itself.
+
+**Mechanism preference:** the **GitHub Content API**, authenticated, at build time. For each submodule, derive the API endpoint from the parent's `.gitmodules` (`url =` → `{owner}/{repo}`, `branch =` → `ref`) and query `/repos/{owner}/{repo}/contents/changelog/`. Merge the results into the parent's collection, sorted by date across the union, with **provenance** rendered on each card (which submodule it came from). Same pattern for `context-v/`.
+
+**Implication for how you write entries:** assume your changelog can be read in three different aggregations — your repo's local list, the parent pseudomonorepo's rolled-up list, and (eventually) the org-wide Lossless Changelog. The lede is your only handhold in the bigger feeds. Make it work without the surrounding repo as context.
+
+For mechanism details — auth, rate-limit handling, failure modes, loader sketch, and provenance metadata — see `pseudomonorepos/references/content-rollup.md`. The composition is intentional: changelog-conventions governs *how to write* an entry; the pseudomonorepos skill governs *how parents aggregate* their children's entries.
+
+**Status:** aspirational. The first two splashes (`memopop-site`, `content-farm/splash`) render local-only changelogs as of writing. Roll-up is the documented next step, not yet implemented in any production splash.
+
 ## Show, don't enforce
 
 Conventions here are evolving. People are encouraged to experiment. The way to spread the convention is to **show it working** — not to police existing entries.

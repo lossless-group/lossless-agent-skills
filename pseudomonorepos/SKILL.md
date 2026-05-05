@@ -113,6 +113,40 @@ Not every unit of work runs the full loop. Small fixes might stop at Progress. S
 
 A dedicated **`lossless-loop`** (working title) skill is forthcoming to fully encode this workflow.
 
+## Content roll-up across the tree
+
+A pseudomonorepo's splash, site, or gallery should surface not only its own `changelog/` and `context-v/` — it should **roll up** those of its submodules into one feed at the parent level. A reader landing on `content-farm/splash/` should see ship notes from `image-gin`, `cite-wide`, and the rest, not just from content-farm itself.
+
+**Mechanism preference:** the **GitHub Content API**, authenticated, at build time. For each submodule registered in the parent's `.gitmodules`, derive the API endpoint from the `url =` line, query `/contents/changelog/` and `/contents/context-v/` against the configured `branch`, and merge results into the parent's content collections. This avoids cloning every submodule into CI and stays cheap under the 5000-req/hr authenticated rate limit.
+
+**Provenance matters.** Every rolled-up entry should carry which submodule it came from as visible metadata, so a reader can filter to just one plugin's notes (`/changelog?from=image-gin`) and so the parent isn't pretending to have authored its children's work.
+
+**Status:** aspirational. The first two splashes (`memopop-site`, `content-farm/splash`) render local-only content as of writing. When you scaffold a new splash, **log roll-up as Phase 2 work** in that splash's spec — don't pretend Phase 1 is "done" if roll-up is missing; it's done-with-a-known-follow-up.
+
+The same pattern composes up the tree: a parent pseudomonorepo's splash rolls up its children's content, and *its* parent rolls up *its* children — eventually feeding the long-stated "Lossless Changelog" umbrella view at the org level (see the `changelog-conventions` skill).
+
+See `references/content-rollup.md` for the full mechanism — endpoint shape, auth, failure modes, loader sketch.
+
+## Branch alignment across the tree
+
+Pseudomonorepos and their submodules share a three-tier branch model: **`development` → `main` → `master`**.
+
+- `development` is where most work lands.
+- `main` is what `development` gets promoted to when it reaches something noteworthy.
+- `master` is `stable` — updated only when the dust has settled.
+
+**Aspiration:** when the parent is on a tier, every submodule is on the same tier. Parent on `development` → all submodules on `development`. Same for `main` and `master`. Look for root-level scripts like `switch-all-to-development-branch.sh` before writing your own.
+
+**Reality:** humans get lazy. Work piles up in `development` and rarely gets promoted; `main` sometimes becomes the de-facto working branch; `master` is often the most stale branch in the repo. That's expected, not broken.
+
+**When a submodule is missing a tier** (e.g. `development` doesn't exist), create it from the leading branch with a non-destructive push (`git branch development origin/master && git push origin development:development`). When `development` is *behind* `main`/`master`, fast-forward it up — don't roll the gitlink backwards by switching to a stale branch.
+
+After changing a submodule's tracked branch: update `branch =` in the parent's `.gitmodules`, run `git submodule sync`, and commit both the `.gitmodules` change and the submodule pointer. An entry without a `branch =` line is a smell.
+
+**Don't auto-realign as a side effect** of unrelated work. Same drift policy as everything else in this skill: observe, surface, get explicit authorization.
+
+See `references/branch-alignment.md` for the full recipe (FF mechanics, divergence checks, push-to-default-branch caveats).
+
 ## Nested pseudomonorepos
 
 The hierarchy can be:
@@ -180,5 +214,7 @@ When working in this tree, **multiple skills apply at once.** Don't pick one —
 - `references/the-tree.md` — current state of the lossless-monorepo tree (living doc)
 - `references/search-first.md` — concrete recipes for finding prior work
 - `references/lifecycle-workflow.md` — the 5-phase Start → Progress → Reflect → Publish → Market loop, with diagrams
+- `references/branch-alignment.md` — the development → main → master tier model and how to keep parent + submodules aligned
+- `references/content-rollup.md` — how parent splashes/sites should aggregate `changelog/` and `context-v/` from their submodules via the GitHub Content API
 - `context-vigilance/SKILL.md` — the documentation framework that `context-v/` follows
 - `astro-knots/SKILL.md` — the websites child of the tree
