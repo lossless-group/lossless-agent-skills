@@ -306,15 +306,28 @@ Commit `pnpm-lock.yaml`. Without it, the first Vercel deploy fails with `ERROR H
 
 Without this, Vercel may auto-detect the wrong package manager and fall back to `npm install`, which doesn't honor `pnpm-lock.yaml` and fails differently. Pinning is non-negotiable: **frozen lockfile, always.**
 
-**`.gitattributes` (for large assets as they're added):**
+**`.gitattributes` (for genuinely large assets only — videos):**
 ```
-*.png filter=lfs diff=lfs merge=lfs -text
-*.jpg filter=lfs diff=lfs merge=lfs -text
-*.webp filter=lfs diff=lfs merge=lfs -text
 *.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
 ```
 
-Optional at setup, but helpful to have in place early.
+> ⛔ **Do NOT route `*.png`, `*.jpg`, `*.jpeg`, or `*.webp` to Git LFS.** Vercel does **not** pull LFS objects during build — deploys will silently serve 131-byte LFS pointer files in place of the real images. The OG image will fail to unfurl on every social platform; favicons and on-page assets will appear missing or broken. The validator at metatags-validator reports this as `The OG Image URL appears to be invalid or unreachable`. Verified 2026-05-04 on reach-edu-hub.
+>
+> Keep images out of LFS unless the asset is >5MB and rarely changes. OG images, favicons, headshots, screenshots — all stay as regular git blobs. If you must use LFS for video, fine; for raster images, never.
+
+To recover from a site that already has images in LFS:
+
+```bash
+# Drop the patterns from .gitattributes (keep mp4/mov if you want)
+# Then re-stage all affected files per the new attributes
+git add .gitattributes
+git add --renormalize public/
+git commit -m "fix(deploy): pull image assets out of Git LFS"
+git push
+```
+
+`git add --renormalize` rewrites the index using current `.gitattributes`, so existing LFS-tracked files become real git blobs in the next commit. Verify with `git show :path/to/image.png | head -c 8 | xxd` — should show the PNG header `89 50 4e 47`, not `version https://git-lfs.github.com`.
 
 **`.env.example` and `.env`:** projects have similar-but-differing needs. Create stubs at setup, fill during development. Typical vars: `PUBLIC_SITE_URL`, `PUBLIC_BRAND`, feature flags. **Do not** add `GITHUB_TOKEN` — JSR is public, no auth needed.
 
