@@ -1,5 +1,5 @@
 ---
-title: Implementation Notes for Deck Iteration Framework
+title: Implementation Notes for Deck Iteration Workflow
 date_created: 2026-05-04
 date_modified: 2026-05-04
 authors:
@@ -8,12 +8,12 @@ semantic_version: 0.0.0.1
 tags:
   - Implementation
   - Notes
-  - Framework
+  - Workflow
 ---
 
-# Implementation Notes for Deck Iteration Framework
+# Implementation Notes for Deck Iteration Workflow
 
-These notes elaborate on key aspects of implementing the deck iteration framework in practice.
+These notes elaborate on key aspects of implementing the deck iteration workflow in practice.
 
 ## Key Implementation Patterns
 
@@ -57,12 +57,14 @@ When creating slide variants, maintain consistency in file naming and folder str
 
 ## Technical Notes
 
-### Astro Implementation
+### Astro Componentization (Phase 3)
 
-When converting HTML to Astro components:
-1. Ensure all HTML content is preserved in output
+Note on flow: Astro section components are the *starting point* in Phase 1 (single-page scroll deck), and per-slide HTML pages are generated *from* those sections in Phase 2. The "componentization" motion below happens in Phase 3, where reusable Astro components are extracted from the per-slide pages and repeated patterns are consolidated.
+
+When extracting reusable components from the per-slide pages:
+1. Preserve the rendered output exactly — componentization should not change what the user sees
 2. Maintain semantic structure of content
-3. Properly handle frontmatter variables for text content
+3. Move text content to frontmatter variables
 4. Keep component structure consistent across slides
 
 ### Navigation Implementation
@@ -112,4 +114,4 @@ When extracting text from PDF decks:
 3. Clearly communicate the iterative process
 4. Demonstrate progress through versioned developments
 
-This framework is designed to be flexible enough to adapt to various project requirements while maintaining consistency with established patterns in the Lossless Group's workflows.
+This workflow is designed to be flexible enough to adapt to various project requirements while maintaining consistency with established patterns in the Lossless Group's workflows.

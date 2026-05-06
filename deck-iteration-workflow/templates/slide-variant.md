@@ -13,7 +13,7 @@ tags:
 
 # Slide Variant Template
 
-Template for creating slide variants using the deck iteration framework.
+Template for creating slide variants using the deck iteration workflow.
 
 ## Base Slide Structure
 

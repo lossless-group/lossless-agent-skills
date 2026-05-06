@@ -1,9 +1,9 @@
 ---
 name: deck-iteration-workflow
-description: The Lossless Group's framework for developing slides-only Astro sites for fundraise processes, aligned with the calmstorm-decks project patterns and the iterative approach from the "Develop a Slides-only Astro Site for a Fundraise Process" specification. Use when creating or modifying slide decks, managing slide variants, or implementing the structured iteration workflow for fundraise material development.
+description: The Lossless Group's workflow for developing slides-only Astro sites for fundraise processes, aligned with the calmstorm-decks project patterns and the iterative approach from the "Develop a Slides-only Astro Site for a Fundraise Process" specification. Use when creating or modifying slide decks, managing slide variants, or implementing the structured iteration workflow for fundraise material development.
 ---
 
-# Deck Iteration Framework
+# Deck Iteration Workflow
 
 A structured approach to developing slide decks for fundraise processes using the iterative methodology established in the calmstorm-decks project.
 
@@ -17,71 +17,100 @@ A structured approach to developing slide decks for fundraise processes using th
 
 ## Overview
 
-This framework provides a structured approach to developing slide decks for fundraise processes based on the patterns and workflows discovered in the calmstorm-decks project. It emphasizes iterative development, clean slate approaches, variant management, and phased implementation while avoiding common pitfalls from previous projects.
+```mermaid
+flowchart LR
+    A[Single-Page Narrative] --> B[Individual Slides]
+    B --> C[Cleanup / Componentization]
+    C --> D[Features]
+    D --> E[Full Deck]
+    E --> F[Advanced Interactivity]
+```
+
+This workflow provides a structured approach to developing slide decks for fundraise processes based on the patterns and workflows discovered in the calmstorm-decks project. It emphasizes **starting from the whole narrative** as a single-page Astro scroll deck, *then* splitting to individual slides, *then* cleaning up and componentizing — followed by feature enhancement, full-deck completion, and advanced interactivity.
+
+**Why holistic-first:** coding agents (Claude Code and generative AI generally) produce better creative flow and more coherent design when they can reason about the entire deck at once. An earlier version of this workflow started with plain wireframe HTML on a per-slide basis; that produced fragmented design and slow iteration. Building the whole narrative as one Astro page where each slide is a section component lets the agent improvise around theme/layout boundaries with the full arc visible.
 
 ## Core Principles
 
-1. **Start fresh** - Break from established patterns that have proven arduous and time-consuming
-2. **Iterative perfection** - Get something playable and clean before adding complexity
-3. **Variant generation** - Create multiple variants to explore design options quickly
-4. **Phase-based development** - Follow a structured progression from simple HTML to complex features
-5. **Design system foundation** - Build explicit design systems only after achieving aesthetic harmony
+1. **Holistic before piecewise** - Start with the whole narrative on one page so the agent can reason about it as a coherent arc; split to individual slides only after the through-line is right
+2. **Start fresh** - Break from established patterns that have proven arduous and time-consuming
+3. **Iterative perfection** - Get something playable and clean before adding complexity
+4. **Variant generation** - Create multiple variants to explore design options quickly
+5. **Phase-based development** - Follow the structured progression: single-page narrative → individual slides → cleanup/componentization → features → full deck → advanced interactivity
+6. **Design system foundation** - Build explicit design systems only after achieving aesthetic harmony
 
 ## Workflow Phases
 
-### Phase 1: Plain HTML with Inline Tailwind Slides, all at once
+### Phase 1: Single-Page Scroll Deck with Astro Sections and Tailwind
 
 **Approach:**
-- Start with simple HTML and Tailwind for inline improvisation
-- Use inline Tailwind classes exclusively (no @apply, no custom CSS)
-- Follow built-in Tailwind tokens only to avoid premature lock-in
-- Focus on clean design with generous whitespace and proper typography
+- Build the entire deck as one Astro page with each slide as a section component
+- Section components named by sequence and topic/role
+- Inline Tailwind utilities only — let the agent improvise around theme/layout boundaries
+- Use built-in Tailwind tokens only (no custom palettes yet)
+- No JavaScript
 
-**Styling Approach:**
-- Inline Tailwind utilities only
-- Use built-in tokens exclusively (no custom palettes)
-- Calm/Storm visual language defaults:
-  - Background: Pure white (`bg-white` / `#FFFFFF`)
-  - Borders: Thin (1px), mid grey (`border-gray-300` or `border-gray-400`)
-  - Primary text: Slightly darker grey (`text-gray-800` or `text-gray-900`)
-  - Detail text: Lighter grey (`text-gray-500` or `text-gray-600`)
-  - Corner radius: Boxy-leaning, `rounded` or `rounded-sm` (2-4px)
+**Why this comes first:** the agent reasons about the full narrative at once. Inline Tailwind keeps styling decisions local to each section and avoids premature lock-in. Calm/Storm visual defaults:
+- Background: Pure white (`bg-white` / `#FFFFFF`)
+- Borders: Thin (1px), mid grey (`border-gray-300` or `border-gray-400`)
+- Primary text: Darker grey (`text-gray-800` or `text-gray-900`)
+- Detail text: Lighter grey (`text-gray-500` or `text-gray-600`)
+- Corner radius: Boxy-leaning, `rounded` or `rounded-sm` (2-4px)
 
-**Goal:** Iterate until design is clean and has aesthetic harmony on each slide, then move to the next slide.
+**Goal:** a clean playable single-page scroll deck where the narrative arc reads end-to-end with aesthetic harmony.
 
-### Phase 2: Incremental Astro Development
+### Phase 2: Individual HTML Slides with Inline Tailwind
 
 **Approach:**
-1. Initialize Astro site and convert previous HTML slides to Astro files one by one
-2. Extract text values from PDF reference and create frontmatter properties
-3. Componentize repeating elements into Astro components without changing output
-4. Build design-system and brand-kit pages as needed
+- Generate per-slide HTML pages by importing or referencing the Phase 1 section components
+- Build a navigable menu so human clients can browse options on a per-slide basis
+- Reason about vertical scroll vs. horizontal click/keyboard rendering animations — create variants where appropriate
+- Deliver: a Table of Contents page and a dynamic variant selection page per slide
+
+**Goal:** the deck is now navigable both as a continuous scroll (Phase 1) and as a click-through experience, with a menu surface for client review.
+
+### Phase 3: Astro Conversion Cleanup
+
+**Approach:**
+1. Extract remaining text values from inline content into frontmatter or content collection files
+2. Componentize repeating design elements into Astro components without changing rendered output
+3. Build the initial design-system and brand-kit pages
+4. Iterate toward stable use of semantic tokens
 
 **Key Practices:**
 - Move text values displayed in tags to frontmatter variables
-- Keep running list of all properties created to dedupe and reason about
-- Convert HTML/Tailwind elements to Astro + HTML + Tailwind + CSS
+- Keep a running list of all properties created to dedupe and reason about
 - Only make components from consistently used design elements
-- Iterate towards stable use of semantic tokens and design system elements
 
-### Phase 3: Incremental Introduction of Dynamic Features
+### Phase 4: Feature Enhancement
 
 **Approach:**
-- Add features one slide at a time
+- Add dynamic features and interactions one slide at a time
 - Prioritize advanced CSS features over JavaScript or libraries
 - Use JavaScript when necessary, but avoid unnecessary frameworks
-- Adopt libraries like GSAP only with intention and purpose
+- Adopt libraries (GSAP) only with intention and purpose
 
 **Key Constraints:**
-- Avoid the neverending frustration trying to make complex features work
+- Avoid the neverending frustration of trying to make complex features work
 - Keep focus on clean, stable rendered output
 - Only adopt advanced features when clear necessity is demonstrated
 
-### Phase 4: Repeat with Full Deck
+### Phase 5: Full Deck Completion (Priority Theme / Chosen Slides)
 
 **Approach:**
-- Apply the same methodology to the full deck of 34 slides
-- Use learnings from teaser deck to inform full deck development
+- Apply the same methodology to the full deck
+- Leverage learnings from the teaser deck to inform full deck development
+- Maintain consistency in design and approach across all slides
+
+### Phase 6: Advanced Interactivity, Animations, and Data Visualization
+
+**Approach:**
+- Create variants of components, layouts, and pages rather than iterating on working files
+- Add advanced animations and transitions
+- Implement data visualization components
+- Enhance user interaction patterns
+- Current stack preferences: Svelte, GSAP, D3.js
+- Exploring: ObservableHQ libraries, Vega-Lite
 
 ## Variant Management
 
@@ -163,7 +192,7 @@ When establishing themes:
 
 ## Related Context
 
-- [[context-v/specs/Develop-a-Slides-only-Astro-Site-for-a-Fundraise-Process]] - Core specification this framework implements
+- [[context-v/specs/Develop-a-Slides-only-Astro-Site-for-a-Fundraise-Process]] - Core specification this workflow implements
 - [[context-v/prompts/New-Site-Quickstart-Guide]] - New site setup guide for Astro-Knots projects
 - [[astro-knots]] - Astro development conventions
 - [[context-vigilance]] - Context management framework

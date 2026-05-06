@@ -13,7 +13,7 @@ tags:
 
 # Phase Implementation Template
 
-Template for implementing each phase of the deck iteration framework.
+Template for implementing each phase of the deck iteration workflow.
 
 ## Phase 1: Single Page Scroll Decks with Astro Sections and Tailwind
 
