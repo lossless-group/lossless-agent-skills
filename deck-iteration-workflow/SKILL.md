@@ -1,5 +1,5 @@
 ---
-name: deck-iteration-framework
+name: deck-iteration-workflow
 description: The Lossless Group's framework for developing slides-only Astro sites for fundraise processes, aligned with the calmstorm-decks project patterns and the iterative approach from the "Develop a Slides-only Astro Site for a Fundraise Process" specification. Use when creating or modifying slide decks, managing slide variants, or implementing the structured iteration workflow for fundraise material development.
 ---
 
