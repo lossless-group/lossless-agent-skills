@@ -33,6 +33,14 @@ If a skill here helps you, take it. If you find a sharper way to express it, ope
 
 A running backlog of additional candidates lives in [**`CANDIDATES.md`**](./CANDIDATES.md).
 
+## Engineer-influencer collections we watch
+
+External skills repos from engineer-influencers in the broader community. We track them for inspiration and to see where conventions converge. These are not pinned references — just repos whose evolution we follow.
+
+| Engineer | Repo | Known for |
+|---|---|---|
+| **Matt Pocock** | [mattpocock/skills](https://github.com/mattpocock/skills) | TypeScript educator and engineer (Total TypeScript, `ts-reset`). |
+
 ## Install
 
 ### Pi (recommended for Lossless contributors)
