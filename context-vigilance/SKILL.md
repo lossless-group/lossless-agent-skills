@@ -1,11 +1,11 @@
 ---
 name: context-vigilance
-description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, prompts, blueprints, reminders, explorations, issues), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the planning/reflection/journey cognitive modes.
+description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, prompts, blueprints, reminders, explorations, issues), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
 ---
 
 # Context Vigilance
 
-A framework for Human + AI collaboration: **manage the context available to AI and collaborators with the same rigor you manage code.** Every Lossless project has a `context-v/` directory with (commonly) six subdirectories, organized into three cognitive modes.
+A framework for Human + AI collaboration: **manage the context available to AI and collaborators with the same rigor you manage code.** Every Lossless project has a `context-v/` directory with (commonly) six subdirectories, organized into three cognitive modes: **Prep, Reflective, and Journey**.
 
 **Norms, not rules.** Patterns here are loosely enforced. The team is generative-first; consistency emerges when attention focuses on a project, file, or pattern. Be generous reading existing files (they may pre-date current norms or be experiments) and careful writing new ones. See `references/philosophy.md` for the deeper rationale.
 
@@ -22,7 +22,9 @@ Reference: <https://www.lossless.group/projects/gallery/context-vigilance>
 
 ## The Six Directories
 
-### Planning Mode (paired: spec ↔ prompt)
+### Prep Mode (paired: spec ↔ prompt)
+
+The work of deciding what to build *is* the work — "prep" here is not "minor pre-work", it's the deliberate forward construction phase. Specs and prompts are the artifacts.
 
 - **`context-v/specs/`** — Living specifications. What you're building and why. Constantly updated. Single source of truth. Every prompt references a spec.
 - **`context-v/prompts/`** — Step-by-step, prompt-by-prompt implementation documents (NOT single chat messages). Each prompt references specs/blueprints/reminders. Success at each step is verifiable before moving on.
