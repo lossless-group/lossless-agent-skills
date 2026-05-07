@@ -117,6 +117,10 @@ Before writing any spec stub:
 
 **Deploying to GitHub Pages instead of Vercel** (for splash pages, per-repo landing sites, free static hosts): load `references/playbooks/github-pages-deploy.md`. It captures the canonical workflow shape, the `astro.config.mjs` `base` setting, and the three setup-time gotchas every new GitHub Pages repo hits — Pages-not-provisioned (`enablement: true`), branch-not-allowed (environment protection rule), and Source-still-on-"Deploy from a branch". Pay the setup tax once per repo, then the workflow handles itself.
 
+**Adding share-card metadata** (OpenGraph / Twitter / canonical / robots): load `references/playbooks/opengraph-system.md`. It encodes the realized two-file pattern shipped in calmstorm-decks and reach-edu-hub — `src/lib/seo.ts` registry + `src/components/basics/MetaTags.astro` renderer — plus the gated-vs-public and local-vs-CDN policy axes that drive defaults. Source blueprint: `lossless-monorepo/content/lost-in-public/blueprints/Maintain-an-Elegant-Open-Graph-System.md`.
+
+**Making the site LLM-friendly at inference time** (public docs, blueprints, study profiles, anything an external LLM might want to use to answer a user's question): load `references/playbooks/llms-txt-and-md-sidecars.md`. Two artifacts: `public/llms.txt` (curated index) and a `[...slug].md.ts` endpoint per content collection (raw markdown sidecar at the same URL with `.md` appended). Astro doesn't auto-generate either the way nbdev / VitePress / Docusaurus do — fill the gap deliberately. Skip on gated/noindex sites. Source profile: `studies/open-specs-and-standards/context-v/profiles/Profile__llms-txt.md`.
+
 ## Cross-skill ties
 
 - **`context-vigilance`** governs *how* we document. **`astro-knots`** governs *what* we build (and the values around it). They compose: blueprints in a project's `context-v/blueprints/` should reflect Astro Knots tech principles.
@@ -130,3 +134,5 @@ Before writing any spec stub:
 - `references/ecosystem.md` — the family of sites, LFM, pseudomonorepos, roadmap
 - `references/playbooks/new-site-setup.md` — the 12-step new-site flow (default-Vercel deploy)
 - `references/playbooks/github-pages-deploy.md` — workflow shape, `astro.config.mjs` `base`, and the three setup-time gotchas every new GitHub Pages repo hits
+- `references/playbooks/opengraph-system.md` — the `seo.ts` + `MetaTags.astro` pattern for share-card metadata (OG, Twitter, canonical, robots), with gated-vs-public and local-vs-CDN policy axes
+- `references/playbooks/llms-txt-and-md-sidecars.md` — `/llms.txt` + `.md` sidecar route pattern for making public Astro sites LLM-friendly at inference time

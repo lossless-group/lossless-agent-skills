@@ -97,6 +97,6 @@ Do you know what you're trying to build?
 
 ## When two folders both fit
 
-Pick the one that the document's *primary* reader needs. If the primary reader is "future me trying to implement something" → planning mode. If it's "future me trying to understand the system" → reflective mode. If it's "future me trying not to retrace my steps" → journey mode.
+Pick the one that the document's *primary* reader needs. If the primary reader is "future me trying to implement something" → prep mode. If it's "future me trying to understand the system" → reflective mode. If it's "future me trying not to retrace my steps" → journey mode.
 
 When still tied, ask the user.
