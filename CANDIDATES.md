@@ -53,6 +53,10 @@ Developing them all at once would be a nightmare and would freeze conventions th
 - **Effort:** medium. Needs templates for changelog entries, "publish" doc patterns, and "market" routing rules per Astro Knots site
 - **Currently stubbed in:** `pseudomonorepos/references/lifecycle-workflow.md`
 
+### `fill-enrich-components-w-data`
+- the follow-up to `crawl-fetch-ingest` 
+- needs to have context on how to enrich components with data from the crawled and fetched sites
+
 ---
 
 ## Candidates from earlier conversations

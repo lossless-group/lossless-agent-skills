@@ -4,3 +4,13 @@
 node_modules/
 .env
 .env.local
+
+# Skill-local API-response caches.
+# The crawl-fetch-ingest skill writes Firecrawl / Tavily / Jina / OG.io
+# responses to its cache/ subdir so the same firm's data is reused across
+# multiple decks/memos. The skill's docs name this path as the cache root.
+# Because ~/.claude/skills/<skill> is a symlink into this repo, the cache
+# lands inside the repo and gets seen by git unless ignored here.
+# Pattern is depth-anywhere — any future skill that adopts the same
+# response-cache pattern is covered without a per-skill rule.
+**/cache/

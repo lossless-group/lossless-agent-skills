@@ -103,6 +103,37 @@ When the user asks for X, default behavior:
 | "Build a slide deck" | Markdown + Reveal (or one of the other two). |
 | "Document this work" | Use `context-v/` per the `context-vigilance` skill. |
 
+## Frontmatter & YAML conventions (toward standardization)
+
+These apply to **every** YAML-bearing file in an Astro Knots site or its `context-v/` — content collections, specs, prompts, blueprints, reminders, changelogs, deck slides, everything.
+
+### Wrap long string values in double quotes
+
+Any string value that's longer than a few words — descriptions, ledes, titles with punctuation, URLs that contain query strings or fragments, error messages, prompts — wraps in double quotes (`"`).
+
+```yaml
+# Do
+title: "Secure Document Sharing — #1 DocSend Alternative"
+description: "An open-source document and data-rooms sharing platform. Free alternative to DocSend with custom branding."
+og_image: "https://www.papermark.com/_static/meta-image.png?v=2&utm=share"
+lede: "A safe, non-judgemental support session — nobody here knows what they're doing either."
+
+# Don't (works until it doesn't)
+title: Secure Document Sharing — #1 DocSend Alternative   # `#` starts a YAML comment → silent truncation
+description: An open-source platform: free alternative.   # `:` mid-string can break parsing
+og_image: https://example.com/img.png?a=1&b=2             # `&` is a YAML anchor sigil
+```
+
+**Why:** long human-authored strings reliably contain at least one of `:` `#` `&` `*` `>` `|` `!` `%` `@` ` `` ` `` `,` `[` `]` `{` `}` — every one of which has special YAML meaning unquoted. Wrapping in `"` makes the value a literal string and removes the entire class of "works locally, breaks in CI" bugs. Cheap to do, expensive to debug.
+
+### Lenient parsing is required at the loader
+
+We never use a strict YAML parser for content frontmatter. The expected behavior is property-level recovery: drop bad keys, keep the document, surface a precise warning, escalate only for load-bearing keys. See `[[YAML-Frontmatter-Parsing-Must-Be-Lenient]]` in any site's `context-v/reminders/` (or in `astro-knots/context-v/reminders/`) for the pattern. Strict parsers turn one author typo into a site-wide outage and are not acceptable in this stack.
+
+### Keys are `snake_case`. Tags are `Train-Case`.
+
+Already covered in the `context-vigilance` skill, restated here because it's the same surface: property names use `snake_case` (Obsidian renders them that way), tag *values* use `Train-Case`. Never camelCase keys, never lowercase tags.
+
 ## Initiating a new Astro-Knots project
 
 A new Astro-Knots site (or package, or study) gets initiated **through a spec**, not by jumping straight into `pnpm create astro`. The *how* of developing that spec is generic and lives in the `context-vigilance` skill — specifically `references/developing-a-spec.md`. Load that reference whenever the user wants to initiate a new project.

@@ -242,6 +242,25 @@ Also included:
 - Fixed typo in README
 ```
 
+## Push-output gotchas
+
+### GitHub's Dependabot banner is unreliable — don't surface it as actionable
+
+When `git push` completes, GitHub may print a `remote:` banner like
+`GitHub found N vulnerabilities on <repo>'s default branch`. **Treat this
+as noise, not signal.** Observed on lossless-group repos:
+
+- The banner count is computed independently of the Dependabot alerts UI
+  and drifts from it; counts stay pinned for weeks after the underlying
+  lockfile entries are gone.
+- It fires even when Dependabot is **disabled** for the repo.
+- Walking through the listed advisories with Claude Code and resolving
+  the lockfile entries has not moved the banner count in practice.
+
+**Don't** raise it to the user as a follow-up action on an unrelated push
+(e.g. a marketplace-compliance push). If the user is actively working on
+dependency hygiene, that's a different conversation.
+
 ## Cross-skill ties
 
 - **`changelog-conventions`** — commit messages often become changelog entries
