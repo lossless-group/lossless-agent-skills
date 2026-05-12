@@ -59,6 +59,27 @@ Humans have context windows too. Cross-referencing lets both humans and agents f
 
 The goal isn't link consistency. It's **scope discipline**: each doc should fit in one head (or one context window) at a time.
 
+## On capability ≠ wisdom-to-use-it (the anxiety-trigger split)
+
+When the model supports 1M tokens (Opus 4.7 and successors), the temptation is to let documents grow because "the model can handle it." That conflates two different things:
+
+- **Technical capacity** — the model will accept a huge doc without truncating.
+- **Working quality** — creativity, cross-referencing, and cooperation between human and agent *all suffer* as a single document gets long, regardless of what the model can ingest.
+
+Humans skim long docs. Agents make worse suggestions inside long docs (more material to pattern-match against, less specific signal per token). Multi-session work loses its thread because each session has to re-locate "where in this huge file" the relevant part lives.
+
+**The trigger to split is anxiety about length, not a word count.** When you (or the user) notice scrolling past sections to find the one that matters, that's the signal. Don't wait for a hard threshold; the right time to split is *before* the doc becomes hard to navigate.
+
+**The practice is fork-and-cross-reference, not "split when forced."** Pre-emptively factor out:
+
+- A self-contained sub-system → its own spec, linked from the parent.
+- A reusable pattern → a blueprint, linked from the spec.
+- A specific debugging journey → its own issue, linked from wherever it surfaced.
+
+The parent doc keeps the *map*; the children carry the *detail*. Both stay short enough that creativity isn't smothered by scale.
+
+This applies to specs most acutely — they grow fastest — but the principle is universal across all six doc-types.
+
 ## On consistency vs. generativity
 
 The team is generative-first. Consistency emerges when attention focuses on a project, file, or pattern. These are in tension. The way to resolve it:

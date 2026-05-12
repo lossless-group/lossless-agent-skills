@@ -1,0 +1,14 @@
+{
+  "created": "2026-05-12T08:13:05.663561+00:00",
+  "data": [
+    {
+      "is_image_safe": true,
+      "prompt": "A few humanoid robots are at the gym, pumping iron and breaking a sweat. Illustration style is in the form of Wall-E but they look like teenager-robots instead of little ones.",
+      "resolution": "1312x736",
+      "seed": 2048,
+      "style_type": "DESIGN",
+      "upscaled_resolution": null,
+      "url": "https://ideogram.ai/api/images/ephemeral/TthIRDJtW7G6V_L_l-KLlw.png?exp=1778659994&sig=96ef6396af596bbe0e4548a0f8c6f4fd79508b892ccff6f4a3a35c582ca1193f"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "created": "2026-05-12T09:38:50.138855+00:00",
+  "data": [
+    {
+      "is_image_safe": true,
+      "prompt": "Top 1/3 of frame is empty negative space, dark gradient sky with faint teal glint at the horizon. Bottom 2/3 contains a few humanoid teenager robots at a gym, pumping iron, in Wall-E illustration style.",
+      "resolution": "896x1120",
+      "seed": 2048,
+      "style_type": "GENERAL",
+      "upscaled_resolution": null,
+      "url": "https://ideogram.ai/api/images/ephemeral/6rQyzQEFVmCng_RwGK-jDA.png?exp=1778665139&sig=73afd1d3c539921fc1b896d150d3de96974569afd3ef31ea5821ee06e67860de"
+    }
+  ]
+}

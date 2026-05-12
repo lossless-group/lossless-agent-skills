@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  overlay.svg — canonical Lossless OG-image overlay template.
+
+  Drop into a project, swap the ★-marked fields with project values
+  (gradient stops from DESIGN.md, eyebrow + h1 + note text), match
+  width/height to the base JPEG, then composite via sharp using
+  templates/compose-overlay.mjs.
+
+  Position values below are tuned for the BannerImage (1312×736) format.
+  For other formats, prefer the compose script's percentage-based
+  rendering — don't hand-author one SVG per aspect ratio.
+
+  Brand type system (locked across all Lossless overlays):
+   - Eyebrow:  thin sans, allcaps (often), wide tracking, semi-transparent white
+   - H1:       Hack Bold, MONOSPACED, gradient-filled — the "data" aesthetic
+   - Note:     Poor Story (or any cartoonish handwriting), white, casual phrase
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1312" height="736"
+     viewBox="0 0 1312 736">
+
+  <defs>
+    <!-- ★ Gradient — copy stops from project's DESIGN.md
+         (components.gradient-text.background or imagery.gradient).
+         Default below is the lossless-agent-skills splash gradient:
+         teal → amber → magenta at 0% / 55% / 100%. -->
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#5eead4"/>
+      <stop offset="55%"  stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+
+    <!--
+      Optional: embed WOFF2 fonts as base64 data URLs for CI portability.
+      Generate the base64 strings via:
+         fonttools ttLib --woff2 ~/Library/Fonts/HackNerdFontMono-Bold.ttf
+         base64 -i HackNerdFontMono-Bold.woff2 | tr -d '\n'
+      Then paste below. Leave the @font-face block commented out for
+      local-machine renders where fontconfig already resolves the families.
+    -->
+    <!--
+    <style type="text/css"><![CDATA[
+      @font-face {
+        font-family: 'Hack Bold';
+        src: url(data:font/woff2;base64,...) format('woff2');
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: 'Poor Story';
+        src: url(data:font/woff2;base64,...) format('woff2');
+        font-weight: 400;
+      }
+    ]]></style>
+    -->
+  </defs>
+
+  <!-- ─── EYEBROW ─────────────────────────────────────────────────
+       Thin sans, allcaps, wide tracking, white at 78% alpha.
+       y = ~12% of height = ~88px on a 736-tall canvas. -->
+  <text x="64" y="88"
+        font-family="Inter, system-ui, -apple-system, sans-serif"
+        font-weight="300"
+        font-size="22"
+        letter-spacing="4.4"
+        fill="rgba(255,255,255,0.78)">
+    ★ EYEBROW · ALLCAPS PHRASE
+  </text>
+
+  <!-- ─── H1 (gradient-filled, Hack Bold, monospaced) ─────────────
+       The defining brand move. Short — 1-3 words — keep on one line.
+       y = ~22% of height = ~162px on a 736-tall canvas.
+       fill="url(#brand)" makes the gradient paint inside each glyph. -->
+  <text x="64" y="162"
+        font-family="Hack Nerd Font Mono, Hack, ui-monospace, SFMono-Regular, Menlo, monospace"
+        font-weight="700"
+        font-size="64"
+        fill="url(#brand)">
+    ★ H1 Phrase
+  </text>
+
+  <!-- ─── HANDWRITTEN NOTE ────────────────────────────────────────
+       Cartoonish handwriting, white. A phrase, not a sentence — ≤32 chars.
+       y = ~30% of height = ~221px on a 736-tall canvas. -->
+  <text x="64" y="221"
+        font-family="Poor Story, Caveat, 'Patrick Hand', cursive"
+        font-weight="400"
+        font-size="26"
+        fill="#ffffff">
+    ★ ~ a casual phrase, hand-scrawled
+  </text>
+
+</svg>

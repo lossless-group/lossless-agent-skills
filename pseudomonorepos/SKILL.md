@@ -1,6 +1,6 @@
 ---
 name: pseudomonorepos
-description: The Lossless Group's coined term and pattern — parent repos that aggregate child repos (often as git submodules) primarily to host a parent-level context-v/. Use whenever working anywhere in lossless-monorepo or its descendants, when starting any new task that might overlap with prior work, when scaffolding a new project, or when the user mentions "pseudomonorepo", "submodule", "context-v", or names of the children (ai-labs, astro-knots, content-farm, tidyverse). Encodes the search-first-before-creating behavior and the tree-walking discipline.
+description: The Lossless Group's coined term and pattern — parent repos that aggregate child repos (often as git submodules) primarily to host a parent-level context-v/. Use whenever working anywhere in lossless-monorepo or its descendants, when starting any new task that might overlap with prior work, when scaffolding a new project, when the user mentions "pseudomonorepo", "submodule", "context-v", or names of the children (ai-labs, astro-knots, content-farm, tidyverse), AND ALWAYS when the user proposes to move/relocate/re-clone/re-nest a repo within the tree (which triggers the HARD STOP three-precondition checklist — local branches synced, remote branches catalogued, gitignored secrets backed up). Encodes the search-first-before-creating behavior, the tree-walking discipline, and the relocation-safety protocol.
 ---
 
 # Pseudomonorepos
@@ -126,6 +126,122 @@ A pseudomonorepo's splash, site, or gallery should surface not only its own `cha
 The same pattern composes up the tree: a parent pseudomonorepo's splash rolls up its children's content, and *its* parent rolls up *its* children — eventually feeding the long-stated "Lossless Changelog" umbrella view at the org level (see the `changelog-conventions` skill).
 
 See `references/content-rollup.md` for the full mechanism — endpoint shape, auth, failure modes, loader sketch.
+
+## Edge case — moving a repo within the tree (HARD STOP)
+
+It is **very common** in this tree to relocate a child repo from one parent
+path to another. Examples:
+
+- `astro-knots/sites/calmstorm-decks/` → `ai-labs/dididecks-ai/client-sites/calmstorm-decks/`
+- a project graduates from an ai-labs exploration to a permanent astro-knots site
+- a submodule moves between parents as the taxonomy of pseudomonorepos evolves
+
+**This is the highest-risk operation in the tree.** When done wrong, it
+silently destroys:
+
+- unpushed local branches (lost)
+- uncommitted work in the old directory (lost)
+- gitignored `.env` / secrets (lost — `.env.example` is not authoritative)
+- stashes (lost)
+
+This actually happened on 2026-05-12: a calmstorm-decks move from
+`astro-knots/sites/` to `ai-labs/dididecks-ai/client-sites/` produced a fresh
+clone with no `.env`, on a stale `development` branch missing 19 commits of
+auth/play work from `main`. The old directory had already been deleted.
+Hours of recovery followed.
+
+**Claude is under NO circumstances to "go along" with a relocation request
+until all three preconditions are explicitly verified and acknowledged by
+the user — one acknowledgment per precondition, not bundled.**
+
+### Precondition 1 — every local branch synced to remote
+
+For the repo about to move:
+
+```bash
+git fetch --all --prune
+git branch -vv                                         # [ahead N] / [behind N] / [gone]
+git log --branches --not --remotes --oneline           # local-only commits
+git status                                              # working tree clean?
+git stash list                                          # any parked work?
+```
+
+**Refuse to proceed if** any branch shows `[ahead N]`, any commits appear
+in the `--not --remotes` query, the working tree is dirty, or any stash
+exists. Surface exactly what is unsynced.
+
+### Precondition 2 — every remote branch known, every local-only branch documented
+
+```bash
+git ls-remote --heads origin                            # authoritative remote list
+git branch -a                                           # local + remote-tracking
+diff <(git branch | tr -d ' *') \
+     <(git ls-remote --heads origin | awk '{print $2}' | sed 's|refs/heads/||')
+```
+
+**Refuse to proceed if** local branches exist with no matching remote and
+the user has not explicitly listed them as disposable.
+
+### Precondition 3 — every gitignored secret backed up
+
+```bash
+cat .gitignore
+ls -la
+find . -maxdepth 2 \( -name ".env*" -o -name "*.local" -o -name ".secrets*" \) 2>/dev/null
+# Plus: enumerate every var the SOURCE actually reads (not just .env.example,
+# which lags behind code):
+grep -rhoE '(process\.env|import\.meta\.env)\.[A-Z_][A-Z_0-9]*' src scripts db astro.config.* 2>/dev/null | sort -u
+```
+
+**Refuse to proceed if** any `.env*` or `.secrets*` exists and the user has
+not confirmed a recovery path (password manager, separate `.env.backup` outside
+the directory, 1Password, Vercel/Netlify env panel, deployed-host UI).
+
+**`.env.example` is NOT authoritative** — it routinely lags behind. The grep
+above against `process.env` / `import.meta.env` is the truth. The auth/db
+stack in particular often has 3–5 historical names for the same value
+(e.g., `ASTRO_DB_REMOTE_URL` / `ASTRO_DB_URL` / `TURSO_DB_URL` /
+`DIDIDECKS_TURSO_DB_URL` all pointing at the same database). The source
+shows them all; `.env.example` may show only one.
+
+### How to respond when a user asks for a relocation
+
+Default template:
+
+> Before I touch this — moving a repo within the tree is the riskiest
+> operation we do, and we've already lost env vars + unpushed work from
+> exactly this kind of move. Three preconditions:
+>
+> 1. **Local branches synced.** [output of `git branch -vv` + status] —
+>    branches X, Y are `[ahead]` by N commits. Push or document-as-lost?
+> 2. **Remote branches catalogued.** Remote has A, B, C. Local has A, B, C, D.
+>    Branch D is local-only — push it or confirm disposable?
+> 3. **Env/secrets backed up.** Source reads vars: [list from grep]. Where
+>    is the canonical copy you'd recover from?
+>
+> Each one gets its own acknowledgment. I won't bundle them.
+
+**Do not** combine the three checks into a single "looks good, proceeding"
+beat. Bundled confirmations are how vars get lost.
+
+### Recovery — when this rule was already violated
+
+If you arrive after the move (fresh clone, missing secrets, stale branch):
+
+1. **Find any surviving working copy.**
+   ```bash
+   find ~ -type d -name '<repo>' 2>/dev/null | grep -v node_modules
+   ls ~/.Trash | grep -i '<repo>'
+   ls ~/.claude/projects/ | grep -i '<repo>'              # encoded old paths
+   ls ~/Library/Caches/claude-cli-nodejs/ | grep -i '<repo>'
+   ```
+   Old paths are recoverable as session-cache directory names (the directory
+   names encode the absolute path of the working copy).
+2. **Reconstruct the env-var list from source.** Use the grep recipe in
+   Precondition 3.
+3. **Audit branch divergence.** `git log --all --pretty=format:'%h %ad %d %s'
+   --date=iso` reveals where the lost work might be reachable on a different
+   branch. The new clone may not be on the tip branch.
 
 ## Branch alignment across the tree
 

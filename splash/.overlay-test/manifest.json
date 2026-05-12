@@ -1,0 +1,31 @@
+{
+  "formats": [
+    {
+      "base": "public/ogimage__Lossless-Agent-Skills--BannerImage.jpg",
+      "out":  ".overlay-test/ogimage__Lossless-Agent-Skills--BannerImage--overlaid.jpg"
+    },
+    {
+      "base": "public/ogimage__Lossless-Agent-Skills--BannerImageTall.jpg",
+      "out":  ".overlay-test/ogimage__Lossless-Agent-Skills--BannerImageTall--overlaid.jpg"
+    },
+    {
+      "base": "public/ogimage__Lossless-Agent-Skills--PortraitImage.jpg",
+      "out":  ".overlay-test/ogimage__Lossless-Agent-Skills--PortraitImage--overlaid.jpg"
+    },
+    {
+      "base": "public/ogimage__Lossless-Agent-Skills--SquareImage.jpg",
+      "out":  ".overlay-test/ogimage__Lossless-Agent-Skills--SquareImage--overlaid.jpg"
+    }
+  ],
+  "text": {
+    "eyebrow": "LOSSLESS · AGENT SKILLS",
+    "h1": "Build skills",
+    "note": "agents do reps too"
+  },
+  "gradient": {
+    "angle": 90,
+    "stops": ["#5eead4", "#fbbf24", "#e879f9"]
+  },
+  "quality": 90,
+  "archive": false
+}

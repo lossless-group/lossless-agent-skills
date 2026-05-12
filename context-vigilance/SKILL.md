@@ -108,7 +108,8 @@ Practical implications:
 
 - **Lead with marketing. Lead with why. Lead with something anyone can understand.** Get into technical detail deeper in the doc.
 - **The first paragraph should be readable by an outsider.** The rest can be specialized.
-- **If the doc is getting too long, split it.** Common split: marketing/why stays at the top (or its own short doc), pattern/architecture → blueprint, thing-being-built → spec, how-to-build-it → prompt. Whatever fits.
+- **Fork early; don't wait for "too long."** Long-context-window models (Opus 4.7 with 1M tokens, etc.) can technically ingest huge documents — but **creativity, cross-referencing, and human-agent cooperation all degrade as a single doc grows**, regardless of what the model can accept. The trigger to split is *anxiety about length*, not a word count: when you (or the user) notice you're scrolling past sections to reach the one that matters, that's the cue. The practice is **fork-and-cross-reference**, not "split when forced." Pre-emptively factor self-contained sub-systems into sibling specs, reusable patterns into blueprints, and specific debugging journeys into issues — each linked from the parent. The parent doc keeps the *map*; the children carry the *detail*. See `references/philosophy.md` for the longer rationale.
+- **Common split shapes when forking:** marketing/why stays at the top (or its own short doc), pattern/architecture → blueprint, thing-being-built → spec, how-to-build-it → prompt. Whatever fits.
 
 ## Filename conventions
 
