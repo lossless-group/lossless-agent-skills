@@ -1,0 +1,201 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SortControls from '@components/SortControls.astro';
+import { STATIC_SEO } from '@lib/seo';
+
+const entries = (await getCollection('skills')).sort((a, b) => {
+  const ta = ((a.data.title ?? a.id) as string).toLowerCase();
+  const tb = ((b.data.title ?? b.id) as string).toLowerCase();
+  return ta.localeCompare(tb);
+});
+
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout
+  title={STATIC_SEO.skills.title}
+  description={STATIC_SEO.skills.description}
+>
+  <main class="page">
+    <div class="container">
+      <header class="page__header">
+        <p class="folio" data-num="#">Skills</p>
+        <h1>{entries.length} skills, one collection</h1>
+        <p class="page__lede">
+          Every skill in <code>lossless-agent-skills</code>. Tool-agnostic — works
+          with any agent that follows the Agent Skills spec. Sort by title or
+          status; press <kbd class="mono">/</kbd> to search the bodies.
+        </p>
+      </header>
+
+      {entries.length > 0 && (
+        <SortControls
+          name="skills"
+          defaultKey="title"
+          defaultDirection="asc"
+          options={[
+            { key: 'title',  label: 'Title' },
+            { key: 'status', label: 'Status' },
+          ]}
+        />
+      )}
+
+      {
+        entries.length === 0 ? (
+          <p class="page__empty">No skills loaded yet.</p>
+        ) : (
+          <ul class="skills-list" data-pagefind-ignore="all" data-sort-target="skills">
+            {entries.map((entry) => {
+              const title = ((entry.data.title ?? entry.id) as string);
+              const status = ((entry.data.status ?? '') as string);
+              const description = ((entry.data.description ?? entry.data.lede ?? '') as string);
+              const tags = (entry.data.tags ?? []) as string[];
+              const dirName = ((entry.data as any).dir_name ?? entry.id.replace(/__/g, '/')) as string;
+              return (
+                <li
+                  class="skills-list__item"
+                  data-sort-title={title.toLowerCase()}
+                  data-sort-status={status.toLowerCase()}
+                >
+                  <a href={`${base}skills/${entry.id}/`}>
+                    <div class="skills-list__meta mono">
+                      <span class="skills-list__path">{dirName}/</span>
+                      {status && <span class="pill" data-status={status}>{status}</span>}
+                    </div>
+                    <h2 class="skills-list__title">{title}</h2>
+                    {description && <p class="skills-list__lede">{description}</p>}
+                    {tags.length > 0 && (
+                      <div class="skills-list__tags">
+                        {tags.map((t) => (
+                          <span class="skills-list__tag">{t}</span>
+                        ))}
+                      </div>
+                    )}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )
+      }
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .page { padding: var(--space-10) 0 var(--space-16); }
+
+  .page__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-10);
+    max-width: 760px;
+  }
+  .page__header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    color: var(--color-text);
+    font-weight: 700;
+  }
+  .page__lede {
+    color: var(--color-text-soft);
+    font-size: 1.02rem;
+    line-height: 1.6;
+    max-width: 64ch;
+  }
+  .page__lede code {
+    font-family: var(--font__mono);
+    font-size: 0.86em;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-code);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+  }
+  .page__lede kbd {
+    font-size: 0.78rem;
+    padding: 1px 7px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg-soft);
+    color: var(--color-text);
+  }
+
+  .page__empty {
+    color: var(--color-text-dim);
+    font-style: italic;
+    padding: var(--space-12) 0;
+    text-align: center;
+  }
+
+  .skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .skills-list__item a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5) 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    transition: padding-left var(--transition-fast);
+  }
+  .skills-list__item a:hover {
+    text-decoration: none;
+    padding-left: var(--space-3);
+  }
+  .skills-list__item a:hover .skills-list__title {
+    color: var(--color-accent);
+  }
+
+  .skills-list__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--color-text-dim);
+  }
+  .skills-list__path {
+    color: var(--color-text-dim);
+  }
+
+  .skills-list__title {
+    font-size: 1.2rem;
+    font-family: var(--font__display);
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-text);
+    transition: color var(--transition-fast);
+  }
+
+  .skills-list__lede {
+    color: var(--color-text-soft);
+    font-size: 0.96rem;
+    line-height: 1.55;
+    max-width: 80ch;
+  }
+
+  .skills-list__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+  .skills-list__tag {
+    font-family: var(--font__mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    color: var(--color-text-dim);
+    padding: 1px 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+</style>

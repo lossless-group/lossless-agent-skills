@@ -1,0 +1,157 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { formatDate, toDate } from '@lib/date';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('changelog');
+  return entries
+    .filter((e) => e.data.publish !== false)
+    .map((entry) => ({
+      params: { slug: entry.id },
+      props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const d = toDate(entry.data.date_modified ?? entry.data.date_first_published ?? entry.data.date_created ?? entry.data.date);
+const created = toDate(entry.data.date_created);
+const modified = toDate(entry.data.date_modified);
+
+const base = import.meta.env.BASE_URL;
+const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const canonicalUrl = `${site}${base}changelog/${entry.id}/`;
+const entryTitle = (entry.data.title ?? entry.id) as string;
+const entryDescription = (entry.data.lede ?? entry.data.summary ?? entry.data.description ?? '') as string;
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: entryTitle,
+  description: entryDescription,
+  url: canonicalUrl,
+  datePublished: (toDate(entry.data.date_first_published) ?? created)?.toISOString(),
+  dateModified: (modified ?? created)?.toISOString(),
+  keywords: (entry.data.tags ?? []).join(', '),
+  author: {
+    '@type': 'Organization',
+    name: 'Lossless Group',
+    url: 'https://lossless.group',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Lossless Group',
+    url: 'https://lossless.group',
+  },
+  mainEntityOfPage: canonicalUrl,
+});
+---
+
+<BaseLayout
+  title={entryTitle}
+  description={entryDescription}
+  ogType="article"
+  publishedTime={created?.toISOString()}
+  modifiedTime={modified?.toISOString()}
+  tags={entry.data.tags}
+  jsonLd={jsonLd}
+>
+  <main
+    class="entry"
+    data-pagefind-body
+    data-pagefind-meta={`title:${entry.data.title ?? entry.id}`}
+  >
+    <span data-pagefind-filter="kind:Changelog" hidden></span>
+    <span data-pagefind-meta="kind:Changelog" hidden></span>
+    {entry.data.tags?.map((t) => <span data-pagefind-filter={`tag:${t}`} hidden></span>)}
+
+    <div class="container-narrow">
+      <p class="entry__back mono" data-pagefind-ignore>
+        <a href={`${base}changelog/`}>← Changelog</a>
+      </p>
+
+      <header class="entry__header">
+        <div class="entry__meta mono" data-pagefind-ignore>
+          {d && <time datetime={d.toISOString()}>{formatDate(d)}</time>}
+          {entry.data.at_semantic_version && (
+            <span class="entry__ver">{entry.data.at_semantic_version}</span>
+          )}
+          {entry.data.status && <span class="pill" data-status={entry.data.status}>{entry.data.status}</span>}
+        </div>
+        <h1>{entry.data.title ?? entry.id}</h1>
+        {entry.data.lede && <p class="entry__lede">{entry.data.lede}</p>}
+        {
+          entry.data.tags && entry.data.tags.length > 0 && (
+            <div class="entry__tags" data-pagefind-ignore>
+              {entry.data.tags.map((t) => (
+                <span class="entry__tag">{t}</span>
+              ))}
+            </div>
+          )
+        }
+      </header>
+
+      <article class="prose entry__body">
+        <Content />
+      </article>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .entry { padding: var(--space-10) 0 var(--space-16); }
+  .entry__back {
+    font-size: 0.84rem;
+    margin-bottom: var(--space-6);
+  }
+  .entry__back a { color: var(--color-text-dim); }
+  .entry__back a:hover { color: var(--color-accent); }
+
+  .entry__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-10);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .entry__meta {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    font-size: 0.78rem;
+    color: var(--color-text-dim);
+  }
+  .entry__ver { color: var(--color-accent); }
+  .entry__header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+  }
+  .entry__lede {
+    font-size: 1.08rem;
+    line-height: 1.55;
+    color: var(--color-text-soft);
+    max-width: 70ch;
+  }
+  .entry__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .entry__tag {
+    font-family: var(--font__mono);
+    font-size: 0.7rem;
+    color: var(--color-text-dim);
+    padding: 1px 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+
+  .entry__body {
+    max-width: 72ch;
+  }
+</style>

@@ -1,0 +1,155 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('skills');
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const title = ((entry.data.title ?? (entry.data as any).name ?? entry.id) as string);
+const description = ((entry.data.description ?? entry.data.lede ?? '') as string);
+const status = ((entry.data.status ?? '') as string);
+const tags = (entry.data.tags ?? []) as string[];
+const dirName = ((entry.data as any).dir_name ?? entry.id.replace(/__/g, '/')) as string;
+const fromPath = ((entry.data as any).from_path ?? `${dirName}/SKILL.md`) as string;
+const repoUrl = `https://github.com/lossless-group/lossless-agent-skills/blob/main/${fromPath}`;
+
+const base = import.meta.env.BASE_URL;
+const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const canonicalUrl = `${site}${base}skills/${entry.id}/`;
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: title,
+  description,
+  url: canonicalUrl,
+  keywords: tags.join(', '),
+  author: {
+    '@type': 'Organization',
+    name: 'Lossless Group',
+    url: 'https://lossless.group',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Lossless Group',
+    url: 'https://lossless.group',
+  },
+  mainEntityOfPage: canonicalUrl,
+});
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  ogType="article"
+  tags={tags}
+  jsonLd={jsonLd}
+>
+  <main
+    class="entry"
+    data-pagefind-body
+    data-pagefind-meta={`title:${title}`}
+  >
+    <span data-pagefind-filter="kind:Skill" hidden></span>
+    <span data-pagefind-meta="kind:Skill" hidden></span>
+    {tags.map((t) => <span data-pagefind-filter={`tag:${t}`} hidden></span>)}
+
+    <div class="container-narrow">
+      <p class="entry__back mono" data-pagefind-ignore>
+        <a href={`${base}skills/`}>← Skills</a>
+      </p>
+
+      <header class="entry__header">
+        <div class="entry__meta mono" data-pagefind-ignore>
+          <span class="entry__path">{dirName}/SKILL.md</span>
+          {status && <span class="pill" data-status={status}>{status}</span>}
+        </div>
+        <h1>{title}</h1>
+        {description && <p class="entry__lede">{description}</p>}
+        {tags.length > 0 && (
+          <div class="entry__tags" data-pagefind-ignore>
+            {tags.map((t) => <span class="entry__tag">{t}</span>)}
+          </div>
+        )}
+        <p class="entry__source mono" data-pagefind-ignore>
+          <a href={repoUrl} target="_blank" rel="noopener">View on GitHub →</a>
+        </p>
+      </header>
+
+      <article class="prose entry__body">
+        <Content />
+      </article>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .entry { padding: var(--space-10) 0 var(--space-16); }
+  .entry__back {
+    font-size: 0.84rem;
+    margin-bottom: var(--space-6);
+  }
+  .entry__back a { color: var(--color-text-dim); }
+  .entry__back a:hover { color: var(--color-accent); }
+
+  .entry__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-10);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .entry__meta {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--color-text-dim);
+  }
+  .entry__path { color: var(--color-text-dim); }
+
+  .entry__header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+  }
+  .entry__lede {
+    font-size: 1.08rem;
+    line-height: 1.55;
+    color: var(--color-text-soft);
+    max-width: 70ch;
+  }
+  .entry__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .entry__tag {
+    font-family: var(--font__mono);
+    font-size: 0.7rem;
+    color: var(--color-text-dim);
+    padding: 1px 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+  .entry__source {
+    font-size: 0.82rem;
+    margin-top: var(--space-2);
+  }
+  .entry__source a { color: var(--color-accent); }
+
+  .entry__body {
+    max-width: 72ch;
+  }
+</style>

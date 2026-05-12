@@ -1,0 +1,425 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/Header.astro';
+import SkillCard from '@components/SkillCard.astro';
+import { STATIC_SEO } from '@lib/seo';
+import { formatDate, toDate } from '@lib/date';
+
+// Featured skills — show Active first, then alpha. Cap at 6 on the home page.
+const skills = (await getCollection('skills')).sort((a, b) => {
+  const sa = ((a.data.status ?? '') as string).toLowerCase();
+  const sb = ((b.data.status ?? '') as string).toLowerCase();
+  const aActive = sa === 'active' ? 0 : 1;
+  const bActive = sb === 'active' ? 0 : 1;
+  if (aActive !== bActive) return aActive - bActive;
+  const ta = ((a.data.title ?? a.id) as string).toLowerCase();
+  const tb = ((b.data.title ?? b.id) as string).toLowerCase();
+  return ta.localeCompare(tb);
+});
+const featured = skills.slice(0, 6);
+
+const changelog = (await getCollection('changelog'))
+  .filter((e) => e.data.publish !== false)
+  .sort((a, b) => {
+    const da = toDate(a.data.date_modified ?? a.data.date_first_published ?? a.data.date_created ?? a.data.date);
+    const db = toDate(b.data.date_modified ?? b.data.date_first_published ?? b.data.date_created ?? b.data.date);
+    const ta = da ? da.getTime() : 0;
+    const tb = db ? db.getTime() : 0;
+    if (tb !== ta) return tb - ta;
+    return a.id < b.id ? 1 : -1;
+  })
+  .slice(0, 3);
+
+const base = import.meta.env.BASE_URL;
+const skillCount = skills.length;
+---
+
+<BaseLayout
+  title={STATIC_SEO.root.title}
+  description={STATIC_SEO.root.description}
+  hideHeader={true}
+>
+  <Header />
+
+  <!-- ───────────────────── HERO ───────────────────── -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <p class="folio" data-num="#">A Lossless Group collection · MIT</p>
+        <h1 class="hero__headline">
+          <span class="hero__prompt">$</span>
+          <span class="hero__cmd">load <span class="gradient-text">lossless-agent-skills</span></span>
+        </h1>
+        <p class="hero__tagline">
+          A shared library of <a href="https://agentskills.io/specification" target="_blank" rel="noopener">Agent Skills</a>
+          for AI coding agents on Lossless projects. Tool-agnostic — works with Claude Code,
+          pi-coding-agent, OpenAI Codex, and anything following the spec.
+        </p>
+        <p class="hero__philosophy">
+          <em>Built in public.</em> Methods, tooling, and institutional knowledge developed openly
+          so others can adopt, adapt, critique, and contribute. Frequent commits, occasional churn,
+          skills that evolve as real workflows reveal what works.
+        </p>
+        <div class="hero__cta">
+          <a class="btn btn-primary" href={`${base}skills/`}>
+            Browse {skillCount} skills
+          </a>
+          <a
+            class="btn"
+            href="https://github.com/lossless-group/lossless-agent-skills"
+            target="_blank"
+            rel="noopener"
+          >
+            View on GitHub
+          </a>
+        </div>
+        <div class="hero__install mono" aria-label="Install with the sync script">
+          <span class="hero__shell-prompt">$</span>
+          <code>./sync-skills.sh ~/.claude/skills</code>
+        </div>
+      </div>
+
+      <aside class="hero__panel" aria-hidden="true">
+        <header class="hero__panel-head mono">
+          <span class="hero__panel-dot"></span>
+          <span class="hero__panel-dot"></span>
+          <span class="hero__panel-dot"></span>
+          <span class="hero__panel-title">skills/</span>
+        </header>
+        <ul class="hero__panel-list mono">
+          {featured.slice(0, 8).map((s) => (
+            <li>
+              <span class="hero__panel-arrow">└─</span>
+              <span class="hero__panel-name">{(s.data as any).dir_name ?? s.id}</span>
+              {s.data.status && <span class="hero__panel-status" data-status={s.data.status}>{s.data.status}</span>}
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ───────────────────── FEATURED SKILLS ───────────────────── -->
+  <section id="skills" class="featured">
+    <div class="container">
+      <header class="section-header">
+        <p class="folio" data-num="#01">Featured</p>
+        <h2>Skills you'll reach for</h2>
+        <p class="section-lede">
+          The first {featured.length} of {skillCount} skills. Sorted by status, then alpha.
+          See the <a href={`${base}skills/`}>full catalog</a> for the rest.
+        </p>
+      </header>
+
+      <div class="featured__grid">
+        {featured.map((entry) => <SkillCard entry={entry} />)}
+      </div>
+
+      <p class="featured__all">
+        <a href={`${base}skills/`}>See all {skillCount} skills →</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ───────────────────── RECENT CHANGELOG ───────────────────── -->
+  {
+    changelog.length > 0 && (
+      <section class="recent">
+        <div class="container">
+          <header class="section-header">
+            <p class="folio" data-num="#02">Recent</p>
+            <h2>What shipped lately</h2>
+          </header>
+          <ul class="recent__list" data-pagefind-ignore="all">
+            {changelog.map((entry) => {
+              const d = toDate(entry.data.date_modified ?? entry.data.date_first_published ?? entry.data.date_created ?? entry.data.date);
+              return (
+                <li class="recent__item">
+                  <a href={`${base}changelog/${entry.id}/`}>
+                    <div class="recent__meta mono">
+                      {d && <time datetime={d.toISOString()}>{formatDate(d)}</time>}
+                      {entry.data.at_semantic_version && (
+                        <span class="recent__ver">{entry.data.at_semantic_version}</span>
+                      )}
+                    </div>
+                    <h3 class="recent__title">{entry.data.title ?? entry.id}</h3>
+                    {entry.data.lede && <p class="recent__lede">{entry.data.lede}</p>}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+          <p class="recent__all">
+            <a href={`${base}changelog/`}>Read the full changelog →</a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  /* ─── Hero ─── */
+  .hero {
+    padding: var(--space-16) 0 var(--space-20);
+  }
+  .hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: var(--space-12);
+    align-items: start;
+  }
+  @media (max-width: 980px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+    }
+  }
+
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-width: 580px;
+  }
+
+  .hero__headline {
+    font-family: var(--font__display);
+    font-size: clamp(1.8rem, 4.6vw, 2.9rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+  .hero__prompt {
+    color: var(--color-accent);
+    user-select: none;
+  }
+  .hero__cmd {
+    color: var(--color-text);
+  }
+
+  .hero__tagline {
+    font-size: 1.1rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    max-width: 52ch;
+  }
+  .hero__tagline a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .hero__philosophy {
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--color-text-soft);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-accent);
+    max-width: 56ch;
+  }
+  .hero__philosophy em {
+    color: var(--color-text);
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  .hero__cta {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-top: var(--space-2);
+  }
+
+  .hero__install {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-code);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.86rem;
+    color: var(--color-text-soft);
+    margin-top: var(--space-3);
+    max-width: max-content;
+  }
+  .hero__shell-prompt {
+    color: var(--color-accent);
+    user-select: none;
+  }
+
+  /* ─── Hero terminal panel ─── */
+  .hero__panel {
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .hero__panel-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-soft);
+    font-size: 0.74rem;
+    color: var(--color-text-dim);
+    letter-spacing: 0.06em;
+  }
+  .hero__panel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-text-faint);
+  }
+  .hero__panel-dot:nth-child(1) { background: var(--color-accent-warm); }
+  .hero__panel-dot:nth-child(2) { background: var(--color-thread); }
+  .hero__panel-dot:nth-child(3) { background: var(--color-accent); }
+  .hero__panel-title {
+    margin-left: var(--space-3);
+    color: var(--color-text-soft);
+  }
+  .hero__panel-list {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-4);
+    font-size: 0.82rem;
+    line-height: 1.9;
+  }
+  .hero__panel-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--color-text-soft);
+  }
+  .hero__panel-arrow {
+    color: var(--color-text-faint);
+  }
+  .hero__panel-name {
+    color: var(--color-text);
+    flex: 1;
+  }
+  .hero__panel-status {
+    font-family: var(--font__mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+  }
+  .hero__panel-status[data-status='Active'] {
+    color: var(--color-accent);
+    border-color: color-mix(in oklab, var(--color-accent) 50%, transparent);
+  }
+  .hero__panel-status[data-status='Draft'] {
+    color: var(--color-accent-warm);
+    border-color: color-mix(in oklab, var(--color-accent-warm) 50%, transparent);
+  }
+
+  /* ─── Section header ─── */
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+    max-width: 720px;
+  }
+  .section-header h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--color-text);
+    font-weight: 700;
+  }
+  .section-lede {
+    color: var(--color-text-soft);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .section-lede a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ─── Featured grid ─── */
+  .featured {
+    padding: var(--space-12) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .featured__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: var(--space-4);
+  }
+  .featured__all {
+    margin-top: var(--space-8);
+    font-family: var(--font__mono);
+    font-size: 0.86rem;
+  }
+
+  /* ─── Recent ─── */
+  .recent {
+    padding: var(--space-12) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .recent__list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .recent__item a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5) 0;
+    border-bottom: 1px solid var(--color-border);
+    transition: padding-left var(--transition-fast);
+    color: var(--color-text);
+  }
+  .recent__item a:hover {
+    padding-left: var(--space-3);
+    text-decoration: none;
+  }
+  .recent__item a:hover .recent__title {
+    color: var(--color-accent);
+  }
+  .recent__meta {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    font-size: 0.76rem;
+    color: var(--color-text-dim);
+    letter-spacing: 0.04em;
+  }
+  .recent__ver {
+    color: var(--color-accent);
+  }
+  .recent__title {
+    font-size: 1.05rem;
+    font-family: var(--font__display);
+    font-weight: 600;
+    margin: 0;
+    transition: color var(--transition-fast);
+  }
+  .recent__lede {
+    font-size: 0.92rem;
+    color: var(--color-text-soft);
+    line-height: 1.55;
+    max-width: 80ch;
+  }
+  .recent__all {
+    margin-top: var(--space-6);
+    font-family: var(--font__mono);
+    font-size: 0.86rem;
+  }
+</style>

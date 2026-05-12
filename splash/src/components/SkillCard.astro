@@ -1,0 +1,118 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'skills'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const base = import.meta.env.BASE_URL;
+const title = (data.title ?? (data as any).name ?? entry.id) as string;
+const description = (data.description ?? data.lede ?? '') as string;
+const status = (data.status ?? '') as string;
+const tags = (data.tags ?? []) as string[];
+const dirName = ((data as any).dir_name ?? entry.id.replace(/__/g, '/')) as string;
+
+function truncate(s: string, n: number): string {
+  if (s.length <= n) return s;
+  return s.slice(0, n).replace(/\s+\S*$/, '') + '…';
+}
+---
+
+<article class="skill-card">
+  <a class="skill-card__link" href={`${base}skills/${entry.id}/`}>
+    <header class="skill-card__head">
+      <div class="skill-card__meta mono">
+        <span class="skill-card__path">{dirName}/</span>
+        {status && <span class="pill" data-status={status}>{status}</span>}
+      </div>
+      <h3 class="skill-card__title">{title}</h3>
+    </header>
+    {description && <p class="skill-card__lede">{truncate(description, 220)}</p>}
+    {tags.length > 0 && (
+      <footer class="skill-card__tags">
+        {tags.slice(0, 4).map((t) => <span class="skill-card__tag">{t}</span>)}
+      </footer>
+    )}
+  </a>
+</article>
+
+<style>
+  .skill-card {
+    display: flex;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-card);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+  }
+  .skill-card:hover {
+    border-color: var(--color-border-strong);
+  }
+  .skill-card:hover .skill-card__title {
+    color: var(--color-accent);
+  }
+
+  .skill-card__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    color: var(--color-text);
+    width: 100%;
+  }
+  .skill-card__link:hover { text-decoration: none; }
+
+  .skill-card__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .skill-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    font-size: 0.74rem;
+    color: var(--color-text-dim);
+  }
+  .skill-card__path {
+    color: var(--color-text-dim);
+    letter-spacing: 0;
+  }
+
+  .skill-card__title {
+    font-family: var(--font__display);
+    font-size: 1.04rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+    letter-spacing: -0.005em;
+    transition: color var(--transition-fast);
+  }
+
+  .skill-card__lede {
+    color: var(--color-text-soft);
+    font-size: 0.94rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .skill-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--color-border);
+  }
+  .skill-card__tag {
+    font-family: var(--font__mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    color: var(--color-text-dim);
+    padding: 1px 6px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+</style>
