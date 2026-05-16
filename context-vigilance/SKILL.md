@@ -80,6 +80,29 @@ Key conventions (full details in `references/frontmatter-spec.md`):
 - `status` uses **Train-Case** values too — it's a display string, not a machine enum
 - `lede` (or `description`) is optional on any doc-type — a one-sentence newsroom hook for preview cards / OG snippets / list views
 
+## Status discipline
+
+The `status:` field is the load-bearing signal of where a document sits in its lifecycle. A directory full of `status: Draft` plans, half of which actually shipped, is a directory you can't trust. **Status reflects reality** — promote it as work lands.
+
+Canonical values (Train-Case display strings, not machine enums):
+
+`Draft` → `In-Review` → `Signed-Off` → `Implementing` → `Shipped` · `Partially-Shipped` · `Deferred` · `Stale` · `Superseded` · `Archived`
+
+Companion fields that must move with status:
+
+- **`Shipped`** — set `date_first_published: YYYY-MM-DD`; optionally `post_ship_note:` for things learned after ship.
+- **`Partially-Shipped`** — set `date_first_published:` for the first shipped slice; append a `## Remaining work (as of YYYY-MM-DD)` section enumerating what's done and what's left.
+- **`Deferred`** — set `deferral_note:` explaining the named reason.
+- **`Superseded`** — set `superseded_by: [[Successor-Doc]]`.
+
+In every case, bump `date_last_updated` (or `date_modified`) on the same edit. Status changes are meaningful edits.
+
+**When to update:** when you ship a substantial portion, defer explicitly, supersede, or notice the field doesn't match reality during a sweep.
+
+**When NOT to update:** mid-session as a side effect of unrelated work (drift policy — surface, don't silently normalize); for docs authored by someone else whose ship state you're not sure about (ask first); as a way to "tidy up" without a real ship event to point at.
+
+Full reference: `references/status-discipline.md`. The periodic sweep procedure: `lossless-monorepo/context-v/habits/Maintain-Status-Discipline-Across-Context-V-Files.md`.
+
 ## Cross-references
 
 Cross-referencing is how humans and agents focus on a limited scope at any moment — **humans have context windows too.** Three styles, all valid:

@@ -61,7 +61,10 @@ Add as needed; do not invent fields without precedent in the project. Common one
 
 | Field | Purpose |
 |---|---|
-| `status` | **Train-Case display string** (e.g., `Draft`, `In-Discussion`, `Signed-Off`, `Implementing`, `Shipped`, `Stale`, `Superseded`). Treat as a rendering string for humans, **not a machine enum** — don't switch on these values in code, since spelling and casing drift across files. The Train-Case casing is the signal: "this property exists for display, not for build/render-pipeline branching." Spec-specific progression lives in `developing-a-spec.md`. |
+| `status` | **Train-Case display string** (e.g., `Draft`, `In-Review`, `Signed-Off`, `Implementing`, `Shipped`, `Partially-Shipped`, `Deferred`, `Stale`, `Superseded`, `Archived`). Treat as a rendering string for humans, **not a machine enum** — don't switch on these values in code, since spelling and casing drift across files. The Train-Case casing is the signal: "this property exists for display, not for build/render-pipeline branching." Update status as work lands; don't let it rot at `Draft`. Companion fields are required for `Shipped`, `Partially-Shipped`, `Deferred`, and `Superseded` — see `status-discipline.md` for the full lifecycle, companion-field rules, and the `## Remaining work` section convention. Spec-specific progression lives in `developing-a-spec.md`. |
+| `date_first_published` | `YYYY-MM-DD`. The ship date, set when `status:` first becomes `Shipped` or `Partially-Shipped`. Never updated after — it anchors when the work first landed. |
+| `post_ship_note` | Multiline string. Things learned after `Shipped`. Useful when later work invalidates or sharpens a claim the plan made. See `status-discipline.md`. |
+| `deferral_note` | Multiline string. Required when `status: Deferred`. Names the reason and (where known) the expected unblocker. |
 | `supersedes` | wikilink or filename of the doc this one replaces |
 | `superseded_by` | reverse of above |
 | `related` | list of `[[wikilinks]]` to related docs |
