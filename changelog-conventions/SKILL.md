@@ -91,6 +91,42 @@ Changelogs are written **for the public web**. Assume:
 
 A long-running goal: aggregate all changelogs across all Lossless repos via the GitHub API into a "Lossless Changelog" umbrella view. Write entries that would render well in that aggregated context.
 
+## Marketing up top, engineering notes as the narrative unfolds
+
+**Every `README.md`, every `changelog/` entry, and every `changelog/releases/<version>.md` carries the same discipline: marketing up top, engineering notes as the narrative unfolds.** The opening — lede, Why Care?, What's New? — is marketing-shaped; it has to earn the click and answer "what does this do for me?" The deeper sections — How it Works, Under the Hood, Files Touched — are engineering-shaped; they reward the reader who came for substance with the actual substance. **Both belong in the same document. What differs is sequence.**
+
+The failure mode this rule fights isn't "too engineering" or "too marketing" — it's mixing them in the wrong order. Engineering details in the lede lose the general audience before they get to the value. Marketing language in the Under the Hood section feels evasive to the engineer who scrolled there specifically for the gnarly bits. **Treat the document as a cascade from broad to specific**, and each audience gets dropped at the right station — and trusts what they read on the way down because the voice matches the depth.
+
+The audience cascade isn't "the team plus whoever happens to wander by." It's a deliberate four-tier sequence, and the document is structured so that each tier gets value and is invited to keep reading.
+
+### The four audiences, in the order they appear in the document
+
+| # | Reader | What they want | Where they stop reading |
+|---|---|---|---|
+| 1 | **General audience** | *Why should I care? What does this thing do for me?* | After the lede if you don't earn the click; after Why Care? if the framing isn't compelling |
+| 2 | **Nerds passing by** | *What's actually new? Does this overlap with something I know?* | After What's New? if nothing piques their interest |
+| 3 | **Nerds paying close attention** | *How does it work? What are the gotchas? What did you have to figure out?* | After the deep-dive sections once they've gotten the substance they came for |
+| 4 | **Internal team** | *What changed in the codebase? Where do I find X? What's the followup state?* | They read to the end because they have to; this is the tail |
+
+The whole point: **the same document serves all four** by sequencing the content from broadest to most-specific. Lede → Why Care? → What's New? → How it Works → Under the Hood → Files Touched / What's Next / References. **Marketing voice up top dissolves into engineering voice further down** — the lede speaks to anyone, the Files Touched block speaks to the team. Each reader gets dropped at the right station and the prose meets them there.
+
+### The pragmatic argument
+
+"No one will read this" is sometimes literally true. **It's the same amount of effort to draft a release entry someone might want to read as to draft one no one will.** The upside-case (someone lands on it via search, via a sibling-plugin's cross-link, via the org's "Lossless Changelog" rollup, via a tweet) costs nothing extra in effort, and a single positive impression from a stranger is worth more than the same prose buried as internal notes.
+
+This is not about copywriting flair. It's about **sequence**. The lede answers "why care," the H2 sections give increasingly technical readers more depth, and the file-trees and SHA references live at the bottom where the internal team expects them. The doc reads as warm and competent to a general audience and as technically substantive to an engineer because it's both at once, just stacked correctly.
+
+### Long files are fine; stamp a TOC
+
+If a release narrative or a substantial changelog entry runs long, the answer is **not** to trim out the depth — it's to add an **anchor-link table of contents at the top** so each audience tier can jump to their section. Astro's MDX rendering picks up `[Section title](#section-title)` anchors automatically from H2 IDs; for plain Markdown the GitHub renderer handles it the same way. A TOC with 4–6 entries that maps to the audience cascade (`#why-care`, `#whats-new`, `#how-it-works`, `#under-the-hood`, `#whats-next`) is the canonical shape.
+
+### How this composes with the rest of the skill
+
+- The `Body shape` section below codifies the canonical opening sequence (`Why Care?` → `What's New?`)
+- The `Tell a story` section frames the structural arc each entry should follow
+- The `Voice` section governs the tone in which all four audiences are addressed
+- This section above sets the **audience model** the other three sections serve
+
 ## Roll-up at every level
 
 The same aggregation principle applies **at every parent → children boundary**, not only at the org-wide top. A pseudomonorepo's splash, site, or gallery should surface its own `changelog/` *and* roll up the changelogs of its submodules into one feed. A reader landing on `content-farm/splash/changelog/` should see ship notes from `image-gin`, `cite-wide`, `perplexed`, and the rest — not just from content-farm itself.
@@ -207,3 +243,4 @@ When creating a new entry, start from `templates/entry.md` (standard changelog) 
 - `references/what-counts.md` — heuristics for when an entry is warranted
 - `templates/entry.md`, `templates/release.md` — scaffolds
 - `pseudomonorepos/references/lifecycle-workflow.md` — how changelogs fit the 5-phase loop
+- `pseudomonorepos/references/content-rollup.md` — how a parent splash aggregates `changelog/` (including `changelog/releases/<version>.md`) from each submodule into one feed; two reference implementations (`content-farm/splash` via GitHub Content API, `ai-labs/splash` via local filesystem)
