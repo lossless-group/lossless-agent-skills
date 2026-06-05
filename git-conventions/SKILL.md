@@ -266,6 +266,19 @@ dependency hygiene, that's a different conversation.
 - **`changelog-conventions`** — commit messages often become changelog entries
 - **`context-vigilance`** — commit message structure mirrors document frontmatter discipline
 
+## Commit messages also serve four audiences
+
+Commit messages surface publicly via the GitHub commits view, via push-time release notes, via the parent pseudomonorepo's rolled-up changelog feed, and via search engines indexing the commit pages. They carry the **same four-audience discipline** that `changelog-conventions` codifies for `README.md`, changelog entries, and release narratives:
+
+1. **General audience** — the header has to land in two seconds (a passer-by reading the repo's commits page should grok what shipped)
+2. **Nerds passing by** — the first body paragraph should explain *what* changed and *why* it matters, in human terms (not just a file-diff narration)
+3. **Nerds paying close attention** — subsequent paragraphs name specific files, behaviors, edge cases, and any non-obvious decisions
+4. **Internal team** — the tail can carry SHAs, Co-Authored-By, ticket numbers, follow-up notes
+
+Same principle as the long-form docs: **sequence the content from broadest to most-specific** so each reader gets dropped at the right station. The pre-commit checklist (§5) and the body-structure conventions (§4) already encode much of this in mechanics; the audience cascade is the framing that makes the *why* legible.
+
+For the full framing (including the "long files are fine if you stamp a TOC" rule that applies to release narratives), see the `changelog-conventions` skill, section **"These are marketing artifacts, not internal documentation"**.
+
 ## What's Not Here Yet (TBD)
 
 - [ ] `references/header-patterns.md` — comprehensive action verb + effort grouping catalog

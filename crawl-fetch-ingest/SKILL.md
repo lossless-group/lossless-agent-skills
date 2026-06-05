@@ -1,6 +1,6 @@
 ---
 name: crawl-fetch-ingest
-description: The Lossless Group's workflow for filling in team and portfolio metadata for VC firms (and similar org work) — crawl a firm's site, fetch structured data + brand assets for people and companies referenced in a deck/PDF, ingest as canonical .md files with YAML frontmatter. Use whenever you need to recreate VC team pages, advisor sections, or portfolio company sections in HTML/Tailwind/Reveal slideshows; whenever the input is "here's a PDF and/or a firm URL, fill in the people and companies"; whenever you need headshots, LinkedIn URLs, company logos (SVG preferred), CEO metadata; whenever the user mentions "fill out the team", "find the headshots", "we need their portfolio companies", or names this skill directly. Encodes the four-checkpoint cascade (VC team → advisors → portfolio companies → portco CEOs), the cross-tool fallback pattern (Firecrawl → Tavily → OpenGraph.io), the global-cache-per-firm convention so the same firm's data is reused across multiple decks/memos, and the loose canonical schema that sites converge toward on refactor (not enforced on ingest).
+description: The Lossless Group's workflow for filling in team and portfolio metadata for VC firms and the operating companies they back — crawl a firm's site, fetch structured data + brand assets for people and companies referenced in a deck/PDF, ingest as canonical .md files with YAML frontmatter. Supports two starting anchors — firm-anchored (one VC → its team → its portfolio → portco CEOs) and company-anchored (one operating company → its backer firms → each backer's team + portfolio, stopping there) — for credibility-card use. Use whenever you need to recreate VC team pages, advisor sections, or portfolio company sections in HTML/Tailwind/Reveal slideshows; whenever the input is "here's a PDF and/or a firm URL, fill in the people and companies"; whenever you need headshots, LinkedIn URLs, company logos (SVG preferred), CEO metadata; whenever you need to "ingest our backers" or "make these investors legible to readers"; whenever the user mentions "fill out the team", "find the headshots", "credibility ingest", "we need their portfolio companies", or names this skill directly. Encodes the four-checkpoint cascade (VC team → advisors → portfolio companies → portco CEOs), the cross-tool fallback pattern (Firecrawl → Tavily → OpenGraph.io), the global-cache-per-firm convention so the same firm's data is reused across multiple decks/memos, and the loose canonical schema that sites converge toward on refactor (not enforced on ingest).
 ---
 
 # Crawl, Fetch, Ingest
@@ -14,6 +14,35 @@ description: The Lossless Group's workflow for filling in team and portfolio met
 - Asset hunt: SVG logos, favicons, headshots, LinkedIn URLs for people who appear in a PDF or on a firm's site
 - Any "here's a PDF, give me a clean dataset of who's in it" task at the org/portfolio level
 - Any 2nd / 3rd-order crawl: VC firm → portfolio companies → those companies' CEOs
+- Credibility ingest for an operating company's fundraise — walk outward through its **backers** to make those firms legible to readers starting from near-zero context
+
+## Anchor types — two starting points, same cascade
+
+The skill supports two starting anchors. Both are first-class. They share the same fetch cascade (Jina / Firecrawl / OpenGraph.io / Brandfetch / SVG-tier fallback / bg-strip) and the same schema. Only the **entry point and stop condition** differ.
+
+```
+Anchor: VC firm                        Anchor: Operating company
+ → team                                  → list of backer firms
+ → portfolio cos                         → for each backer:
+   → portco CEOs                             → team
+                                              → portfolio cos
+                                          (stop — no portco CEOs)
+```
+
+**Firm-anchored** (the original walk): one VC firm is the root. Used when you're rebuilding a firm's own deck, memo, or website. See `## The four checkpoints` below.
+
+**Company-anchored** (credibility-card walk): one operating company is the root, and we walk outward through its named backers. Used when an operating company's deck/site needs to make its investor list legible to readers who don't know those firms. The traversal stops at the backers' portfolio companies — portco CEOs add no legibility at credibility-card distance. See `routines/investor-credibility-ingest.md`.
+
+Both walks can run inside the same project. A typical fundraise repo ends up with:
+
+```
+<project>/data/
+  team/                  # the operating company's own employees (company-anchored, CP1-only)
+  investors/             # backer firms (investor-credibility-ingest routine)
+    {firm-a}/firm.md + team/ + portfolio/
+  firms/                 # if the project also did the firm-anchored walk on some specific VC
+    {firm}/firm.md + team/ + portfolio/ + portco-ceos/
+```
 
 ## Inputs (improvise with as little as possible)
 
@@ -248,6 +277,14 @@ Subroutines are sub-workflows that operate on the output of the main four-checkp
 
 **Output:** updated frontmatter on each `portfolio/{co-slug}.md` plus an end-of-routine summary listing the urgent-rework items with suggested next moves (e.g., "try Brandfetch tier 4," "manual cleanup in Figma").
 
+### `routines/investor-credibility-ingest.md`
+
+**Invoke when:** the user asks to "ingest our backers", "fill out the investor section", "do credibility ingest", "make these VCs legible", or supplies a list of firm names + the operating company they back. This is the **company-anchored** walk — root is the operating company, traversal goes outward through its named backers.
+
+**What it does:** for each backer firm, runs CP1 (team across every role-bearing sub-page) + CP3 (portfolio + brand assets via the SVG cascade). **Skips CP4** — at credibility-card distance, portco CEOs add no legibility. Writes to `<cwd>/data/investors/{firm-slug}/` so multiple backers coexist alongside the operating company's own `data/team/`.
+
+**Output:** `data/investors/{firm-slug}/firm.md` + `team/{person}.md` + `team/{person}.jpg` + `portfolio/{co}.md` + `portfolio/trademark__{Co}.svg` + `portfolio/favicon__{Co}.png` per backer firm. End-of-routine summary covers per-firm team/portfolio counts, SVG-vs-raster asset success rates, and cross-firm portfolio overlaps (co-investments are a credibility multiplier the rendering layer may want to highlight).
+
 ### Adding new subroutines
 
 The pattern: drop a new `routines/{name}.md` with frontmatter (`name`, `description`), then add a one-paragraph entry in this section that tells the agent when to invoke it. Helper scripts go in `scripts/{name}.py|.sh|.ts` and are referenced from the routine doc, not from `SKILL.md` directly. This keeps `SKILL.md` as a stable map and lets subroutines evolve independently.
@@ -256,7 +293,7 @@ Examples of future subroutines that fit this pattern: `triage-person-assets.md` 
 
 ## Important: this skill never adapts to a specific site's content collection
 
-The skill writes only to `<cwd>/data/firms/{firm-slug}/`. Wiring the output into a specific site's content collection (e.g., mpstaton-site's `src/content/team/`) is a **separate, per-site task**. That separation is intentional — sites diverge in schema, asset paths, and routing; the skill stays neutral.
+The skill writes only under `<cwd>/data/` — `data/firms/{firm-slug}/` (firm-anchored), `data/investors/{firm-slug}/` (company-anchored, via `investor-credibility-ingest`), or `data/team/` + `data/portfolio/` (flat operating-company variant). Wiring any of these outputs into a specific site's content collection (e.g., mpstaton-site's `src/content/team/`) is a **separate, per-site task**. That separation is intentional — sites diverge in schema, asset paths, and routing; the skill stays neutral.
 
 ## See also
 

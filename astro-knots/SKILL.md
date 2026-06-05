@@ -67,6 +67,41 @@ These are not vetoes-with-exceptions. They are **no**.
 
 If a third-party tool *requires* React/JSX/Angular as a runtime dep, find another tool or build the slice we need. If the user explicitly asks for React, push back and offer the equivalent in approved tech. Only proceed if they confirm with full understanding.
 
+## Auth-gated routes must not be prerendered
+
+If a site uses `output: "server"` plus a middleware-based auth gate (Astro's `src/middleware.ts` checking a session cookie, a token, an `Astro.locals` role, anything), **every route the gate is supposed to protect must declare `export const prerender = false`.** Period. No exceptions.
+
+**Why this is load-bearing:**
+
+In `output: "server"` mode, a route opts out of server-rendering with `export const prerender = true` — Astro bakes the route's output into static HTML at build time, and the hosting platform (Vercel, Netlify, GitHub Pages, etc.) serves that HTML straight from its CDN edge. **Middleware runs only on requests served by the SSR runtime.** Static files served by the CDN go around the runtime entirely:
+
+```
+USER → CDN → static /play/variant/v2.html       ← middleware NEVER runs
+                                                  ← auth gate is invisible
+                                                  ← anyone with the URL gets in
+```
+
+vs. the server-rendered version:
+
+```
+USER → CDN → SSR function → middleware → /play/variant/[variant].astro render
+                            ← auth gate ALWAYS runs
+```
+
+The dev-mode symptom is sneakier than the production hole: prerendered routes in dev with `output: "server"` *do* run through middleware, but the request context Astro hands to that middleware **doesn't surface the inbound `Cookie` header reliably**. The middleware reads `cookies.get("session")` → `undefined` → bounces to `/access`, even though the browser is correctly sending the cookie. Operators see a "login works once, then loops" symptom that looks like a cookie bug. It's a prerender bug.
+
+**The rule:**
+
+| Route is... | `prerender` must be |
+|---|---|
+| In the middleware's public allowlist (`/changelog`, `/access`, public-facing marketing pages, etc.) | `true` is fine — middleware passes through anyway |
+| Under the gate (any path the middleware protects) | **`false`. Always.** |
+| Unsure | `false` and prove the case for `true` later |
+
+**When sweeping an existing site,** grep every `export const prerender = true` and cross-reference against the middleware's `PUBLIC_PREFIXES` / equivalent. Anything prerendered AND gated is a silent production bypass. Fix immediately; this is not a polish-pass concern.
+
+**Realized example:** `calmstorm-decks` shipped `/play/variant/[variant].astro` and `/play/section/[slot].astro` as `prerender = true` with a `getStaticPaths()` enumerating variants. The dev symptom was an unbreakable auth loop ("submit code, land on a page once, then every navigation bounces"). The production exposure was that anyone with the URL could play the deck. Fix: flip both to `prerender = false`, then restart the dev server (Astro doesn't HMR the prerender flag). See `dididecks-ai/changelog/2026-05-17_02.md` for the full debugging trace and the helper-pattern hardening that came out of it.
+
 ## Lossless Flavored Markdown (LFM)
 
 Our first true package. Polyglot but lean: extended markdown syntax → component render pipeline. More daring than CommonMark, less rigid than MDX. **Any syntax can be added as a trigger to render a component.**
@@ -102,6 +137,7 @@ When the user asks for X, default behavior:
 | "Make it interactive" | Vanilla JS or Svelte. Justify before reaching higher. |
 | "Build a slide deck" | Markdown + Reveal (or one of the other two). |
 | "Document this work" | Use `context-v/` per the `context-vigilance` skill. |
+| "Add `prerender = true` to a route" | If the site uses `output: "server"` + middleware auth, refuse unless the route is in the middleware's public allowlist. See "Auth-gated routes must not be prerendered" above. |
 
 ## Frontmatter & YAML conventions (toward standardization)
 

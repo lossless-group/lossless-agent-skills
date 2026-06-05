@@ -57,6 +57,27 @@ Developing them all at once would be a nightmare and would freeze conventions th
 - the follow-up to `crawl-fetch-ingest` 
 - needs to have context on how to enrich components with data from the crawled and fetched sites
 
+### 🚧 `maintain-design-systems` — the design-system + component-library *view* per project
+
+- **Trigger:** starting any new Astro Knots site (or shell, or splash), authoring a new visual primitive (icon family, chip variants, button states, badge styles), refactoring scattered component-decisions into a coherent system, or onboarding a new collaborator (developer / agent / end client) who needs to know "what already exists and what are the options for X"
+- **Source:** the discipline we already half-practice across the Astro Knots sites — sites with brand-recognizable visual identity (`calmstorm-decks`, `chroma-decks`, `lfm/splash`, `memopop-site`) all benefit from this even where it's not yet codified. The `/dev/icons` design-review workbench pattern in `dididecks-ai/apps/deck-shell/` (2026-05-17) is the first deliberately-permanent surface of this kind in the tree
+- **What it would cover:**
+  - The **two-surface contract**: `DESIGN.md` documents the *chosen* tokens (covered by the existing `maintain-design-md` skill); a `/dev/*` workbench renders *candidates and current state* side-by-side at multiple sizes / on multiple backgrounds / inside the real composed UI context they live in
+  - The **component-library view** — every project's `context-v/sitemap/components/` mini-specs with `composes:` / `composed_by:` cross-references so an agent or human can answer "what components exist, what does each look like, what's available for accomplishing X" without grepping the source
+  - The **alternates-as-design-history convention** — unchosen candidates preserved in `alternates/` directories, importable but not used in production, so the decision context stays legible to anyone reading the codebase cold
+  - The **update rigor** — what triggers a sweep (new visual primitive, new component family, refactor that changes a token's resolved value, a `theme-system` mode addition), and the discipline of keeping the DESIGN.md + sitemap + `/dev/*` workbench in sync as the project evolves
+  - The **multi-audience legibility** — developers reading the source, agents grounding decisions in actual current state, end clients seeing "what they're paying for" in a single surface
+- **Why now:** sibling to `maintain-splash-pages` in spirit — every important project benefits from the same discipline applied differently. The pattern is now concrete enough to name (the `/dev/icons` route + the alternates archive + the sitemap mini-specs together model the practice). The DESIGN.md skill alone is the documented-contract slice; this candidate is the broader living-system + library-view discipline that DESIGN.md is one ingredient of
+- **Effort:** medium. Needs a survey of what the existing Astro Knots sites actually do today (where DESIGN.md exists, where component libraries are browsable, where they aren't), then codification of the pattern as it converges
+- **Relationship to existing skills:**
+  - `maintain-design-md` — sub-skill for the DESIGN.md file format. Stays canonical for *that* file; this candidate is the broader practice that DESIGN.md is one artifact of
+  - `theme-system` — orthogonal but related; the token system this skill documents how to maintain
+  - `maintain-splash-pages` — sibling in shape: same "every project benefits from the discipline" framing
+  - `astro-knots` / `astro-component-patterns` (candidate above) — overlaps with the component-library-view dimension; this candidate may absorb or be absorbed by `astro-component-patterns` once both converge
+- **Open question:** is this one skill, or two? "Maintain DESIGN.md" + "maintain a `/dev/*` workbench + alternates archive + sitemap mini-specs" could split, but the audiences are the same (developer + agent + client) and the rigor reinforces itself when practiced together. Lean toward one skill with multiple references
+- **Currently stubbed in:** `ai-labs/dididecks-ai/context-v/sitemap/routes/dev-icons.md` carries the project-local version of the discipline; promotion to a cross-project skill is deferred until a second project validates the pattern
+- **Confirmed:** 2026-05-17
+
 ---
 
 ## Candidates from earlier conversations
