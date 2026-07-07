@@ -39,7 +39,7 @@ augmented_with:
 #### `lede`
 - The most distinctive field
 - **Purpose:** grab attention. The reader should want to keep reading.
-- One sentence. No more.
+- **Subtitle-length: one to (at most) a few sentences, never more than ~3 rendered lines.** It has to do its job in two seconds — a paragraph can't. When the lede wants to grow, move the long version into the `## Why Care?` section. Lede = the hook; `Why Care?` = the paragraph that earns the scroll.
 - Avoid generic ledes ("Updates to the project") — make it specific
 - Examples:
   - ✅ `"From zero to four shipped skills in one Claude session — and a backlog longer than the shipped list."`

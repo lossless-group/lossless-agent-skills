@@ -58,7 +58,7 @@ These six fields are **hardcoded** for new entries — non-negotiable. Older ent
 date_created: YYYY-MM-DD       # ISO with dashes. Set on creation.
 date_modified: YYYY-MM-DD      # ISO. Updated on every edit. Obsidian template often manages this; sometimes meaningless updates happen, that's accepted.
 title: "Human-readable title"
-lede: "Subtitle that grabs attention — used where the point is to make the reader keep reading"
+lede: "Subtitle-length hook — one to a few sentences, ~3 lines max. The long version goes in Why Care?, not here."
 publish: true                  # Obsidian publisher convention. STRICTLY ENFORCED. Do not deviate.
 authors:                       # Humans only. Always a list. Preferred ul format (not [a, b] inline).
   - Firstname Lastname
@@ -73,7 +73,7 @@ files_changed:                 # Optional but strongly recommended. Paths from p
 ### Notes on the fields
 
 - **`publish: true`** is set by Obsidian publisher and is strictly enforced there. Do not toggle it off without understanding the publishing implications.
-- **`lede`** is intentional — not "subtitle" or "description". The word signals: *write something that grabs attention*. The reader should want to keep reading.
+- **`lede`** is intentional — not "description". The word signals: *write something that grabs attention*; the reader should want to keep reading. **It is subtitle-*length*: one to (at most) a few sentences, never more than ~3 rendered lines.** The lede has to do its job in two seconds, and a paragraph can't. When you feel it wanting to carry the full context — the journey, the stakes, the inventory of what shipped — that's the cue to **stop and put that material in the `## Why Care?` section** directly below the title. Lede = the two-second hook; `Why Care?` = the paragraph that earns the scroll. A lede that has swelled past a subtitle is a `Why Care?` section wearing a lede's clothes — move it down.
 - **`authors`** is for **humans only**. Preferred form is the YAML list (one author per line), not inline `[a, b]`. AI agents do not go here, even when they wrote substantial content.
 - **`augmented_with`** is for the AI tooling that helped produce the entry. Format is **`<tool> on <model name version>`**, e.g., `Pi on Claude Sonnet 4.5`, `Claude Code on Claude Opus 4`, `Cursor on GPT-5`. Same ul-list preference as `authors`. Include this field whenever an AI agent contributed materially — honesty about augmentation matters more than authorship credit.
 - **ISO dates with dashes for everything** — both dates and timestamps. Never `2026/05/04` or `May 4, 2026`.

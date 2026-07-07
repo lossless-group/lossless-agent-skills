@@ -24,7 +24,7 @@ The pattern that saves time: **create the file early with frontmatter only**, th
 ```yaml
 ---
 title: "Working title (will be revised)"
-lede: "One-sentence hook — newsroom-style, written to make a reader want to keep reading. Revisable; aim for a placeholder that's already trying to do its job."
+lede: "Subtitle-length hook — newsroom-style, ~1-3 lines max, written to make a reader want to keep reading. The long context goes in a Why Care? section, not here. Revisable; aim for a placeholder that's already trying to do its job."
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 authors:
@@ -44,7 +44,7 @@ status: Draft
 
 That's it. One H1, one HTML comment as a placeholder. Filename in Train-Case (see `doc-type-guide.md`).
 
-**About the `lede`:** specs often get published — they're not just internal artifacts. Many will be rendered on a Lossless Astro Knots site (in a list view, preview card, or OpenGraph snippet) where the lede is the only line a reader sees before deciding to click through. Write it as a *hook*, not a *description*. `description` is also accepted as the field name (some prior art uses it), but `lede` is preferred — the word itself signals the job. See the `changelog-conventions` skill for the deeper newsroom rationale.
+**About the `lede`:** specs often get published — they're not just internal artifacts. Many will be rendered on a Lossless Astro Knots site (in a list view, preview card, or OpenGraph snippet) where the lede is the only line a reader sees before deciding to click through. Write it as a *hook*, not a *description* — and **keep it subtitle-length (one to a few sentences, ~3 lines max).** A lede that swells into a full paragraph has become a `Why Care?` section in the wrong place; move that material into the body and leave a tight hook behind. `description` is also accepted as the field name (some prior art uses it), but `lede` is preferred — the word itself signals the job. See the `context-vigilance` skill's *Lede length discipline* and the `changelog-conventions` skill for the deeper newsroom rationale.
 
 **Why stub-first:** the file existing means it's findable by other agents and by future-you. The empty body means you haven't prematurely committed to a structure. Discussion shapes the structure.
 

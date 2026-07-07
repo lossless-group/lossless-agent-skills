@@ -78,7 +78,27 @@ Key conventions (full details in `references/frontmatter-spec.md`):
 - `authors` is **humans only**, always a list. AI agents are tracked separately under `augmented_with` (format: `Pi on Claude Sonnet 4.5`). See `references/frontmatter-spec.md`.
 - `tags` use **Train-Case** values (e.g., `Markdown-Rendering`, `Issue-Resolution`) — Obsidian convention
 - `status` uses **Train-Case** values too — it's a display string, not a machine enum
-- `lede` (or `description`) is optional on any doc-type — a one-sentence newsroom hook for preview cards / OG snippets / list views
+- `lede` (or `description`) is optional on any doc-type — a newsroom hook for preview cards / OG snippets / list views. **Keep it subtitle-length** (see *Lede length discipline* below).
+
+## Lede length discipline
+
+**The lede is a subtitle, not an abstract.** It's the single line a reader sees in a list view, a preview card, or an OpenGraph snippet before deciding to click. Its whole job is to make them want to keep reading — and a hook that runs long has stopped being a hook.
+
+The rule: **one to (at most) a few sentences, never more than ~3 rendered lines.** If you can't say it in a subtitle, the lede isn't the place — the material belongs in the body.
+
+When you feel the lede wanting to grow — to carry the full context, the journey, the stakes, the file inventory — that's the signal to **start a `## Why Care?` section directly under the title** (or an equivalent context/intro section) and put the long version there. The body is unbounded; the lede is not.
+
+```
+✅  lede: "The single org slot becomes an open-ended stack of affiliation
+          cards — pick an org once instead of retyping it on every person."
+
+❌  lede: "Yesterday the surface held one org per person, which was a lie about
+          how careers work because people sit on boards and advise and change
+          jobs and keep past titles, so tonight we … [200 more words]"
+          ← this is a Why Care? section wearing a lede's clothes
+```
+
+This mirrors the audience cascade the `changelog-conventions` skill codifies: **lede = the two-second hook; `Why Care?` = the paragraph that earns the scroll.** Same discipline, every doc-type — specs, explorations, blueprints, issues.
 
 ## Status discipline
 
