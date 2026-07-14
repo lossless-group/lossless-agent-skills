@@ -1,11 +1,11 @@
 ---
 name: generate-consistent-og-images
-description: How to generate share-imagery (OpenGraph banners, portraits, squares, tall WhatsApp/iMessage cards) for any Lossless site or splash page so the resulting images form a coherent visual family. Use whenever a site, splash, plugin page, or fundraise deck needs an OG image generated or refreshed; whenever the user says "make an og image", "generate a banner", "we need a share image", "regenerate banners across formats", "the unfurl looks stale"; whenever scaffolding a new Astro Knots site that doesn't yet have an `og:image` or a `DESIGN.md`; whenever per-page or per-component custom illustrative imagery is needed even if it deliberately departs from the OG-image canon. Encodes the pattern of (1) check / create a DESIGN.md following the Google Stitch open spec, (2) check / add an `imagery:` recipe block to that DESIGN.md, (3) call Ideogram v3 generate with every field locked except `prompt` and `aspect_ratio`, (4) save with the canonical naming convention, (5) treat WhatsApp + iMessage chat-preview as the primary share surface and other socials as secondary. The skill never sees an API key in source — `IDEOGRAM_API_KEY` lives in `~/.secrets` and is inherited from the shell, same pattern as the `crawl-fetch-ingest` skill.
+description: How to generate share-imagery (OpenGraph banners, portraits, squares, tall WhatsApp/iMessage cards) for any Lossless site or splash page so the resulting images form a coherent visual family — via two coexisting techniques: Ideogram illustration, or rasterizing the project's own hero/specimen component with macOS's `qlmanage`+`sips` (or a Playwright screenshot for higher fidelity). Use whenever a site, splash, plugin page, or fundraise deck needs an OG image generated or refreshed; whenever the user says "make an og image", "generate a banner", "we need a share image", "regenerate banners across formats", "the unfurl looks stale", "screenshot the hero for the share image", "turn this component into an OG image"; whenever scaffolding a new Astro Knots site that doesn't yet have an `og:image` or a `DESIGN.md`; whenever per-page or per-component custom illustrative imagery is needed even if it deliberately departs from the OG-image canon; whenever an existing OG image (of either technique) might already be live and a decision is needed about replacing vs. keeping it. Encodes the pattern of (1) choose Ideogram illustration vs. hero rasterization per the Strategy Choice section, (2) check / create a DESIGN.md following the Google Stitch open spec, (3) check / add an `imagery:` recipe block to that DESIGN.md, (4) call Ideogram v3 generate with every field locked except `prompt` and `aspect_ratio` (or rasterize the hero via `qlmanage`+`sips`), (5) save with the canonical naming convention, (6) treat WhatsApp + iMessage chat-preview as the primary share surface and other socials as secondary, (7) run the Case Protocol before wiring anything into a live `og:image` tag. The skill never sees an API key in source — `IDEOGRAM_API_KEY` lives in `~/.secrets` and is inherited from the shell, same pattern as the `crawl-fetch-ingest` skill.
 ---
 
 # Generate Consistent OG Images
 
-> Two variables per request: aspect ratio and a one-sentence prompt. Everything else — brand reference image, color palette, style type, negative prompt, seed, rendering speed, magic-prompt flag — is locked at the project's `DESIGN.md` level so every image in a set looks like it belongs in the same family.
+> Two techniques, either one valid: generate a wordless illustration with Ideogram (two variables per request — aspect ratio and a one-sentence prompt; everything else locked at the `DESIGN.md` level), or rasterize the project's own hero/specimen component with `qlmanage`+`sips`. Illustration quality is stochastic — some runs land, some don't — while a hero rasterization is deterministic and on-message whenever the hero already says the thing. Pick per project, or per format, and let both coexist.
 
 ## When to use this skill
 
@@ -27,6 +27,40 @@ In practice this means:
 - **The 1200×630 OG-canonical banner is one format among several**, not the only target. Other social-specific banners (LinkedIn portrait, Twitter Card) are still produced when needed, but never at the expense of a polished tall variant.
 
 This shapes the aspect-ratio enum below and the naming convention.
+
+## Strategy choice — illustrated (Ideogram) vs. rasterized hero/specimen
+
+There are **two independent, coexisting techniques** for producing a Lossless OG image. Neither is "the" canonical one — pick per project, or even per format, and keep both around rather than treating a later choice as an implicit rejection of the earlier one. This decision comes before any generation work starts.
+
+### Technique A — Ideogram illustration (the rest of this skill)
+
+A wordless spot-illustration generated per the recipe below, with title/eyebrow text composited on top afterward via the `overlay-svg-text` skill. Best fit when the project's pitch is **editorial or metaphor-driven** — there's no single UI element that says the thing, so a subject canon (a mailroom, a vault, a sprout) has to be invented to carry it.
+
+Trade-off to plan around: **quality is stochastic.** Even with `magic_prompt: OFF`, a fixed seed, and every channel locked, some generations land exactly right and others fall flat — the only fix is generating multiple candidates and picking a winner (which is why the recipe defaults to `num_images: 4`). Budget for that variance; don't expect the first run to be the final one.
+
+### Technique B — Rasterize the site's own hero / specimen component
+
+Skip illustration entirely and turn the project's **own hero object** — a credential-specimen card, a data mockup, a real UI element that already carries real content (real IDs, real copy, real brand tokens) — directly into the OG image. Best fit when **the hero already says what the OG image needs to say**: data-forward products, anything with a "here's the actual artifact" pitch, dashboards, specimen/credential UI. Reproducing that as a wordless illustration would throw away the information that makes it convincing.
+
+How:
+
+1. **Author (or reuse) an HTML/CSS or SVG version of the hero object.** Real markup, not a photo/illustration — pull colors and type directly from the project's `DESIGN.md` tokens (don't re-derive them). Use real data where the project has it (a real UUID, a real timestamp, real copy already live on the page) rather than lorem-ipsum placeholders — the realism is the point. Give the focal content generous padding — see the gotcha below.
+2. **Rasterize with macOS's built-in CLI tools — no Node/Puppeteer/Satori pipeline required:**
+   ```bash
+   qlmanage -t -s 1200 -o /tmp/og-render path/to/hero.html   # or hero.svg
+   sips -c 630 1200 /tmp/og-render/hero.html.png --out /tmp/og-render/cropped.png
+   sips -s format jpeg /tmp/og-render/cropped.png --out public/og-banner.jpg
+   ```
+   `qlmanage -t` drives QuickLook's own generator for the file type — it has one for both `.html` and `.svg`, so raw HTML/CSS heroes work directly, not just vector art. **Two verified gotchas:** `-s <size>` always produces a **square** canvas — it does not respect the page's own declared width/height, so a 1200×630-styled page still comes out 1200×1200. And `sips -z <height> <width>` (resize) **squashes non-uniformly** rather than cropping — visibly distorts the content. Use `sips -c <height> <width>` (`--cropToHeightWidth`, a true center-crop) to reach the target aspect ratio instead. Because the crop centers on the square canvas rather than on your content, verify the output visually — CSS-centered content can still land off-center after the pad-to-square step. Full recipe + the test that surfaced both gotchas: `lost-in-public/practices/Generating OG Images with qlmanage and sips.md`.
+3. **Higher-fidelity alternative:** screenshot the live component in a headless browser (Playwright's `page.screenshot()` at a fixed viewport) instead of hand-authoring separate markup. This guarantees pixel-parity with the real rendered site — actual fonts, gradients, CSS masks/filters, JS-driven layout — at the cost of a Playwright dependency. Prefer this over the `qlmanage` route when the hero relies on CSS/JS features QuickLook's renderer may not reproduce faithfully (it's WebKit-based but not a full browser tab — untested against remote web-font loads, CSS filters/masks, and JS-driven layout).
+4. **Same naming convention, same preservation discipline** as the Ideogram path — archive the outgoing file before overwriting, don't skip the format-per-surface thinking just because there's no Ideogram call involved.
+
+### Choosing per project
+
+- Ask: *does the hero/specimen already say what we want the OG image to say?* If yes, Technique B is often the safer default — deterministic, on-message, no illustration-quality lottery.
+- Technique A is the better fit for subjects with no single UI element that captures the pitch — metaphor, narrative, abstract concepts.
+- **The two can coexist across formats within the same project** — e.g. `banner` as a rasterized hero, `banner_tall`/`portrait`/`square` as illustrated variants for surfaces where a wordless scene works better. The naming convention already supports per-format independence; nothing about picking Technique B for one format obligates using it for all of them.
+- Precedent: id-didi-sh's live `og:image` is a rasterized SPECIMEN credential-card hero (Technique B, from `qlmanage`+`sips`, 2026-07-06). A full illustrated safety-deposit-box-vault set (Technique A) was generated for the same project on 2026-07-07 and kept on disk as an available alternative rather than replacing the hero rasterization — see the Case protocol below for how that coexistence decision gets made.
 
 ## Prerequisites
 
@@ -50,9 +84,41 @@ No MCP server is required. Ideogram's v3 endpoint accepts a direct HTTPS request
 
 The skill assumes the project has *some* established aesthetic. If it doesn't — brand-new site, no design decisions yet — that conversation has to happen before image generation. Use the `astro-knots` skill or pair with the user on a `Brand & Style` first pass before invoking this one.
 
+## Case protocol — is a different OG image already live?
+
+Before generating anything — or before wiring newly-generated images into the site's actual meta tags — check what the project's SEO/meta component *actually serves* as `og:image` today. `DESIGN.md`'s presence or absence of an `imagery:` block says nothing about what's live: a project can have a fully-authored imagery recipe and still ship a completely different, hand-crafted image in production, or vice versa. Conflating "`DESIGN.md` has no `imagery:` block yet" with "there's no OG image yet" is the mistake this protocol prevents.
+
+### Step 0 — Detect what's actually live
+
+Before Step 1 of the flow below, grep the site's meta-tag surface (`MetaTags.astro`, `seo.ts`, `Layout.astro`, or whatever the project calls it) for `og:image`, `DEFAULT_OG`, `ogImage`, or equivalent. Identify:
+
+- The file currently referenced.
+- Its provenance if discoverable (`git log --follow -- <path>`, `git blame`, the commit message) — this often reveals *how* it was made (a hand-authored SVG rasterized via a one-off tool, a prior Ideogram run, a screenshot, a design export) and *why* it looks the way it does.
+- Its design language — is it wordless/illustrated (this skill's convention, text composited on top afterward via `overlay-svg-text`), or does it bake copy / a UI mockup directly into the image (a different, equally valid convention)?
+
+### Step 1 — Classify against the newly-generated (or about-to-be-generated) set
+
+- **Case A — nothing live, or a broken/generic placeholder.** Proceed with the normal flow below. No confirmation needed.
+- **Case B — the live image already follows this skill's convention** (matches the `ogimage__{Project}--{Format}.{ext}` naming pattern, or `DESIGN.md`'s `imagery:` block clearly describes it). Treat this as a refresh — archive + replace per the Preservation Discipline below. No need to stop and ask.
+- **Case C — the live image is a *different design language* than what this skill produces** — hand-authored, text-driven, a UI mockup, a screenshot, anything that isn't the wordless-illustration-plus-overlay convention. **This is not a stale instance of the same thing; it may be a different, deliberate choice.** Do not assume it should be replaced.
+
+### Step 2 — For Case C, generate freely but gate the *wiring* step on confirmation
+
+Generating the illustrated candidate set is cheap and can proceed regardless of the final wiring decision — the assets are useful independent of what ends up live. What must wait for explicit sign-off is the step that **edits the site's actual meta-tag source** (`DEFAULT_OG`, an `ogImage` prop default, etc.) to point at the new set. Ask, don't assume — offer options along these lines rather than picking one silently:
+
+> "The project already ships `<X>` as its OG image — a different design language (text-driven / hand-crafted / etc.) than the illustrated set. Replace it entirely, keep it as primary and use the new set only for formats that don't exist yet, or generate one candidate first so you can compare side-by-side before deciding?"
+
+This is a genuine judgment call about the project's visual identity, not a mechanical decision this skill can make on its own.
+
+### Step 3 — Treat the decision as provisional until the user has seen the live result
+
+A user answering "replace it" is answering from memory of the old image against a *description* of the new one — not against the two rendered side by side in context. Don't burn the reversibility this buys you: **archive the outgoing image, never delete it** (same rule as the Preservation Discipline below), and keep the wiring change small and obviously reversible — one file swap plus one config edit, not a multi-file refactor. If the user reverses the decision after seeing the composited result live, that's not a failure of the protocol — it's exactly the case the protocol is designed to make cheap to recover from.
+
+*Precedent: id-didi-sh, 2026-07-07 — a fully-generated and text-overlaid illustrated set was wired in as the default `og:image` after the user said "replace it entirely," then reverted back to the original hand-rasterized banner once they saw the result live and preferred it. Because the original had been archived rather than deleted, the revert was a two-file copy and a one-line edit in `seo.ts` — not a redo.*
+
 ## The flow
 
-Five steps, in order. Steps 1–2 are setup the first time the skill runs against a project; steps 3–5 are the per-image work that repeats.
+Five steps, in order. Steps 1–2 are setup the first time the skill runs against a project; steps 3–5 are the per-image work that repeats. Run the **Case protocol** above first if there's any chance an OG image is already live — it determines whether Step 5's wiring is a free action or a gated one.
 
 ### Step 1 — Check (or create) `DESIGN.md`
 
@@ -300,6 +366,7 @@ Without Layer 1, repeat runs erase candidates we considered. Without Layer 2, th
 - **Overwriting canonical OG JPEGs in place when re-running.** See § "Preservation discipline" — archive the old one with a date suffix before writing the new one. The unfurler URL stays stable; the byte history is preserved.
 - **Putting raw candidates inside `public/`.** Static-site frameworks deploy everything under `public/` verbatim. ~16 MB of PNG candidates ships to GitHub Pages otherwise. Keep raw candidates at `<project>/.ideogram-candidates/` — dot-prefixed, outside `public/`.
 - **Using `style_type: DESIGN` with a style reference.** API rejects the combo. Use `AUTO` whenever `style_reference_images` is set.
+- **Wiring a newly-generated set into the live `og:image` meta tag without checking what's already there.** `DESIGN.md` having (or lacking) an `imagery:` block doesn't tell you what's actually live in production. Run the **Case protocol** section above — a hand-crafted or text-driven image already shipping is a deliberate choice, not a stale placeholder, until proven otherwise.
 
 ## See also
 
