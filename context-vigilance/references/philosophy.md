@@ -10,21 +10,21 @@ AI co-development is a massive productivity unlock and a massive source of frust
 
 ## The cognitive modes
 
-The framework isn't six folders for the sake of six. It's two paired cognitive modes plus a journey mode:
+The framework isn't a folder count for its own sake. It's two paired cognitive modes plus a journey mode:
 
-- **Planning** (specs ↔ prompts): forward motion. *"What shall we build and how?"*
-- **Reflection** (blueprints ↔ reminders): backward motion. *"What have we learned and how do we keep doing it well?"*
+- **Planning** (specs → plans → prompts): forward motion. *"What shall we build and how?"*
+- **Reflection** (blueprints ↔ reminders, agent-skills): backward motion. *"What have we learned and how do we keep doing it well?"*
 - **Journey** (explorations, issues): exploratory motion. *"We don't know where this ends yet."*
 
 Most development activity falls into one of these. When something doesn't fit, that's interesting — discuss it, give it a folder, see if it earns assimilation.
 
-## Six is not the answer
+## The count is not the answer
 
-The six are convention, not law. Teams experiment. Folders show up that no one planned for (`notes/`, `decisions/`, `changelog/`, `plans/`, `research/`, etc.). When you encounter one:
+The canonical set is convention, not law. Teams experiment. Folders show up that no one planned for (`notes/`, `changelog/`, `research/`, etc.) — and the convention grows by exactly that path: `plans/` and `agent-skills/` both started as unplanned folders and were promoted to canon in 2026-07 after tree-wide adoption; `loops/`, `handoffs/`, and `decisions/` are in the experimental tier now, walking the same road. When you encounter an unplanned folder:
 
 1. Ask what kind of cognitive activity it represents
 2. Discuss whether it deserves to be a new norm or merge into an existing one
-3. Either **assimilate** (promote to convention) or **fold** (move contents into one of the six)
+3. Either **assimilate** (promote to convention) or **fold** (move contents into an existing folder)
 4. **Default to keeping it** if unsure. Reorganizing someone's mental model mid-session is rude.
 
 The framework matters more than the count.

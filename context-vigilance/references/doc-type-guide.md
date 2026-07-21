@@ -1,18 +1,23 @@
 # Which `context-v/` Folder? — Decision Guide
 
-Use this when the right folder isn't obvious. Six folders, three modes.
+Use this when the right folder isn't obvious. Eight canonical folders, three modes — plus two universal utility folders (`extra/`, `sitemap/`) and an experimental tier (`loops/`, `handoffs/`, `decisions/`); see SKILL.md for those.
 
 ## Quick decision tree
 
 ```
 Do you know what you're trying to build?
-├── No → research / weigh tradeoffs?         → explorations/
+├── No → research / weigh tradeoffs?          → explorations/
 └── Yes
-    ├── Defining what & why & scope          → specs/
-    ├── Step-by-step plan referencing a spec → prompts/
-    ├── Codifying a pattern / architecture   → blueprints/
-    ├── Short correction AI keeps needing    → reminders/
-    └── Documenting a debugging journey      → issues/
+    ├── Defining what & why & scope           → specs/
+    ├── Sequenced work plan (roadmap,
+    │   plan-mode output, migration)          → plans/
+    ├── Step-by-step prompts referencing
+    │   a spec or plan                        → prompts/
+    ├── Codifying a pattern / architecture    → blueprints/
+    ├── Short correction AI keeps needing     → reminders/
+    ├── Executable know-how for agents
+    │   (SKILL.md shape)                      → agent-skills/
+    └── Documenting a debugging journey       → issues/
 ```
 
 ## Folder-by-folder

@@ -1,11 +1,11 @@
 ---
 name: context-vigilance
-description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, prompts, blueprints, reminders, explorations, issues), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
+description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, plans, prompts, blueprints, reminders, agent-skills, explorations, issues — plus the universal extra/ and sitemap/, and the experimental loops/, handoffs/, and decisions/), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
 ---
 
 # Context Vigilance
 
-A framework for Human + AI collaboration: **manage the context available to AI and collaborators with the same rigor you manage code.** Every Lossless project has a `context-v/` directory with (commonly) six subdirectories, organized into three cognitive modes: **Prep, Reflective, and Journey**.
+A framework for Human + AI collaboration: **manage the context available to AI and collaborators with the same rigor you manage code.** Every Lossless project has a `context-v/` directory with (commonly) eight subdirectories, organized into three cognitive modes: **Prep, Reflective, and Journey** — plus two universal utility folders and a small experimental tier still finding its shape.
 
 **Norms, not rules.** Patterns here are loosely enforced. The team is generative-first; consistency emerges when attention focuses on a project, file, or pattern. Be generous reading existing files (they may pre-date current norms or be experiments) and careful writing new ones. See `references/philosophy.md` for the deeper rationale.
 
@@ -20,34 +20,53 @@ Reference: <https://www.lossless.group/projects/gallery/context-vigilance>
 - Starting a new project and setting up `context-v/`
 - The user asks about context engineering, AI co-development, or "the context-v thing"
 
-## The Six Directories
+## The Eight Directories
 
-### Prep Mode (paired: spec ↔ prompt)
+### Prep Mode (spec → plan → prompt)
 
-The work of deciding what to build *is* the work — "prep" here is not "minor pre-work", it's the deliberate forward construction phase. Specs and prompts are the artifacts.
+The work of deciding what to build *is* the work — "prep" here is not "minor pre-work", it's the deliberate forward construction phase. Specs, plans, and prompts are the artifacts, in descending altitude.
 
 - **`context-v/specs/`** — Living specifications. What you're building and why. Constantly updated. Single source of truth. Every prompt references a spec.
-- **`context-v/prompts/`** — Step-by-step, prompt-by-prompt implementation documents (NOT single chat messages). Each prompt references specs/blueprints/reminders. Success at each step is verifiable before moving on.
+- **`context-v/plans/`** — Actionable work plans: sequenced, scoped, closer to execution than a spec but not yet the step-by-step of a prompt. The natural home for agent-produced plans (plan-mode output, migration sequences, refactor roadmaps). Promoted to canon 2026-07-21 after appearing organically in 14 repos — the most-adopted folder the original six didn't name.
+- **`context-v/prompts/`** — Step-by-step, prompt-by-prompt implementation documents (NOT single chat messages). Each prompt references specs/plans/blueprints/reminders. Success at each step is verifiable before moving on.
 
 > A prompt without a spec is a vibe. A prompt within a spec is engineering.
 
-### Reflective Mode (paired: blueprint ↔ reminder)
+### Reflective Mode (blueprint ↔ reminder, plus agent-skills)
 
 - **`context-v/blueprints/`** — Codified patterns, architecture decisions, proprietary thinking. Institutional knowledge AI needs to respect the system (e.g., "how our extended markdown flavor works", component organization, naming rationale).
 - **`context-v/reminders/`** — Short, sharp corrections born from repeated AI mistakes (e.g., "We don't use React. Astro + Svelte for interactivity. Do not hard-validate frontmatter."). Battle scars turned into guardrails.
+- **`context-v/agent-skills/`** — Per-repo agent skills following the Anthropic agent-skills shape (`<name>/SKILL.md` + optional `references/`, `templates/`, `scripts/`). This is the incubator: skills are born here next to the code they serve, and graduate to the shared public `lossless-agent-skills` repo (mounted at the anchor monorepo's `context-v/skills/`) once they prove out or apply beyond one repo. Reflective mode's executable tier — a blueprint an agent can *load and follow*, not just read.
 
 ### Journey Mode (unpaired)
 
 - **`context-v/explorations/`** — Documents where the destination is unclear. Research, prototype tradeoffs, option-space mapping, thinking out loud with AI as partner. Ends when you've learned enough to write a spec — or decided you don't need one.
 - **`context-v/issues/`** — Issue-resolution journey logs. The painful, winding path through debugging. Capture so no human or AI has to retrace it.
 
-### When you find a seventh folder
+### Universal utility folders (any project, any mode)
 
-The six are convention, not a closed set. Experimentation is normal — you'll encounter folders that don't match the six (e.g., `notes/`, `decisions/`, `changelog/`, `plans/`, `research/`). When that happens:
+Two folders that aren't doc-types so much as infrastructure, applicable to every project:
+
+- **`context-v/extra/`** — Scratch and out-of-band material: half-thoughts, pasted transcripts, working files that aren't ready to be (or shouldn't become) real docs. **Gitignored by default** — add `context-v/extra/` to the repo's `.gitignore` when scaffolding. Corpus rollups and ingesters already exclude it by convention; the gitignore makes the privacy boundary structural rather than tooling-dependent.
+- **`context-v/sitemap/`** — Maps of the project's own surfaces: pages, routes, slides, endpoints, screens — described as context docs so agents can reason about "what exists where" without crawling the source. First proven across the deck client-sites; applicable to any project with a navigable surface.
+
+### Experimental tier (proposed, not yet consistent)
+
+Folders the team is actively trialing. Their shape is **not settled** — expect variation between repos, and don't enforce consistency across them yet:
+
+- **`context-v/loops/`** — Definitions of recurring operational loops: a loop's scope, cadence, per-iteration procedure, and exit conditions (e.g., a dependency-upgrade loop that fans out across sites until every build is green). Pairs naturally with agent loop-runners like Claude Code's `/loop` — the doc is the durable definition; the runner is the execution.
+- **`context-v/handoffs/`** — Session-to-session handoff notes: the state of work captured at the end of a working session (what landed, what's mid-flight, what the next session must know) so a future session — human or agent, same person or a collaborator — resumes without re-derivation. The agentic-tooling world is converging on handoff documents as a primitive; this folder is where ours live.
+- **`context-v/decisions/`** — Artifacts of clear decisions made: what was decided, when, by whom, and what alternatives were passed over. Supplements specs and plans by isolating the *decision itself* — a spec tells you the current state of intent, a decision doc tells you the moment intent changed and why. Kin to the industry's ADR (Architecture Decision Record) convention, but not limited to architecture.
+
+When creating either, follow the standard frontmatter baseline and note in the doc that the folder is experimental. When you see one shaped differently from this description, that's expected — surface the divergence, don't normalize it.
+
+### When you find a folder outside the set
+
+The set above is convention, not closed. Experimentation is normal — you'll encounter folders that don't match (observed in the wild: `narratives/`, `profiles/`, `inquiry/`, `models/`, `strategy/`, `notes/`, `research/`). Some are domain-specific and correct where they are: `narratives/` and `slides-content/` in deck workspaces, `profiles/` and `inquiry/` across the studies shelf. When you find one:
 
 1. **Don't fight it.** Read what's there.
 2. **Identify the cognitive mode** (planning / reflection / journey / something new).
-3. **Discuss with the user** whether the folder should be assimilated (promoted to a new convention), folded (contents moved into one of the six), or kept as project-specific.
+3. **Discuss with the user** whether the folder should be assimilated (promoted to a new convention — the path `plans/` and `agent-skills/` took), folded (contents moved into an existing folder), or kept as project-specific.
 4. **Default to keeping it** if unsure. Re-organizing someone's mental model mid-session is rude.
 
 ## Conventional Frontmatter
@@ -161,11 +180,18 @@ Use **Train-Case** for filenames: `Train-Case.md`. Same convention as tags. Matc
 ## Decision tree: which folder?
 
 - Defining what to build, with criteria & scope? → **specs/**
-- Step-by-step implementation plan referencing a spec? → **prompts/**
+- Sequenced, scoped work plan (plan-mode output, roadmap, migration sequence)? → **plans/**
+- Step-by-step implementation prompts referencing a spec or plan? → **prompts/**
 - Capturing how/why a system is designed (pattern, architecture)? → **blueprints/**
 - Short correction the AI keeps needing? → **reminders/**
+- Executable know-how an agent should load and follow (SKILL.md shape)? → **agent-skills/**
 - Don't know the answer yet, need to research/weigh options? → **explorations/**
 - Debugging a specific painful problem and capturing the path? → **issues/**
+- Scratch, pasted transcripts, not-a-doc-yet material? → **extra/** (gitignored)
+- Mapping the project's own pages/routes/slides/surfaces? → **sitemap/**
+- Recurring operational loop definition? → **loops/** (experimental)
+- End-of-session state capture for the next session or a collaborator? → **handoffs/** (experimental)
+- Isolated record of a decision made — what, when, why, alternatives passed over? → **decisions/** (experimental)
 
 When in doubt, see `references/doc-type-guide.md`.
 
@@ -186,7 +212,7 @@ Not a checklist — a default rhythm. Adjust to the situation.
 
 1. **Locate the project's `context-v/`.** Walk up from cwd if needed. Some repos have multiple (e.g., one per sub-project).
 2. **Survey what's there.** Look at sibling files for tone, depth, and frontmatter conventions. Match them.
-3. **Pick the folder** using the decision tree. If nothing fits, see *When you find a seventh folder* above.
+3. **Pick the folder** using the decision tree. If nothing fits, see *When you find a folder outside the set* above.
 4. **Copy the matching template** from `templates/` if helpful, or write from scratch matching nearby files.
 5. **Frontmatter:** today's date for both `date_created` and `date_modified`. Start at `0.0.0.1`. Add the user as author. If you (an AI) contributed materially, add yourself under `augmented_with` (e.g., `Pi on Claude Sonnet 4.5`) — not under `authors`.
 6. **Lead with the why.** First paragraph readable by an outsider.
