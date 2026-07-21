@@ -1,6 +1,6 @@
 ---
 name: context-vigilance
-description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, plans, prompts, blueprints, reminders, agent-skills, explorations, issues — plus the universal extra/ and sitemap/, and the experimental loops/, handoffs/, and decisions/), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
+description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, plans, prompts, blueprints, reminders, agent-skills, explorations, issues — plus the universal extra/ and sitemap/, and the experimental loops/, handoffs/, decisions/, and contracts/), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
 ---
 
 # Context Vigilance
@@ -57,6 +57,7 @@ Folders the team is actively trialing. Their shape is **not settled** — expect
 - **`context-v/loops/`** — Definitions of recurring operational loops: a loop's scope, cadence, per-iteration procedure, and exit conditions (e.g., a dependency-upgrade loop that fans out across sites until every build is green). Pairs naturally with agent loop-runners like Claude Code's `/loop` — the doc is the durable definition; the runner is the execution.
 - **`context-v/handoffs/`** — Session-to-session handoff notes: the state of work captured at the end of a working session (what landed, what's mid-flight, what the next session must know) so a future session — human or agent, same person or a collaborator — resumes without re-derivation. The agentic-tooling world is converging on handoff documents as a primitive; this folder is where ours live.
 - **`context-v/decisions/`** — Artifacts of clear decisions made: what was decided, when, by whom, and what alternatives were passed over. Supplements specs and plans by isolating the *decision itself* — a spec tells you the current state of intent, a decision doc tells you the moment intent changed and why. Kin to the industry's ADR (Architecture Decision Record) convention, but not limited to architecture.
+- **`context-v/contracts/`** — Binding agreements, in two flavors that share one property: they are *not suggestions*. (1) **Constitution contracts** — standing rules agents must always follow, regardless of session, task, or model (invariants stronger than reminders: a reminder corrects drift, a contract defines the boundary of acceptable behavior). (2) **Interface contracts** — ironclad API-level documentation of how data must flow through the app or across a microservices architecture: schemas, payload shapes, ownership boundaries, who may write what. Where a blueprint explains *how the system is designed*, a contract states *what must never be violated*.
 
 When creating either, follow the standard frontmatter baseline and note in the doc that the folder is experimental. When you see one shaped differently from this description, that's expected — surface the divergence, don't normalize it.
 
@@ -192,6 +193,7 @@ Use **Train-Case** for filenames: `Train-Case.md`. Same convention as tags. Matc
 - Recurring operational loop definition? → **loops/** (experimental)
 - End-of-session state capture for the next session or a collaborator? → **handoffs/** (experimental)
 - Isolated record of a decision made — what, when, why, alternatives passed over? → **decisions/** (experimental)
+- Inviolable rule — agent constitution or ironclad data-flow/API contract? → **contracts/** (experimental)
 
 When in doubt, see `references/doc-type-guide.md`.
 
