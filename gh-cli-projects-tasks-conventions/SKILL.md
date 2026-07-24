@@ -1,15 +1,16 @@
 ---
 name: gh-cli-projects-tasks-conventions
-description: How The Lossless Group uses the `gh project` CLI (GitHub Projects v2) to manage tasks across the pseudomonorepo tree. Use whenever creating, editing, or listing GitHub Project tasks via `gh project item-create`, `gh project item-add`, or `gh project item-edit`; whenever the user mentions "gh project", "create a task", "add to the project", "draft a project item", "ProjectV2", or asks to script project task creation; whenever an agent is about to author a task body that references one or more `context-v/` files. Encodes the **task-body-is-a-github-link** convention — every task whose work-context lives in a `context-v/` file gets a body whose primary content is a clickable GitHub URL to that file in its own repo (NOT a deep path inside the parent monorepo, because each pseudomonorepo level is its own git repo and the URL must respect that). Composes with the `pseudomonorepos` skill to identify which repo a local context-v path belongs to and which branch tier (`development` / `main` / `master`) the link should target.
+description: How The Lossless Group uses the `gh` CLI for GitHub issues and Projects v2 tasks across the pseudomonorepo tree. Use whenever creating, editing, or listing GitHub Project tasks via `gh project item-create`, `gh project item-add`, or `gh project item-edit`; whenever creating repo issues via `gh issue create`; whenever the user mentions "gh project", "create a task", "create an issue", "add to the project", "draft a project item", "ProjectV2", labels, milestones, issue types, or asks to script task/issue creation; whenever an agent is about to author a task body that references one or more `context-v/` files. Encodes the **task-body-is-a-github-link** convention — every task whose work-context lives in a `context-v/` file gets a body whose primary content is a clickable GitHub URL to that file in its own repo (NOT a deep path inside the parent monorepo, because each pseudomonorepo level is its own git repo and the URL must respect that) — and the **prefill-the-sidebar** convention: query the repo/org's actual labels, milestones, assignees, and issue types, infer the best fit, ask the user only when nothing fits logically. Composes with the `pseudomonorepos` skill to identify which repo a local context-v path belongs to and which branch tier (`development` / `main` / `master`) the link should target.
 ---
 
 # gh CLI · Projects & Tasks Conventions
 
-> **Premature on purpose — 2026-06-05.** We don't yet have many preferences. The two that exist are codified here so they don't drift in the meantime: (1) compose with [[pseudomonorepos]] to figure out which repo a local path actually lives in; (2) every task body that points at a `context-v/` file points at it via a clickable GitHub URL. As more conventions emerge (status field discipline, priority discipline, custom-field schemas, project-per-app vs project-per-engagement), they get added here.
+> **Premature on purpose — 2026-06-05.** We don't yet have many preferences. The ones that exist are codified here so they don't drift in the meantime: (1) compose with [[pseudomonorepos]] to figure out which repo a local path actually lives in; (2) every task body that points at a `context-v/` file points at it via a clickable GitHub URL; (3, added 2026-07-24) prefill the issue sidebar — assignee, label, type, milestone — by querying the available options and inferring best fit, asking the user only when nothing fits (Convention 6). As more conventions emerge (status field discipline, priority discipline, custom-field schemas, project-per-app vs project-per-engagement), they get added here.
 
 ## When to use this skill
 
 - Creating, editing, or listing GitHub Project tasks via `gh project` — particularly `item-create`, `item-add`, `item-edit`.
+- Creating repo issues via `gh issue create` whose sidebar (assignee, labels, type, milestone) should arrive prefilled (Convention 6).
 - The user says "create a task," "add to the project," "draft a project item," "set up a project," "gh project," or any variant.
 - An agent is about to author a task body that references one or more `context-v/` files anywhere in the pseudomonorepo tree.
 - Scripting bulk task creation from a spec, exploration, or plan that has sections / decisions / placeholders worth tracking.
@@ -98,6 +99,57 @@ If the task is "write a new `context-v/` file," the link can't exist yet. In tha
 - **Body:** list the prior-art files that the new file will inherit from, as links per Convention 1. Optionally add a one-line "Lands at: `<intended-repo>/<intended-path>`".
 
 When the file is later created, edit the task to add the actual link.
+
+### Convention 6 — Prefill the issue sidebar from queried options (2026-07-24)
+
+A bare issue with an empty sidebar (no assignee, no label, no type) pushes
+triage work onto the human later. The agent creating the issue fills what it
+can at creation time — **by querying the repo/org for the actual available
+options first, inferring the best fit, and asking the user only when no
+option is a logical fit.** Never invent labels, types, or milestones that
+don't exist; never guess when the fit isn't obvious.
+
+**Step 1 — query the vocabulary** (cache per repo per session; it rarely changes):
+
+```bash
+gh label list --repo "$OWNER_REPO"                       # labels
+gh api "repos/$OWNER_REPO/milestones" -q '.[].title'     # milestones
+gh api "repos/$OWNER_REPO/assignees" -q '.[].login'      # assignable users
+gh api graphql -f query='query { organization(login: "'$OWNER'") {
+  issueTypes(first: 20) { nodes { id name description } } } }'   # issue types (org-level)
+```
+
+**Step 2 — infer best fit, per field:**
+
+- **Assignee:** the operator driving the session (their `gh api user -q .login`), unless the task is explicitly for someone else.
+- **Label:** map the issue's nature onto what exists — broken behavior → `bug`, new capability → `enhancement`, docs → `documentation`, etc. When the repo has richer custom labels, match on their names/descriptions.
+- **Type** (when the org has issue types — lossless-group's are `Task / Bug / Feature / Improve / Refactor`): broken behavior → Bug; new capability/surface → Feature; polish of an existing surface → Improve; restructure-without-behavior-change → Refactor; process/chore → Task.
+- **Milestone:** only when an existing milestone's title clearly covers the work. Stale-looking milestones (old dates, finished eras) → skip, don't guess.
+- **If nothing fits logically, ask the user** — one short question naming the candidates considered — instead of leaving the field empty silently or forcing a bad fit.
+
+**Step 3 — apply.** Assignee/label/milestone ride `gh issue create` flags
+(`--assignee`, `--label`, `--milestone`). Issue **Type** has no CLI flag —
+set it right after creation via GraphQL:
+
+```bash
+IID=$(gh api graphql -f query='query { repository(owner: "'$OWNER'", name: "'$REPO'") {
+  issue(number: '$N') { id } } }' -q .data.repository.issue.id)
+gh api graphql -f query='mutation { updateIssueIssueType(input: {
+  issueId: "'$IID'", issueTypeId: "'$TYPE_ID'" }) { issue { number } } }'
+```
+
+**Creating vocabulary when the user asks for it** (never as a side effect):
+
+```bash
+gh label create "workbench" --repo "$OWNER_REPO" --description "Org Workbench surface" --color "5319e7"
+# Milestones have no dedicated gh command — the API create is one line:
+gh api "repos/$OWNER_REPO/milestones" -f title="v1.2 — didi crawls" -f description="…" -f due_on="2026-08-15T00:00:00Z"
+```
+
+**Projects membership and Projects-v2 fields (e.g. Priority)** remain
+token-gated: they need the `project` scope (`gh auth refresh -s project`)
+and go through `gh project item-add` / `item-edit` per the recipes below —
+prefill them too once the scope exists.
 
 ## Practical `gh project` recipes
 
@@ -236,7 +288,8 @@ This is **not** automatic. Both Claude Code and Pi need per-skill symlinks at `~
 Listed so they're visible as the skill grows:
 
 - Status discipline — when a project item moves from Todo → In Progress → Done, who moves it and based on what signal.
-- Priority discipline — if/when we add a Priority field, what `P0 / P1 / P2` mean concretely.
+- Priority discipline — the Priority field exists on the project but stays token-gated (`project` scope) and semantically undefined; when unlocked, define what its options mean and prefill per Convention 6.
+- Label taxonomy — Convention 6 maps onto the default labels today; a richer house set (surface/domain labels) is deliberately deferred until the user names one.
 - Project layout — one project per app vs one per engagement vs one per quarter. Currently undecided.
 - Custom field conventions — Repo, Engagement, Type, etc.
 - Iteration / sprint conventions — if we adopt them.
