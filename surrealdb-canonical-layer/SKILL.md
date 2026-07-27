@@ -204,13 +204,30 @@ section is a snapshot, not the contract.
   RecordId), `complete_name`, `conventional_name`, `aliases: string[]`,
   `org_links`/`org_corpus`/`media_streams`, `domains`, `client_access:
   string[]`, `source`.
-- **`affiliations`** — a real `RELATE` edge, `in` (person) → `out` (org),
-  `kind` (the role/title string), `client_access: string[]`, `added_at`.
+- **`affiliations`** — a real `RELATE` edge, TWO shapes in one table
+  (since 2026-07-27, per augment-it's
+  `context-v/plans/Org-Relations-Parent-Child-Peer-Plus-Org-Tags.md` and
+  `services/record-surrealdb-resolver/src/org-relations.ts`):
+  - person→org: `in` (person) → `out` (org), `kind` (the role/title
+    string), `client_access: string[]`, `added_at`, plus the rating
+    fields (`relevance` etc.).
+  - **org→org** (explicit discriminator `edge_type: 'org_org'`): canonical
+    direction `in` = child → `out` = parent, `rel: 'child_of' | 'peer'`,
+    open-vocabulary `kind` (`initiative_of`, `fund_of`, `funds`,
+    `partners_with`, …), free-text `description`, `client_access`,
+    `added_at`. One edge per org pair; parent/child/peer is projected at
+    read time relative to the queried org. When auditing, filter
+    explicitly: person-side reads rely on `in.person_uuid` being present,
+    org-side reads on `edge_type = 'org_org'`.
 - **`observations`** — schemaless log, `subject`/`predicate`/`object`/
   `source`/`observed_at`/`client: string` (singular). Predicates grow
   freely: `has_name`, `has_linkedin_url`, `affiliated_with`, `located_in`,
-  and the event-tie family `speaker_at`/`sponsor_of`/`exhibitor_at`/
-  `attended`/`partner_of`.
+  the event-tie family `speaker_at`/`sponsor_of`/`exhibitor_at`/
+  `attended`/`partner_of`, the org-relation trail `related_to` /
+  `relation_removed`, and `has_tag` — which since 2026-07-27 also tags
+  **organizations** (subject = org RecordId; values like `Initiative`,
+  `Program`, `Funder`, `Think-Tank` — per-client, deliberately never a
+  field on the shared org row; vocabulary rides `tag_vocab`).
 - **`events`** — `slug`, `name`, `client: string`, `client_access:
   string[]`, `source`, `first_seen_at`.
 
