@@ -213,10 +213,12 @@ section is a snapshot, not the contract.
     fields (`relevance` etc.).
   - **org→org** (explicit discriminator `edge_type: 'org_org'`): canonical
     direction `in` = child → `out` = parent, `rel: 'child_of' | 'peer'`,
-    open-vocabulary `kind` (`initiative_of`, `fund_of`, `funds`,
-    `partners_with`, …), free-text `description`, `client_access`,
-    `added_at`. One edge per org pair; parent/child/peer is projected at
-    read time relative to the queried org. When auditing, filter
+    open-vocabulary `kind` (`funder_of`, `partners_with`, `agency_of`,
+    `initiative_of`, `fund_of`, …), free-text `description`,
+    `client_access`, `added_at`. One edge per org pair; parent/child/peer
+    is projected at read time relative to the queried org. **Peer is the
+    normal shape** — kinds like `funder_of`/`agency_of` ride peer edges;
+    hierarchy is the special case (operator ruling 2026-07-27). When auditing, filter
     explicitly: person-side reads rely on `in.person_uuid` being present,
     org-side reads on `edge_type = 'org_org'`.
 - **`observations`** — schemaless log, `subject`/`predicate`/`object`/
