@@ -10,6 +10,13 @@ node_modules/
 config/private.json
 **/config/private.json
 
+# Financial source data. The expense-report-generation skill names
+# private-data/ as the home for statement CSVs/PDFs, receipts, and generated
+# reports. Because ~/.claude/skills/<skill> is a symlink into this repo, that
+# directory would land inside the repo and be seen by git unless ignored here.
+# Depth-anywhere, same reasoning as the cache rule below.
+**/private-data/
+
 # Skill-local API-response caches.
 # The crawl-fetch-ingest skill writes Firecrawl / Tavily / Jina / OG.io
 # responses to its cache/ subdir so the same firm's data is reused across
