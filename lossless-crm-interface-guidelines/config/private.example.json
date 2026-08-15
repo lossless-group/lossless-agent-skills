@@ -1,0 +1,60 @@
+{
+  "$comment": [
+    "PUBLIC TEMPLATE. Copy to private.json, fill in real values, keep private.json gitignored.",
+    "Skills in this repo read config/private.json at runtime. If it is absent, a skill should",
+    "say so and ask the user rather than guessing. Never inline these values into a SKILL.md."
+  ],
+
+  "operator": {
+    "name": "<Your name>",
+    "shortName": "<First name used in skill prose>",
+    "role": "<e.g. Career VC, operating across several firms>"
+  },
+
+  "affiliations": {
+    "$comment": "Drives Deal Prospect routing and the My Role field. Add or remove freely.",
+    "venturePartner": ["<Firm A>", "<Firm B>"],
+    "scout": ["<Firm C>", "<Firm D>"],
+    "informal": ["<Firm E>"],
+    "notes": {
+      "<Firm D>": "Self-appointed; relationship is via <person>. No formal mandate."
+    }
+  },
+
+  "instances": {
+    "$comment": "CRM workspaces. 'default' names which one to write to when unspecified.",
+    "default": "<primary instance key>",
+    "workspaces": {
+      "<instance key>": {
+        "label": "<Display name as it appears in the MCP tool list>",
+        "scope": "<What lives here, e.g. primary dealflow and hard tech>",
+        "schema": "<full | partial>",
+        "notes": "<e.g. no Description field on Company>"
+      }
+    }
+  },
+
+  "keyRelationships": {
+    "$comment": "Only people whose identity changes agent behaviour — a routing path, a gatekeeper, a co-investor. Not a contact list.",
+    "<Person Name>": {
+      "tier": "<0-5>",
+      "firm": "<Firm>",
+      "why": "<What this relationship is for>"
+    }
+  },
+
+  "vehicles": {
+    "$comment": "Funds or entities the operator runs or writes on behalf of.",
+    "<Vehicle name>": {
+      "url": "<https://...>",
+      "thesis": "<One line>"
+    }
+  },
+
+  "preferences": {
+    "$comment": "Behavioural constraints that are personal rather than methodological.",
+    "noDeadlines": true,
+    "scoringScale": "6-point forced choice, 0-5, no neutral midpoint",
+    "provenanceRequired": true
+  }
+}

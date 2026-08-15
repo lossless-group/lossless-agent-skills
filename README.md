@@ -40,6 +40,7 @@ If a skill here helps you, take it. If you find a sharper way to express it, ope
 | **Timeline Scenario Analysis** | [`timeline-scenario-analysis/`](./timeline-scenario-analysis/) | Answers the second of the two foundational VC questions — *how fast can it get that big?* — by stress-testing the company's current MoM/YoY growth at its actual unit of sale across four scenarios (`sustain` / `improve` / `plateau` / `reduce`). Operates on the penetration grid produced by [`market-capture-analysis`](./market-capture-analysis/); sensitivity tables show what it takes to reach each cell and how time-to-base-case shifts with small growth-rate changes. Encodes the failure modes (compounding a recent spike forever, hiding recent deceleration behind YoY, omitting the plateau scenario, skipping the base-case time-to-reach number — that last one is the single most useful sentence the skill produces). Pairs with [`market-capture-analysis`](./market-capture-analysis/); running this alone produces a growth curve aimed at nothing in particular. |
 | **Competitive Analysis** | [`competitive-analysis/`](./competitive-analysis/) | Reference taxonomy for classifying competitors in an investment-memo competitive landscape section. Two orthogonal axes — **stage ring** (concentric circles outward from the target's own stage: `early stage` / `early scaleup` / `scaleup` / `mezzanine` / `incumbents`) and **competitor type** (`direct` / `adjacent` / `indirect` / `noisewashing`). Every competitor tagged on both. Encodes the noisewashing-vs-genuine-threat test (coverage doesn't discriminate, but paying users + multi-year capex + earnings-call segment reporting does), the discipline of preferring the looser classification on boundaries (most "direct" candidates are really `adjacent`), and the exhaustive-vs-synthesized two-artifact pattern shared with the two memo skills above — long classified research file + scannable memo section with a table, grouped list, or ring diagram. |
 | **Search Lossless Corpus** | [`search-lossless-corpus/`](./search-lossless-corpus/) | The discipline of querying The Lossless Group's local Chroma database — populated by [`context-vigilance-kit`](https://github.com/lossless-group/lossless-ai-labs/tree/main/context-vigilance-kit) with four collections (`context-vigilance-corpus`, `lossless-changelog`, `claude-code-sessions`, `claude-code-tool-traces`) — before answering questions prior work might already have answered. Encodes the four-step agentic-search loop (decompose → execute → evaluate → synthesize), the five canonical question shapes that trigger retrieval ("what did we decide / when did we ship / why did we choose / has this failed / where did we put"), the metadata-filter patterns that keep queries precise, and the citation discipline (every claim cites `source_path` + timestamp + `source_repo_slug`). Lossless layer on top of the upstream `chroma-local` / `chroma-cloud` skills — without it the corpus sits there full of high-signal records nobody queries; with it, every "what did we decide about X" becomes grounded recall the user can verify in seconds. |
+| **Lossless CRM Interface Guidelines** | [`lossless-crm-interface-guidelines/`](./lossless-crm-interface-guidelines/) | Operating manual for reading and writing the operator's Twenty CRM estate over MCP: routing across three workspaces that do *not* share data, the custom object model (Investment, Deal Source, Deal Prospect, Thesis, Thesis Fit, Events), a forced-choice 0–5 scoring standard with no neutral midpoint, the two-tier profile-links architecture (dedicated fields for sources present on nearly every record, one `Profiles` LINKS field for the long tail), and the MCP pitfalls worth knowing before the first write. Encodes the provenance discipline that makes a CRM trustable — dedupe before every create, fetch before writing a description, and *offer* model knowledge rather than smuggling it in, because an empty field is data and a wrong field is damage. First skill built to the **public skill / private config** pattern below: every operator-specific particular lives in a gitignored `config/private.json`, and the skill asks rather than guesses when it's missing. |
 
 **Planned / not yet shipped:** `lossless-loop/` — the 5-phase Start → Progress → Reflect → Publish → Market lifecycle for any meaningful unit of work. Diagram and spec live at `pseudomonorepos/references/lifecycle-workflow.md` until the skill graduates.
 
@@ -131,6 +132,103 @@ Skills here represent shared Lossless conventions. Before adding or changing a s
 3. Add `references/`, `templates/`, `scripts/` as needed
 4. Update the **Skills** table in this README
 5. Open a PR
+
+# Public skills, private config
+
+A pattern for keeping agent-skills publishable while the operator-specific data they
+depend on stays out of the repo.
+
+## The problem
+
+Useful agent-skills accumulate two kinds of content:
+
+1. **Method** — how to model a CRM, how to score, how to handle provenance, which MCP
+   calls have sharp edges. Generalizable, worth sharing.
+2. **Particulars** — which firms, which workspace URLs, which people, which
+   relationships. Useless to anyone else and often confidential.
+
+Inline the particulars and the skill can't be published. Strip them and the skill stops
+working. Neither is acceptable if the discipline is "everything lives in one repo and
+the repo is public."
+
+## The shape
+
+```
+<skill-name>/
+├── SKILL.md                     # public — method only, references config keys
+├── config/
+│   ├── private.example.json     # public — documents the expected shape
+│   └── private.json             # gitignored — real values
+└── .gitignore
+```
+
+`SKILL.md` opens with a §0 that says: read `config/private.json`, here are the keys it
+provides, and **if it's missing, say so and ask — do not guess.**
+
+## Why instructional resolution, not templating
+
+Two ways to get values into a skill:
+
+- **Template substitution** — `{{affiliations.venturePartner}}` placeholders,
+  interpolated by a preprocessor before the agent reads the file.
+- **Instructional resolution** — the skill tells the agent to read the config file and
+  use what it finds.
+
+Instructional resolution wins for now. It needs no build step, no preprocessor, and no
+new failure mode. Any agent with filesystem access — Claude Code, a local harness,
+anything that can `cat` a file — can do it today. And the agent can reason about a
+missing or partial config, where a templater would silently emit an empty string.
+
+Templating becomes worth it when several skills share config and drift starts to hurt.
+Not before.
+
+## Rules that keep it honest
+
+1. **Never inline a config value back into SKILL.md.** The moment a firm name or an
+   instance URL appears in the public file, the skill has stopped being publishable.
+   Adding operator-specific content means adding a config key and referencing it.
+2. **Keep `private.example.json` in sync.** It is the contract. If a skill starts
+   reading a new key, the example documents it in the same commit.
+3. **Config holds facts, not instructions.** `noDeadlines: true` is a fact about the
+   operator. *How* to respond to it belongs in SKILL.md. Otherwise behaviour scatters
+   across two files and neither is readable alone.
+4. **Only put things in `keyRelationships` that change agent behaviour** — a routing
+   path, a gatekeeper, a warm intro. It is not a contact list; the CRM is the contact
+   list.
+5. **Audit before publishing.** Grep the public file for names, domains, and firms:
+
+   ```sh
+   grep -niE "$(python3 -c "
+   import json;c=json.load(open('config/private.json'))
+   names=[c['operator']['name'],c['operator']['shortName']]
+   names+=[f for v in c['affiliations'].values() if isinstance(v,list) for f in v]
+   names+=list(c.get('keyRelationships',{}))
+   print('|'.join(n for n in names if n))
+   ")" SKILL.md
+   ```
+
+   Empty output means it's safe to push.
+
+## Upgrade path
+
+The gitignored JSON works today with no infrastructure. Two better versions later:
+
+- **A real secrets manager** (SecretSpec and similar) if any of this becomes an actual
+  credential rather than a preference. Config today holds no secrets — firm names and
+  relationship tiers are private, not sensitive — so this is premature.
+- **An MCP server serving config at runtime.** Same architecture as serving skills over
+  MCP: the agent asks for `operator.affiliations` and gets it, with no file on disk and
+  no per-machine setup. This is the right end state if skills are ever run somewhere
+  other than the operator's own machine.
+
+## Applying it to a new skill
+
+1. Write the skill with the particulars inline — it's faster and you find out what's
+   actually operator-specific.
+2. Move each one into `config/private.json` under a sensible key.
+3. Replace with a config reference in SKILL.md.
+4. Update `private.example.json`.
+5. Run the audit grep. Push.
 
 ## References
 

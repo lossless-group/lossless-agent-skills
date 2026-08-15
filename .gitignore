@@ -5,6 +5,11 @@ node_modules/
 .env
 .env.local
 
+*/private.json
+
+config/private.json
+**/config/private.json
+
 # Skill-local API-response caches.
 # The crawl-fetch-ingest skill writes Firecrawl / Tavily / Jina / OG.io
 # responses to its cache/ subdir so the same firm's data is reused across
