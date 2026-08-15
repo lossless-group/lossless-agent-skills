@@ -1,6 +1,6 @@
 ---
 name: changelog-conventions
-description: How The Lossless Group writes and structures changelog/ entries across all repos (projects, true monorepos, pseudomonorepos). Use whenever shipping or pushing a coherent chunk of work, when scaffolding a new repo's changelog/ directory, when authoring a product release message, when the user says "log this", "write a changelog", or "ship note", or when reviewing a changelog/ file. Encodes the strict frontmatter (publish, lede, ISO dates), filename pattern, "it exists" priority, and the show-don't-enforce ethos.
+description: How The Lossless Group writes and structures changelog/ entries across all repos (projects, true monorepos, pseudomonorepos). Use whenever shipping or pushing a coherent chunk of work, when scaffolding a new repo's changelog/ directory, when authoring a product release message, when the user says "log this", "write a changelog", or "ship note", or when reviewing a changelog/ file. Also fires when the user drops screenshots for an entry or the work being logged is visual — composes with prep-images-for-embed so images get CDN-hosted with real alt text without the user naming both skills. Encodes the strict frontmatter (publish, lede, ISO dates), filename pattern, "it exists" priority, the never-use-relative-image-paths rule (entries get rolled up into parent sites, so relative paths break), and the show-don't-enforce ethos.
 ---
 
 # Changelog Conventions
@@ -14,6 +14,7 @@ Every Lossless repo at every level (project, true monorepo, pseudomonorepo) shou
 ## When to use this skill
 
 - You just shipped or pushed a coherent chunk of work
+- The user drops screenshots for an entry, or the work being logged is visual enough that prose alone undersells it (compose with [[prep-images-for-embed]])
 - The user says "log this", "write a changelog", "ship note", "publish update"
 - Scaffolding a new repo's `changelog/` directory
 - Reviewing or updating an existing changelog entry
@@ -276,9 +277,43 @@ Visuals make entries skimmable, memorable, and honest about complexity. Use them
 - **Mermaid diagrams** — flowcharts, sequence diagrams, state diagrams
 - **ASCII diagrams** — for tree structures, simple boxes-and-arrows, rendering everywhere
 - **Tables** — when comparing options or showing before/after
-- **Screenshots** — for UI work, embedded as relative-path images
+- **Screenshots** — for UI work. **Not relative paths — see below.**
 
 The rule: **pretend you need to convince someone to care, and pretend anyone who cares wants to follow along and learn something meaningful.** Show enough of the "how we did this" that it clicks for the reader who reads that far.
+
+### Screenshots go to the CDN, never a relative path
+
+When the user drops screenshots for an entry — or when the work you are logging
+is visual and screenshots would carry it better than prose — **use
+[[prep-images-for-embed]]**. Do not ask which skill to load; an entry that wants
+images is the trigger.
+
+```bash
+node ~/.claude/skills/prep-images-for-embed/scripts/prep-images.mjs \
+  --slug <changelog-slug> --repo <repo-name> \
+  --src "~/Desktop/Screenshot ….png" \
+  --name "Plane__Work-Items--Empty" \
+  --alt "<what the image SHOWS, not that it is an image>" \
+  --emit lfm
+```
+
+**Relative paths are not a style preference — they break.** Changelog entries are
+**rolled up** into parent splash sites (see `pseudomonorepos/references/content-rollup.md`):
+the markdown is copied out of its own repo into another site's content
+collection. A `![](./images/foo.png)` that resolves locally resolves to nothing
+once the entry is rendered somewhere else. A CDN URL survives every aggregation.
+
+The three things that matter, so you rarely need to open the other skill:
+
+1. **Alt text describes what the image shows.** A reader who cannot see it should
+   learn the same thing a viewer would. The script rejects `alt="screenshot"`.
+2. **`--emit lfm`** on our own sites — the `::image{…}` directive supports
+   `caption`, `source`, `source-url` and float layout. `--emit html` elsewhere.
+3. **Naming is `Block__Element--Modifier_ISOSTAMP.jpg`**, Title-Case, matching the
+   `ogimage__` convention. The script normalises it; pass whatever reads naturally.
+
+Everything else — resizing, EXIF stripping, JPEG-over-WebP, folder layout — the
+script handles. Load [[prep-images-for-embed]] only when something is unusual.
 
 ## Templates
 
@@ -289,6 +324,7 @@ When creating a new entry, start from `templates/entry.md` (standard changelog) 
 - **`pseudomonorepos`** — the `lossless-loop` Phase 2 (Progress) and Phase 4 (Publish) both write to changelogs. Project changelog = Progress. Parent pseudomonorepo changelog = Publish.
 - **`context-vigilance`** — changelogs sit alongside `context-v/`, not inside it (aspirationally). Some legacy projects nest them; respect what's there.
 - **`astro-knots`** — changelog content gets aggregated and rendered on Astro Knots sites. Write with that publication path in mind.
+- **`prep-images-for-embed`** — how screenshots get into an entry: renamed, resized, metadata-stripped, uploaded to ImageKit, emitted as `::image{…}` or `<img>` with real alt text. **An entry that wants images is enough of a trigger — the user should not have to name both skills.**
 
 ## Typical flow
 
