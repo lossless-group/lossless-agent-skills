@@ -5,7 +5,7 @@ description: How The Lossless Group uses the `gh` CLI for GitHub issues and Proj
 
 # gh CLI · Projects & Tasks Conventions
 
-> **Premature on purpose — 2026-06-05.** We don't yet have many preferences. The ones that exist are codified here so they don't drift in the meantime: (1) compose with [[pseudomonorepos]] to figure out which repo a local path actually lives in; (2) every task body that points at a `context-v/` file points at it via a clickable GitHub URL; (3, added 2026-07-24) prefill the issue sidebar — assignee, label, type, milestone — by querying the available options and inferring best fit, asking the user only when nothing fits (Convention 6). As more conventions emerge (status field discipline, priority discipline, custom-field schemas, project-per-app vs project-per-engagement), they get added here.
+> **Premature on purpose — 2026-06-05.** We don't yet have many preferences. The ones that exist are codified here so they don't drift in the meantime: (1) compose with [[pseudomonorepos]] to figure out which repo a local path actually lives in; (2) every task body that points at a `context-v/` file points at it via a clickable GitHub URL; (3, added 2026-08-14) pin the branch explicitly when worktrees are in play, because `HEAD` answers per-worktree; (4, added 2026-07-24) prefill the issue sidebar — assignee, label, type, milestone — by querying the available options and inferring best fit, asking the user only when nothing fits (Convention 6). As more conventions emerge (status field discipline, priority discipline, custom-field schemas, project-per-app vs project-per-engagement), they get added here.
 
 ## When to use this skill
 
@@ -14,6 +14,7 @@ description: How The Lossless Group uses the `gh` CLI for GitHub issues and Proj
 - The user says "create a task," "add to the project," "draft a project item," "set up a project," "gh project," or any variant.
 - An agent is about to author a task body that references one or more `context-v/` files anywhere in the pseudomonorepo tree.
 - Scripting bulk task creation from a spec, exploration, or plan that has sections / decisions / placeholders worth tracking.
+- Any of the above **while git worktrees are in play** — multiple checkouts of the same repo at different branch tiers change what `HEAD` resolves to, and therefore which branch ends up in the link (Convention 3b).
 
 ## Compose with `pseudomonorepos`
 
@@ -86,6 +87,69 @@ The branch the URL targets must match the **branch tier** of the work the task r
 The recipe above uses `git rev-parse --abbrev-ref HEAD` because the file's own repo is presumably checked out at the tier the work is happening on. If you're scripting from a stale checkout, override `BRANCH` explicitly.
 
 **Do not** default to `main` blindly because it's GitHub's default. The pseudomonorepo tree's default tier for in-motion work is `development`. A link to `main` for a draft spec produces a 404 (the spec is on `development`, hasn't been promoted yet).
+
+### Convention 3b — Git worktrees make `HEAD` ambiguous; pin the branch (2026-08-14)
+
+Convention 2's recipe resolves two things from the shell's current location:
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+```
+
+**Both are per-worktree, not per-repository.** A linked worktree has its own
+`HEAD`, its own index, and its own checked-out branch, while sharing one object
+database and one set of refs with the main worktree. So `--show-toplevel` returns
+*that worktree's* root and `--abbrev-ref HEAD` returns *that worktree's* branch.
+
+That's correct behavior, and it's exactly what makes the recipe safe to run from
+inside a submodule. But it introduces a failure mode Convention 3 doesn't cover
+on its own:
+
+> If the tree has more than one worktree checked out at different tiers — say a
+> `development` worktree and a `main` worktree — then running the recipe from the
+> wrong directory silently produces a link to the wrong tier.
+
+This is nastier than the plain wrong-branch mistake, because the two directories
+are indistinguishable at a glance. Neither is "the" repo. Both have a valid
+`.git`. The URL that comes out is well-formed and 404s only for the reader.
+
+**The rules:**
+
+1. **When generating a link for one file**, `cd` to that file's own directory
+   first — as Convention 2 already instructs — and let `--show-toplevel` resolve
+   it. Never assume the shell's current worktree is the one you mean.
+2. **When scripting in bulk, pin the branch explicitly** rather than inheriting
+   whatever the ambient worktree happens to be on:
+
+   ```bash
+   BRANCH=development     # deliberate, not inherited
+   URL="https://github.com/${OWNER_REPO}/blob/${BRANCH}/${REL_PATH}"
+   ```
+3. **When auditing what's checked out where**, use the porcelain form. Human
+   output marks worktree branches with `+` instead of `*`, which quietly breaks
+   scripts that grep for `*` to find the current branch:
+
+   ```bash
+   git worktree list --porcelain
+   ```
+
+**One-worktree-per-issue composes well** with the rest of this skill — the branch,
+the directory, and the task can all carry the issue number, and `gh` works
+normally inside a worktree because it reads the shared remote config:
+
+```bash
+git worktree add -b issue/42-portfolio-monitoring ../repo--42 development
+cd ../repo--42
+gh pr create --fill
+```
+
+Two setup steps that bite in this tree specifically: `git worktree add` does
+**not** populate submodules (`git submodule update --init --recursive` is
+required), and gitignored files do not come along — which in `self-host-stack`
+means the entire `client-stacks/` directory, and everywhere means `.env`.
+
+Full treatment: [[Git Worktrees]] in `content-md/lossless/`.
 
 ### Convention 4 — One link per relevant file, not summary-replaces-link
 
@@ -267,6 +331,10 @@ Same token, more flexibility. Don't reach for it until `gh project` actually fai
 
 **Don't use the wrong branch in the URL.** The default tier for in-motion work is `development`, not `main`. Build the URL from the repo's actual current branch, not from convention.
 
+**Don't inherit the branch from an ambient worktree when scripting.** `git rev-parse --abbrev-ref HEAD` answers for whichever worktree the shell is standing in. With a `development` worktree and a `main` worktree side by side, the two directories look identical and the wrong one yields a well-formed URL that 404s. Pin `BRANCH` explicitly for bulk generation (Convention 3b).
+
+**Don't grep `git branch -vv` for `*` to find the current branch.** Branches checked out in *another* worktree are marked `+`, not `*`. Use `git worktree list --porcelain`.
+
 **Don't `gh project item-create` for work that genuinely belongs as a repo issue.** Draft items are for "tasks at the project layer that don't need their own labels / assignees / repo-level discussion." If reviewers need to comment, if there's a PR coming, if there are CI checks — make an issue first (`gh issue create`), then `gh project item-add`.
 
 **Don't lose track of the project ID and field IDs.** Every `item-edit` needs them. A `.env`-style file at the project's working directory (`PROJECT_ID=…`, `STATUS_FIELD_ID=…`, `TODO_OPTION_ID=…`) is fine; just don't re-fetch them on every call.
@@ -288,6 +356,7 @@ This is **not** automatic. Both Claude Code and Pi need per-skill symlinks at `~
 Listed so they're visible as the skill grows:
 
 - Status discipline — when a project item moves from Todo → In Progress → Done, who moves it and based on what signal.
+- Worktree-aware auditing — whether the HARD STOP preconditions in [[pseudomonorepos]] need updating for the `+` prefix and for commits reachable only from a linked worktree's reflog.
 - Priority discipline — the Priority field exists on the project but stays token-gated (`project` scope) and semantically undefined; when unlocked, define what its options mean and prefill per Convention 6.
 - Label taxonomy — Convention 6 maps onto the default labels today; a richer house set (surface/domain labels) is deliberately deferred until the user names one.
 - Project layout — one project per app vs one per engagement vs one per quarter. Currently undecided.
@@ -303,6 +372,7 @@ When any of these settle, add the convention here. Until then, defer to whatever
 - [[pseudomonorepos]] — load before this skill; the tree-walking discipline is what makes Convention 2 correct.
 - [[context-vigilance]] — what `context-v/` files look like, so the things being linked to follow the discipline.
 - [[git-conventions]] — commit-message shape, branch tiering. Task-body links to a context-v file inherit the branch tier from the same model.
+- [[Git Worktrees]] (`content-md/lossless/`) — full treatment of the worktree mechanics behind Convention 3b: what is shared vs. per-worktree, the submodule and gitignored-file gotchas, and how one-worktree-per-issue composes with this skill.
 - [[changelog-conventions]] — when a project task is "ship this," the corresponding changelog entry lives in `<repo>/changelog/` per that skill.
 - External — gh CLI Projects docs: <https://cli.github.com/manual/gh_project>
 - External — GitHub ProjectV2 GraphQL reference: <https://docs.github.com/en/graphql/reference/objects#projectv2>
