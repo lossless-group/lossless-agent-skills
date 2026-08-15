@@ -1,6 +1,14 @@
 # Lossless 4-Part Versioning
 
-The `semantic_version` field in `context-v/` frontmatter uses **four** integers, not three:
+> **Field name:** the standard is **`at_semantic_version`** — it reads naturally as "this doc is *at* version X," and it's what ~4,140 files and every template use. Write that one.
+>
+> **`semantic_version` is a permanently-accepted alias** for the same property and the same value (~330 files). It is not a legacy spelling awaiting cleanup: **no migration is planned and none is wanted.** Resolving one extra key is free for a renderer; rewriting hundreds of files to unify the spelling buys nothing. Consumers read `at_semantic_version ?? semantic_version`.
+>
+> So: **write `at_`, read either, never rewrite a file just to change which name it uses.** Everything below applies identically to both.
+>
+> Bump it together with `date_authored_current_draft` — a version move and a substantive revision are the same event.
+
+The version field in `context-v/` frontmatter uses **four** integers, not three:
 
 ```
 epoch . major . minor . patch

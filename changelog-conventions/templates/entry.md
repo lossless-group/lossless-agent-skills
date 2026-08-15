@@ -1,4 +1,6 @@
 ---
+date_authored_initial_draft: YYYY-MM-DD
+date_authored_current_draft: YYYY-MM-DD
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 title: "Title in title case"

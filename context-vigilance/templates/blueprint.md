@@ -1,13 +1,17 @@
 ---
 title: "Blueprint: TITLE HERE"
 # lede: "Optional one-sentence hook — newsroom-style. Add when this doc may be published or surfaced in a list/preview view."
-date_created: YYYY-MM-DD
-date_modified: YYYY-MM-DD
+publish: false                      # flip to true once this is more than a stub
+date_created: YYYY-MM-DD            # filesystem: when the bytes appeared
+date_modified: YYYY-MM-DD           # filesystem: bumped by any touch, incl. opening in Obsidian
+date_authored_initial_draft: YYYY-MM-DD   # editorial: when the content was first *set*
+date_authored_current_draft: YYYY-MM-DD   # editorial: last SUBSTANTIVE revision
+date_authored_final_draft:          # leave empty until it's actually final
 authors:
   - AUTHOR
 augmented_with:
   - Pi on Claude Sonnet 4.5
-semantic_version: 0.0.0.1
+at_semantic_version: 0.0.0.1
 tags:
   - Blueprint
 ---

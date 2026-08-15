@@ -77,11 +77,18 @@ Frontmatter in `context-v/` is **scattered in practice** — some files have lot
 ```yaml
 ---
 title: "Human-readable title"
+lede: "Subtitle-length hook — ~3 rendered lines max."
+publish: true
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
+date_authored_initial_draft: YYYY-MM-DD
+date_authored_current_draft: YYYY-MM-DD
 authors:
   - Author Name
-semantic_version: 0.0.0.1
+augmented_with:
+  - Claude Code on Claude Opus 5
+at_semantic_version: 0.0.0.1
+status: Draft
 tags:
   - Relevant-Tag
   - Another-Tag
@@ -90,15 +97,68 @@ tags:
 
 When editing existing files, **respect what's there**. Don't add fields the file didn't have unless they're genuinely useful. Don't remove fields you don't recognize.
 
+### The three date families — and why `context-v/` needs all of them
+
+This is the part agents get wrong, and it matters more here than anywhere else in the tree: **`context-v/` documents constantly evolve.** A spec is revised across months; a plan accumulates phases and post-ship notes; a blueprint gets superseded. Telling a doc that moved last week from one stable since spring is the whole job. That is why the vocabulary is broad.
+
+| Family | Keys | Source of truth | Answers |
+|---|---|---|---|
+| **Filesystem** | `date_created`, `date_modified` | `stat` | "When did these bytes appear and last change?" |
+| **Editorial** | `date_authored_initial_draft`, `date_authored_current_draft`, `date_authored_final_draft` | A human's judgment about the content | "When was this really written, last meaningfully revised, and finished?" |
+| **Lifecycle** | `date_first_published`, `date_last_updated` | The work, not the file | "When did it ship? When was it last touched at all?" |
+
+Filesystem dates lie in both directions, which is exactly why the editorial pair exists:
+
+- `date_modified` **overstates** recency. Obsidian bumps mtime just for *opening* a file. A doc untouched in substance for months shows yesterday.
+- `date_created` **can overstate** age-of-origin. A machine recovery in this tree reset birthtime on a batch of files to the recovery date. **Where frontmatter records an earlier `date_created` than the filesystem, the frontmatter is the more accurate record — never overwrite it with `stat`.**
+
+Corollary when deriving a missing `date_created`: if the file has a `date_authored_initial_draft`, prefer it over filesystem birthtime. A document cannot be created *after* its own first draft.
+
+`date_authored_final_draft` is often **present but deliberately empty** — that means "not final yet." Do not delete the empty key.
+
+### Key migrations
+
+Legacy spellings being renamed as files are touched. Preserve the value verbatim; change only the key:
+
+| Legacy | Current | Note |
+|---|---|---|
+| `created:` | `date_created:` | |
+| `date:` | `date_authored_initial_draft:` | Mostly on changelog entries |
+
+### `at_semantic_version` — standard spelling, with a permanent alias
+
+**Write `at_semantic_version`.** It is the standard and what every new doc and template uses (~4,140 files).
+
+**`semantic_version` is an accepted alias for the same property and the same value** (~330 files). It is *not* a legacy spelling awaiting migration — **there is no sweep planned and none is wanted.** Anything that reads the field reads both names and treats them identically; that costs a renderer one extra key lookup and saves rewriting hundreds of files for zero gain.
+
+So: write `at_`, read either, and **never rewrite an existing file just to change the spelling.** If you're touching a file for other reasons and it says `semantic_version`, leave it.
+
 Key conventions (full details in `references/frontmatter-spec.md`):
 
 - **All property names are `snake_case`** — enforced by Obsidian's frontmatter rendering. Never camelCase or kebab-case keys.
-- Update `date_modified` whenever you edit the file
-- `semantic_version` is **four-part `epoch.major.minor.patch`** — see `references/versioning.md`
+- **`publish`** is a boolean and it is a *decision*. `false` means a stub, a title with nothing under it, something deliberately held back, **or anything a stranger shouldn't see**. **If the key already exists, never flip it** — especially never `false` → `true` because a doc "looks long enough." Judging it on an existing file means **reading the file**: a stale "Stub" banner over a developed body is `true`; a polished title and lede over placeholder sections is `false`.
+- **Avoid disclosing what could be considered sensitive** — and prefer **genericizing over hiding.** Most `context-v/` work should be published; that's how the practice spreads. But write generically about specifics that aren't yours to share: name a client only when it adds something (it usually doesn't), keep PII and a client's proprietary frameworks and confidential deal terms out, and never paste a live credential *value*. Variable and env-var names, architecture, schemas, and our own candid post-mortems are all fine — over-screening makes the corpus useless. **The document's job comes first:** if it is materially better with the specific names in it, keep them and set `publish: false` — it stays in the repo for us, which is what `context-v/` is for. Never water a document down for a publication that was never going to happen. See *Avoid disclosing what could be considered sensitive* in `references/frontmatter-spec.md`.
+- Update `date_modified` whenever you edit the file — but bump `date_authored_current_draft` only on a **substantive** revision, and move `at_semantic_version` with it
+- `at_semantic_version` is **four-part `epoch.major.minor.patch`** — see `references/versioning.md`. `semantic_version` is a permanently-accepted alias for the same property and value: **write `at_`, read either, never rewrite a file to change which one it uses.**
+- **Never delete a frontmatter key you don't recognize.** The vocabulary is broad on purpose — different surfaces read different keys, and the cost of carrying an unused one is zero. Not knowing what a key does is a reason to leave it, not to remove it.
 - `authors` is **humans only**, always a list. AI agents are tracked separately under `augmented_with` (format: `Pi on Claude Sonnet 4.5`). See `references/frontmatter-spec.md`.
 - `tags` use **Train-Case** values (e.g., `Markdown-Rendering`, `Issue-Resolution`) — Obsidian convention
 - `status` uses **Train-Case** values too — it's a display string, not a machine enum
 - `lede` (or `description`) is optional on any doc-type — a newsroom hook for preview cards / OG snippets / list views. **Keep it subtitle-length** (see *Lede length discipline* below).
+
+## The `lede` property — what it's for
+
+**`lede` exists because `title` and `description` each fail at a different half of the job.**
+
+- **`title` says what the thing *is*.** That's its job and it does it well — but knowing what something is rarely makes you want to open it.
+- **`description` is always too long and too boring.** It's a summary, written for completeness. On a card it wraps to five lines and nobody reads past the second.
+- **`lede` says why you'd care, in a glance.** Short enough to render, interesting enough to earn the click.
+
+This is why the field is called `lede` and not `description` — the word is a newsroom instruction. *Write something that grabs attention.*
+
+**It's a rendering field, first and foremost.** Content cards, list views, index pages, search results, and OpenGraph/social previews all need one line of prose under the title, and they need it to be *good*. A doc with a great body and no lede renders as a bare title in every one of those surfaces. A doc whose lede is a truncated description renders as noise. Both are worse than they need to be, and the fix costs one sentence.
+
+Practical consequence: **if a doc will ever appear in a list, it wants a lede** — which in this tree is most of them, since `context-v/` renders publicly through Astro Knots sites and the corpus splash.
 
 ## Lede length discipline
 
@@ -119,6 +179,24 @@ When you feel the lede wanting to grow — to carry the full context, the journe
 ```
 
 This mirrors the audience cascade the `changelog-conventions` skill codifies: **lede = the two-second hook; `Why Care?` = the paragraph that earns the scroll.** Same discipline, every doc-type — specs, explorations, blueprints, issues.
+
+### A lede is written, never extracted
+
+**No script can generate a lede.** It is the one frontmatter field that requires having read the document and judged what is interesting about it. Every other field can be derived from the filesystem, the filename, git, or another key. This one cannot.
+
+A generated-then-abandoned lede is worse than no lede, because it renders as garbage on exactly the surfaces the field exists for — list views, preview cards, OG unfurls. Real failure signatures found in this tree, all from one extraction pass:
+
+| Symptom | What went wrong |
+|---|---|
+| `lede: "---"` | Captured a horizontal rule instead of prose |
+| `lede: "…allows each firm (e.g."` | Sentence-splitter broke on the period inside `e.g.` |
+| `lede: "…12Ps-scorecard."` | Split on a period inside a filename |
+| `lede: "Added a set of CLI tools to tighten the workflow:"` | Lifted a sentence that introduces a bullet list, trailing colon and all |
+| `title: "Summary"` / `title: "Overview"` | Took the first `##` rather than the document's subject — four docs ended up sharing one title |
+
+**Repairing one is a content edit, not a normalization** — it changes an existing value, so it falls outside an additive-only sweep and needs its own directed pass. To do it: read the document, find the most interesting or surprising thing in it, and write one to three sentences that make someone want the rest. The raw material is nearly always already in the body — a `## Summary` opener, a problem statement, a concrete number. Prefer the specific over the categorical.
+
+**If the document is a genuine stub, leave the lede empty.** An empty lede on an empty document is accurate; inventing a hook for content that doesn't exist is fabrication, and it reads as a promise the page can't keep.
 
 ## Status discipline
 

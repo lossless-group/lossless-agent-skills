@@ -51,24 +51,76 @@ Every Lossless repo at every level (project, true monorepo, pseudomonorepo) shou
 
 ## Mandatory frontmatter (last few months and forward)
 
-These six fields are **hardcoded** for new entries — non-negotiable. Older entries may have less or more; respect them.
+These fields are **hardcoded** for new entries — non-negotiable. Older entries may have less or more; respect them.
 
 ```yaml
 ---
-date_created: YYYY-MM-DD       # ISO with dashes. Set on creation.
-date_modified: YYYY-MM-DD      # ISO. Updated on every edit. Obsidian template often manages this; sometimes meaningless updates happen, that's accepted.
 title: "Human-readable title"
 lede: "Subtitle-length hook — one to a few sentences, ~3 lines max. The long version goes in Why Care?, not here."
-publish: true                  # Obsidian publisher convention. STRICTLY ENFORCED. Do not deviate.
-authors:                       # Humans only. Always a list. Preferred ul format (not [a, b] inline).
+publish: true                        # Obsidian publisher convention. STRICTLY ENFORCED.
+date_authored_initial_draft: YYYY-MM-DD   # When the content was first *set*: real, coherent, not a stub.
+date_authored_current_draft: YYYY-MM-DD   # When it last got a SUBSTANTIVE revision. Never earlier than initial.
+authors:                             # Humans only. Always a list. Preferred ul format (not [a, b] inline).
   - Firstname Lastname
-augmented_with:                # AI tools used. Format: "<tool> on <model name version>".
+augmented_with:                      # AI tools used. Format: "<tool> on <model name version>".
   - Pi on Claude Sonnet 4.5
-files_changed:                 # Optional but strongly recommended. Paths from project root.
+files_changed:                       # Optional but strongly recommended. Paths from project root.
   - src/components/NameOfComponent.astro
   - context-v/blueprints/Some-Blueprint.md
 ---
 ```
+
+### Two families of dates, and why both exist
+
+This is the part agents get wrong. There are **filesystem dates** and **editorial dates**, and they answer different questions.
+
+| Family | Keys | Source of truth | Answers |
+|---|---|---|---|
+| **Editorial** | `date_authored_initial_draft`, `date_authored_current_draft` | A human's judgment about the content | "When was this actually written and last meaningfully revised?" |
+| **Filesystem** | `date_created`, `date_modified` | `stat` on the file | "When did these bytes appear and last change?" |
+
+**Editorial dates are what timelines should read.** Filesystem dates lie in two directions:
+
+- `date_modified` **overstates** recency. Obsidian bumps mtime just for *opening* a file. A doc untouched in substance for three months can show yesterday's date.
+- `date_created` **can overstate** age-of-origin. A machine recovery in this tree reset birthtime on a batch of files to the recovery date. Where frontmatter records an *earlier* creation date than the filesystem, **the frontmatter is the more accurate record** — never overwrite it with `stat`.
+
+Corollary for agents deriving a missing `date_created`: if the file has a `date_authored_initial_draft`, that is a better source than filesystem birthtime. A document cannot have been created *after* its own first draft.
+
+### Recognized optional date keys — never strip these
+
+The tree uses a fuller vocabulary in places, applied unevenly on purpose. **These are not required, but they are never to be removed, renamed, or "cleaned up" when you find them:**
+
+```yaml
+date_authored_final_draft:      # Present-but-empty is meaningful: "not final yet."
+date_first_published:           # When it actually went out, distinct from when it was written.
+date_last_updated:              # Any touch, substantive or not.
+at_semantic_version: 0.0.1.0    # Four-part epoch.major.minor.patch.
+date_created: YYYY-MM-DD        # Filesystem. Kept where present.
+date_modified: YYYY-MM-DD       # Filesystem. Kept where present.
+```
+
+The maintenance cost of writing these is near zero for an agent, and different surfaces read different ones — that asymmetry is why the vocabulary is broad rather than minimal. **Fill one when you genuinely know the answer; leave it alone otherwise. Deleting an unfamiliar key is always wrong.**
+
+### Why this vocabulary is quieter on a changelog than in `context-v/`
+
+The whole draft-tracking apparatus exists because **`context-v/` documents constantly evolve.** A spec gets revised across months; a plan accumulates phases and post-ship notes; a blueprint gets superseded. There, `date_authored_current_draft`, `date_authored_final_draft`, `date_last_updated`, and `at_semantic_version` are doing real work — they are how you tell a doc that moved last week from one that has been stable since spring.
+
+**A changelog entry is normally write-once.** You ship, you log it, it stays. So in practice:
+
+- `date_authored_initial_draft` and `date_authored_current_draft` will usually be **the same date, forever.** That is correct and expected — not a sign anything was missed.
+- `date_authored_final_draft` and `date_first_published` are frequently left empty on changelog entries. Also fine.
+- The fields are still carried for consistency, and for the entries that *do* get revised — a correction, a follow-up ship note folded into the original, a post-ship addendum. When that happens, bump `date_authored_current_draft` and you have the history.
+
+**Redundant fields you don't use cost nothing.** Do not prune them from a changelog entry on the grounds that they're unused there — the uniform shape is what lets one aggregator read both trees.
+
+### Key migrations
+
+Two legacy spellings are being renamed as files are touched. Preserve the value verbatim; change only the key:
+
+| Legacy | Current |
+|---|---|
+| `date:` | `date_authored_initial_draft:` |
+| `created:` | `date_created:` |
 
 ### Notes on the fields
 
@@ -149,6 +201,19 @@ Conventions here are evolving. People are encouraged to experiment. The way to s
 - ❌ Reject a PR for using `description` instead of `lede`
 
 The aspiration is consistency. The reality is generative-first. Respect that.
+
+### The one carve-out: directed normalization sweeps
+
+"Show, don't enforce" governs **incidental** edits — do not rewrite someone's frontmatter as a side effect of unrelated work. It does **not** forbid a deliberate, operator-directed sweep to bring a repo up to standard.
+
+When such a sweep is running, these rules bind:
+
+1. **Additive only.** Add missing keys. Rename the two legacy spellings above. Never delete, reorder, restyle, or re-serialize anything else. A frontmatter round-trip through a YAML library is forbidden — it collapses multi-line `lede:` blocks and reorders hand-authored keys.
+2. **Never touch the body.** A frontmatter sweep that changes one line of prose is a failed sweep.
+3. **An explicit `publish` value is a decision.** If the key is already there, leave it. Never flip an existing `false` to `true`.
+4. **`publish` is a read, not a count.** Judge it by reading the document. A stale "Stub" banner on a fully-written doc means `true`; a polished title over twelve `[awaits discussion]` placeholders means `false`. Word-count heuristics get both wrong.
+5. **Edit originals, never rollups.** Collated copies (`context-vigilance-kit/corpus/`, `splash/src/rollup/`) and vendored skill copies (`context-v/agent-skills/`) are derived. Fix the source; the rollup regenerates.
+6. **Renaming a key can break a consumer.** Grep for readers of the old key before a rename lands. `date:` → `date_authored_initial_draft` broke two changelog ingesters that read `date` as their metadata field and temporal anchor.
 
 ## Reference / submodule projects
 
@@ -231,7 +296,7 @@ When creating a new entry, start from `templates/entry.md` (standard changelog) 
 2. **Decide:** is this a coherent chunk worth logging? (Apply the "Yes/Not necessarily" guide above.)
 3. **Find the changelog/** at the repo root. Create it if missing.
 4. **Filename:** `YYYY-MM-DD_NN.md`. Increment `NN` if today already has entries.
-5. **Copy** `templates/entry.md`. Fill in frontmatter (all 6 fields, ISO dates, `publish: true`).
+5. **Copy** `templates/entry.md`. Fill in every mandatory field — ISO dates with dashes, `publish: true`, and both `date_authored_*` dates (identical on a brand-new entry).
 6. **Write the lede first.** If you can't write a compelling lede, the work might not warrant an entry.
 7. **Body:** what shipped, why it matters, what it enables next. Link related work via `[[wikilinks]]`.
 8. **Commit and push.** This entry is part of the work, not separate from it.
