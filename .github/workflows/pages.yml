@@ -33,7 +33,9 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          # Match local dev. The splash's pnpm-workspace.yaml uses the pnpm 10
+          # settings-file shape; pinning 9 here is what broke the build.
+          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -43,7 +45,11 @@ jobs:
           cache-dependency-path: splash/pnpm-lock.yaml
 
       - name: Install
-        run: pnpm install --frozen-lockfile=false --ignore-workspace
+        # No --ignore-workspace: splash/pnpm-workspace.yaml is its own workspace
+        # root, and CI checks out this repo alone so there is no parent workspace
+        # to escape. Ignoring it would also discard onlyBuiltDependencies, which
+        # is what lets sharp and esbuild run their build scripts.
+        run: pnpm install --frozen-lockfile=false
 
       - name: Build
         run: pnpm build
