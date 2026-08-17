@@ -84,6 +84,7 @@ Add as needed; do not invent fields without precedent in the project. Common one
 
 | Field | Purpose |
 |---|---|
+| `summary` | **The agent-facing counterpart to `lede`.** Where `lede` competes for a human's attention pre-click, `summary` answers what an agent asks before opening the file: *what is this document for, where does it sit in the workflow, and what logic downstream should care about it?* Optional everywhere, but worth writing on any doc another agent will have to triage — an agent can produce it in the same pass as the lede. **Not a longer lede.** `lede` flows into OpenGraph automatically and is length-constrained by an unfurl card; `summary` renders nowhere, so it can be as long as the orientation needs. See *`lede` vs. `summary`* below — including the legacy-alias trap. |
 | `status` | **Train-Case display string** (e.g., `Draft`, `In-Review`, `Signed-Off`, `Implementing`, `Shipped`, `Partially-Shipped`, `Deferred`, `Stale`, `Superseded`, `Archived`). Treat as a rendering string for humans, **not a machine enum** — don't switch on these values in code, since spelling and casing drift across files. The Train-Case casing is the signal: "this property exists for display, not for build/render-pipeline branching." Update status as work lands; don't let it rot at `Draft`. Companion fields are required for `Shipped`, `Partially-Shipped`, `Deferred`, and `Superseded` — see `status-discipline.md` for the full lifecycle, companion-field rules, and the `## Remaining work` section convention. Spec-specific progression lives in `developing-a-spec.md`. |
 | `date_authored_final_draft` | `YYYY-MM-DD`, or **present-but-empty**. Empty is meaningful: "not final yet." **Do not delete the empty key** — its presence is the signal that finality is being tracked. |
 | `date_first_published` | `YYYY-MM-DD`. The ship date, set when `status:` first becomes `Shipped` or `Partially-Shipped`. Never updated after — it anchors when the work first landed. |
@@ -94,6 +95,150 @@ Add as needed; do not invent fields without precedent in the project. Common one
 | `superseded_by` | reverse of above |
 | `related` | list of `[[wikilinks]]` to related docs |
 | `aliases` | alternate titles for Obsidian linking |
+
+### `lede` vs. `summary` — two audiences, two jobs
+
+They are not long and short versions of each other. Different readers, different consuming surfaces.
+
+| | `lede` | `summary` |
+|---|---|---|
+| **Audience** | humans, pre-click | agents, and humans orienting mid-workflow |
+| **Job** | grab attention; convert interest into a click and time on page | situate the document: purpose, workflow position, what consumes it |
+| **Voice** | newsroom hook; specific, surprising | plain and declarative; no salesmanship |
+| **Consumed by** | list views, preview cards, search results, **OpenGraph/social unfurls** | agent retrieval, Chroma/Graphiti ingest, roll-up logic, an agent deciding whether to open the file |
+| **Length** | one to a few sentences, ~3 rendered lines max | a few sentences; may exceed the lede freely, since nothing renders it in a card |
+
+**The rendering split is the practical reason to keep them separate.** `lede` (or `description`) is what flows into OpenGraph automatically, so it is constrained by an unfurl card — stuffing workflow context into it degrades the surface the field exists to serve. `summary` has no such constraint. Each field gets to be good at one thing.
+
+**What belongs in a `summary`:**
+
+- What the document is *for* — the purpose behind it, not a restatement of the title.
+- Where it sits in a workflow — what it unblocks, what it supersedes, what has to happen before or after it.
+- How pseudomonorepo or `context-vigilance` logic might use it — which repo tier it affects, whether it defines a convention other repos inherit, whether it's roll-up-worthy or purely local, which doc-type conventions apply.
+- What an agent should do with the knowledge — "read this before touching X," "the spec it points at is the authority, not this file."
+
+This is most valuable on the doc-types an agent has to *triage* rather than read: specs, blueprints, handoffs, and issues, where the cost of opening the wrong file is a wasted context window.
+
+#### `summary` is a claimed name — check before you write one
+
+**Some repos historically used `summary` as a spelling of `lede`.** `astro-knots/sites/fullstack-vc` is the known case: 22 changelog entries carry human-facing subtitle prose under `summary`, predating this definition.
+
+- **Never assume an existing `summary` means what this section describes.** On a file with `summary` and no `lede`, the value is almost certainly a legacy lede.
+- **A renderer doing `lede ?? summary` will render agent prose in a human slot** on any file written to this spec that lacks a `lede`. The fix is to write a real `lede`, not to shorten the `summary`.
+- **Migrating a legacy `summary` is a content edit, not a normalization** — a directed pass, outside an additive-only sweep. Same rule as repairing a broken lede.
+
+## Identity fields — `site_uuid` and `hex_code`
+
+Two stable identifiers, both cheap to generate and both **write-once**. Neither does much on its own today; together they are what lets the corpus be addressed by something other than its filename. **Start writing them on new files now** — retrofitting identity onto a corpus is far more expensive than minting it at creation, and the corpus is already past 1,850 `context-v/` documents and 930 changelog entries.
+
+| Field | Shape | Set |
+|---|---|---|
+| `site_uuid` | UUID v4, lowercase, canonical hyphenated form | once, at file creation — never regenerated |
+| `hex_code` | 6 chars, `[a-z0-9]` | once, at file creation — never regenerated |
+
+### Why the filename is not enough
+
+`[[Filename-to-Reference]]` with no path works today because everything is on one filesystem and the resolver can walk the tree. It is also **already ambiguous**. A single blueprint in this tree resolves to eight files:
+
+```
+lfm/context-v/Maintain-Embeddable-Slides.md
+content/lost-in-public/blueprints/Maintain-Embeddable-Slides.md
+astro-knots/context-v/blueprints/Maintain-Embeddable-Slides.md
+astro-knots/sites/mpstaton-site/src/content/context-v/astro-knots/blueprints/…
+ai-labs/context-vigilance-kit/corpus/lfm/…
+ai-labs/context-vigilance-kit/corpus/astro-knots/blueprints/…
+ai-labs/context-vigilance-kit/corpus/lost-in-public/blueprints/…
+site/src/generated-content/lost-in-public/blueprints/…
+```
+
+Same document, one original plus roll-ups and generated copies. **`site_uuid` is the only thing that distinguishes "eight copies of one document" from "eight different documents"** when the filename matches too. That distinction is invisible to a wikilink and to a filename-keyed index — and it is exactly what a retrieval layer gets wrong.
+
+This is why the identifier **travels with the document into every roll-up**. Copies sharing a `site_uuid` is correct behavior, not a duplicate to clean up. In this tree 3,129 values are currently shared across 6,599 files for precisely this reason.
+
+### Why it earns its keep as the corpus grows
+
+- **Stable keys across re-ingest.** Chroma and Graphiti are already reading this corpus, and more stores are coming. Without a document-stable ID, every re-ingest mints new nodes and the history of a document through the graph is unrecoverable — you can't ask "how did this spec change" because nothing connects the versions. A `site_uuid` in the frontmatter survives re-ingest, file moves, and renames.
+- **Rename survival.** Filenames change; `context-v/` documents get retitled as their scope sharpens. A filename-keyed reference breaks silently. A UUID-keyed one does not.
+- **Disambiguation across pseudomonorepos.** Two repos can hold same-named documents that are genuinely different things.
+- **Live-sync to a multi-modal store (SurrealDB is the current favourite)** needs a primary key that the source of truth owns. That is what `site_uuid` is.
+
+### `site_uuid` — and why not just `uuid`
+
+**The name is deliberate.** Databases issue their own `uuid` primary keys; a document synced into one would then carry two different meanings under the same key name. `site_uuid` names the identity that is **valid local to the project** — the authoring vault, wherever it renders on the web, and the pseudomonorepo / `context-vigilance` context — and leaves `uuid` free for whatever store the document lands in. Sync layers map `site_uuid` → their own `uuid` without a collision.
+
+~6,650 files across the tree already carry it, overwhelmingly as lowercase v4.
+
+### `hex_code` — the document's own citation ID
+
+**This is what makes the corpus self-citing.** The `lossless-flavored-markdown` skill already specifies hex-code citations and says to *reuse a source's existing hex ID* so the same citation renders identically across documents. `hex_code` is where that ID lives when the source is **one of our own documents**.
+
+Using it: inline footnote markers, definitions collected in a `## References` section at the bottom.
+
+```markdown
+The sweep found the standard was being restated inconsistently between batches.[^a4f2c1]
+Filesystem birthtime is not a reliable authorship date.[^9de07b]
+
+## References
+
+[^a4f2c1]: [[Frontmatter-Normalization-Remaining-Repos]]
+[^9de07b]: [[Context-Vigilance-Frontmatter-Spec]]
+```
+
+This is native Obsidian footnote syntax, so it renders in the vault with hover previews and works as an aggregation surface across every pseudomonorepo. It also gives LFM a real render target on Astro Knots sites — the citation resolver already handles hex-code footnotes; pointing one at a wikilink instead of an external URL is the same mechanism.
+
+**Never sequential `[^1]`.** Sequential markers collide the moment a paragraph is copied between documents — the failure the hex-code convention exists to prevent. See `lossless-flavored-markdown/references/syntax-and-directives.md`.
+
+### Generating them — a command, never the model
+
+**An agent must shell out for these. It must never type an identifier from its own head.** A language model producing a "random" UUID emits something UUID-*shaped* drawn from training-data frequency: biased, repetition-prone, and not actually unique.
+
+This has already happened here. Seven `site_uuid` values in the tree contain characters that are not hex digits at all:
+
+```
+1n870f09-5578-4a74-a05d-a2f98752z7b9      ← n, z
+a0354223-396h-4rb4-a6ca-97afbe5cff17      ← h, r
+aad9a307-5897-418b-a822-f02gdbf6cb48      ← g
+y8f59v34-aa5b-4f79-b8a7-93c3fc99a89f      ← v, y
+```
+
+Every one is a model that typed a plausible-looking string instead of calling a generator. They are not valid UUIDs and will fail any strict parser downstream.
+
+```bash
+# site_uuid — any of these
+uuidgen | tr 'A-Z' 'a-z'
+python3 -c "import uuid; print(uuid.uuid4())"
+node -e "console.log(crypto.randomUUID())"
+
+# hex_code — 6 chars of [a-z0-9]
+LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6; echo
+python3 -c "import secrets,string; a=string.ascii_lowercase+string.digits; print(''.join(secrets.choice(a) for _ in range(6)))"
+```
+
+#### The charset matters more than the name suggests
+
+**`hex_code` is a slight misnomer — the charset is `[a-z0-9]` (base36), not `[0-9a-f]`.** Keep the established name; do *not* narrow the charset to true hex. The difference is the whole ballgame at corpus scale:
+
+| Documents | 6 chars of true hex (16⁶ ≈ 16.8M) | 6 chars of `[a-z0-9]` (36⁶ ≈ 2.18B) |
+|---|---|---|
+| 2,784 (today) | **20.6%** chance of a collision | 0.18% |
+| 10,000 | **94.9%** | 2.3% |
+| 25,000 | ~100% | 13.4% |
+
+`openssl rand -hex 3` is therefore the **wrong** generator here despite being the obvious one — it draws from 16 characters and collides at today's corpus size one time in five. Use the `tr -dc 'a-z0-9'` form above.
+
+#### Check before you commit
+
+Cheap, and definitive — the corpus is the registry:
+
+```bash
+grep -rl "<the-new-code>" --include='*.md' /Users/mpstaton/code/lossless-monorepo
+```
+
+No output means it's free. Regenerate on a hit. Worth doing for `hex_code` every time; unnecessary for `site_uuid`, where v4 collision is not a real-world risk.
+
+### Retrofitting is a directed pass, not a side effect
+
+Both fields are **additive and safe** — nothing reads them yet, so adding one cannot break a render. That does not make a sweep free: minting identity for 2,700 existing documents is an operator-directed decision, and the roll-up copies mean a naive `find` would assign *different* `site_uuid`s to copies of the same document, permanently breaking the dedup property. **Edit originals, never roll-ups** — resolve paths through `sources.md` or the changelog walker. Until that pass is directed, write these on new files and leave existing ones alone.
 
 ## Avoid disclosing what could be considered sensitive
 

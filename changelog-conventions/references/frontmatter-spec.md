@@ -126,6 +126,110 @@ A generated-then-abandoned lede is worse than no lede, because it renders as gar
 
 ## Strongly recommended optional fields
 
+### `summary`
+
+- **String.** Optional, but write one going forward — an agent can produce it in the same pass that writes the lede, so the marginal cost is near zero.
+- **Purpose: the agent-facing counterpart to `lede`.** Where `lede` competes for a human's attention, `summary` answers the questions an agent asks before opening a file: *what is this entry for, where does it sit in the workflow, and what downstream logic should care about it?*
+
+#### `lede` vs. `summary` — two audiences, two jobs
+
+They are not long and short versions of each other. They are written for different readers and consumed by different surfaces.
+
+| | `lede` | `summary` |
+|---|---|---|
+| **Audience** | humans, pre-click | agents, and humans orienting mid-workflow |
+| **Job** | grab attention; convert interest into a click and time on page | situate the entry: purpose, workflow position, what consumes it |
+| **Voice** | newsroom hook; specific, surprising | plain and declarative; no salesmanship |
+| **Consumed by** | index pages, preview cards, search results, **OpenGraph/social unfurls** | agent retrieval, corpus ingest, roll-up logic, an agent deciding whether to open the file |
+| **Length** | one to a few sentences, ~3 rendered lines max | a few sentences; may exceed the lede without penalty, since nothing renders it in a card |
+
+**The rendering split is the practical reason to keep them separate.** `lede` (or `description`) is what flows into OpenGraph automatically — so it is length-constrained by an unfurl card, and stuffing workflow context into it degrades a surface that exists to earn clicks. `summary` has no such constraint because no card renders it. Each field gets to be good at one thing.
+
+**What belongs in a `summary`:**
+
+- What the entry is *for* — the purpose behind the ship, not a restatement of the title.
+- Where it sits in a workflow — what it unblocks, what it supersedes, what has to happen next.
+- How pseudomonorepo or `context-vigilance` logic might use it — which repo tier it affects, whether it changes a convention other repos inherit, whether it's roll-up-worthy or purely local.
+- What an agent should do with the knowledge — "read this before touching X," "this supersedes the approach in Y."
+
+```yaml
+lede: "Four repos and 256 files are done; 652 across 47 are not — and three traps will bite anyone who assumes the standard applies uniformly."
+summary: "Hands off an in-flight tree-wide frontmatter sweep. Records what the completed repos proved and what the remaining ones still need, so a fresh session can resume without re-deriving the rules. Read before starting any frontmatter normalization work; the two frontmatter-spec references it points at are the authority, not this file. Consumed by whoever picks up the sweep, and by the pseudomonorepo branch-tier logic deciding which repos are already conformant."
+```
+
+#### `summary` is a claimed name — check before you write one
+
+**Some repos in this tree historically used `summary` as a spelling of `lede`.** `astro-knots/sites/fullstack-vc` is the known case: 22 changelog entries carry human-facing subtitle prose under `summary`, predating this definition.
+
+Consequences to respect:
+
+- **Never assume an existing `summary` means what this section describes.** On a file that has `summary` but no `lede`, the value is almost certainly a legacy lede.
+- **A renderer doing `lede ?? summary` will render agent prose in a human slot** on any file where `summary` was written to this spec and `lede` is missing. If a repo carries that fallback, the fix is to write a real `lede` — not to shorten the `summary`.
+- **Migrating a legacy `summary` is a content edit, not a normalization.** It moves human prose into `lede` and leaves `summary` free for its real job. That is a directed pass, outside an additive-only sweep — same rule as repairing a broken lede.
+
+Adding a `summary` to a file that already has a *legacy* `summary` is the one case where this field needs a decision rather than a fill-in. Resolve the legacy value first.
+
+### `site_uuid` and `hex_code` — stable identity
+
+Two write-once identifiers. Cheap to generate, near-useless in isolation, and increasingly load-bearing as the corpus grows — **write them on new entries starting now.** Retrofitting identity onto 930 existing entries is far more expensive than minting it at creation.
+
+| Field | Shape | Set |
+|---|---|---|
+| `site_uuid` | UUID v4, lowercase, canonical hyphenated form | once, at creation — never regenerated |
+| `hex_code` | 6 chars, `[a-z0-9]` | once, at creation — never regenerated |
+
+#### Why a changelog entry in particular needs one
+
+**Changelog entries are the most-copied documents in the tree.** Every entry is read in at least three aggregations — the repo's own list, the parent pseudomonorepo's roll-up, and the cross-repo Lossless Changelog — and the roll-ups are literal file copies. Filenames make this worse rather than better: entry filenames are dates (`2026-04-27_01.md`), so **two unrelated entries in two repos routinely share a filename**. A date-shaped filename is not an identifier.
+
+`site_uuid` is what tells an aggregator that four files are one entry rolled up four times, versus four different entries that happen to be named alike. **The identifier travels with the copy** — that is the point, not a duplicate to clean up.
+
+It also gives Chroma, Graphiti, and any future live-sync (SurrealDB is the current favourite) a key that survives re-ingest. Without one, every ingest mints fresh nodes and an entry's history through the graph is unrecoverable.
+
+#### Why `site_uuid` and not `uuid`
+
+Databases issue their own `uuid` primary keys. `site_uuid` names the identity that is **valid local to the project** — the authoring vault, wherever it renders on the web, and the pseudomonorepo / `context-vigilance` context — leaving `uuid` free for whatever store the entry syncs into. Sync layers map `site_uuid` → their `uuid` with no collision. ~6,650 files across the tree already carry it.
+
+#### `hex_code` — citing our own prior art
+
+`hex_code` is the entry's own citation ID, which is what lets **other** documents cite it. The `lossless-flavored-markdown` skill already specifies hex-code citations and says to reuse a source's existing hex ID so the citation renders identically everywhere; this is where that ID lives when the source is one of ours.
+
+```markdown
+This supersedes the ingester fix shipped in April.[^7c1e0a]
+
+## References
+
+[^7c1e0a]: [[2026-04-29_03]]
+```
+
+Native Obsidian footnote syntax — so it renders in the vault with hover previews, aggregates across pseudomonorepos, and gives LFM a real render target on Astro Knots sites.
+
+**Never sequential `[^1]`.** Sequential markers collide the instant a paragraph is copied between documents — and changelog entries get copied constantly.
+
+#### Generate with a command — never let the model type one
+
+A model asked for a "random" UUID emits a UUID-*shaped* string drawn from training-data frequency: biased and repetition-prone. **Seven `site_uuid` values already in this tree contain non-hex characters** (`…a2f98752z7b9`, `…396h-4rb4…`, `y8f59v34-…`) — each one a model typing instead of calling a generator. They are invalid and will fail a strict parser.
+
+```bash
+# site_uuid
+uuidgen | tr 'A-Z' 'a-z'
+
+# hex_code — 6 chars of [a-z0-9]
+LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6; echo
+```
+
+**Use that charset, not `openssl rand -hex 3`.** Despite the field's name the charset is base36, not true hex — and the difference decides whether it works at scale. Six true-hex characters (16⁶) collide with **20.6% probability at today's corpus size and 94.9% at 10,000 documents**; six `[a-z0-9]` characters (36⁶) collide at 0.18% and 2.3%. Check a new code before committing — the corpus is the registry:
+
+```bash
+grep -rl "<the-new-code>" --include='*.md' /Users/mpstaton/code/lossless-monorepo
+```
+
+No output means it's free. (Worth doing for `hex_code`; unnecessary for `site_uuid`.)
+
+#### Retrofitting is a directed pass
+
+Both fields are additive and safe — nothing reads them yet, so adding one cannot break a render. A *sweep* is still an operator decision, and a careless one is destructive: roll-up copies mean a naive `find` would assign **different** `site_uuid`s to copies of the same entry, permanently breaking the dedup property that justifies the field. **Edit originals, never roll-ups.** Until such a pass is directed, write these on new entries and leave existing ones alone.
+
 ### `files_changed`
 - **List of paths**, project-root-relative
 - Format: ul-list, one path per line

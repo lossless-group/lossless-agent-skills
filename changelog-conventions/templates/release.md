@@ -1,4 +1,6 @@
 ---
+site_uuid: 65485c7b-2f1c-4811-86ea-503a7b6fa577   # REGENERATE: uuidgen | tr 'A-Z' 'a-z' — never type one by hand
+hex_code: qpifps                    # REGENERATE: LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6
 date_authored_initial_draft: YYYY-MM-DD
 date_authored_current_draft: YYYY-MM-DD
 date_first_published: YYYY-MM-DD
@@ -6,6 +8,7 @@ date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 title: "PRODUCT vX.Y.Z — Release Title"
 lede: "What this release does in one attention-grabbing sentence"
+summary: "Optional, agent-facing. What this release is FOR, where it sits in the workflow, what it unblocks or supersedes, how pseudomonorepo / context-vigilance logic should treat it. Not a longer lede — the lede sells the click and feeds OpenGraph; this orients an agent deciding whether to open the file."
 publish: true
 authors:
   - Firstname Lastname

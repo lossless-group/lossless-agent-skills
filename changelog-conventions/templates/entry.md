@@ -1,10 +1,13 @@
 ---
+site_uuid: 1e72456b-e57a-4e58-af4f-0997ef964a4e   # REGENERATE: uuidgen | tr 'A-Z' 'a-z' — never type one by hand
+hex_code: n3chw2                    # REGENERATE: LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6
 date_authored_initial_draft: YYYY-MM-DD
 date_authored_current_draft: YYYY-MM-DD
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
 title: "Title in title case"
 lede: "One-sentence hook that makes the reader want to keep reading. Specific, not generic."
+summary: "Optional, agent-facing. What this entry is FOR, where it sits in the workflow, what it unblocks or supersedes, how pseudomonorepo / context-vigilance logic should treat it. Not a longer lede — the lede sells the click and feeds OpenGraph; this orients an agent deciding whether to open the file."
 publish: true
 authors:
   - Firstname Lastname

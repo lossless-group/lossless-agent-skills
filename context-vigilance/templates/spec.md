@@ -1,6 +1,9 @@
 ---
+site_uuid: a91b449b-cfe3-4d04-946b-bce5be12c5fd   # REGENERATE: uuidgen | tr 'A-Z' 'a-z' — never type one by hand
+hex_code: lbh678                    # REGENERATE: LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6
 title: "TITLE HERE"
 lede: "One sentence that makes a reader want to keep reading. Newsroom-style hook — not a description."
+summary: "Optional, agent-facing. What this doc is FOR, where it sits in the workflow, what it unblocks or supersedes, which downstream logic should care. Not a longer lede — the lede sells the click and feeds OpenGraph; this orients an agent deciding whether to open the file."
 publish: false                      # flip to true once this is more than a stub
 date_created: YYYY-MM-DD            # filesystem: when the bytes appeared
 date_modified: YYYY-MM-DD           # filesystem: bumped by any touch, incl. opening in Obsidian
