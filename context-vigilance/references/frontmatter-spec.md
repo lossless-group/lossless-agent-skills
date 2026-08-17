@@ -88,6 +88,8 @@ Add as needed; do not invent fields without precedent in the project. Common one
 | `status` | **Train-Case display string** (e.g., `Draft`, `In-Review`, `Signed-Off`, `Implementing`, `Shipped`, `Partially-Shipped`, `Deferred`, `Stale`, `Superseded`, `Archived`). Treat as a rendering string for humans, **not a machine enum** — don't switch on these values in code, since spelling and casing drift across files. The Train-Case casing is the signal: "this property exists for display, not for build/render-pipeline branching." Update status as work lands; don't let it rot at `Draft`. Companion fields are required for `Shipped`, `Partially-Shipped`, `Deferred`, and `Superseded` — see `status-discipline.md` for the full lifecycle, companion-field rules, and the `## Remaining work` section convention. Spec-specific progression lives in `developing-a-spec.md`. |
 | `date_authored_final_draft` | `YYYY-MM-DD`, or **present-but-empty**. Empty is meaningful: "not final yet." **Do not delete the empty key** — its presence is the signal that finality is being tracked. |
 | `date_first_published` | `YYYY-MM-DD`. The ship date, set when `status:` first becomes `Shipped` or `Partially-Shipped`. Never updated after — it anchors when the work first landed. |
+| `date_work_started` | `YYYY-MM-DD`. **When the work this document describes began** — not when the document was written. A separate axis from the editorial pair; see *Work dates vs. document dates* below. Optional; omit rather than guess. |
+| `date_work_completed` | `YYYY-MM-DD`. When that work finished. Independent of `date_work_started` — recording only the completion is fine. Must not precede it. |
 | `date_last_updated` | `YYYY-MM-DD`. Any touch, substantive or not. Contrast `date_authored_current_draft`, which moves only on substantive revision. Having both is intentional: one tracks activity, the other tracks meaning. |
 | `post_ship_note` | Multiline string. Things learned after `Shipped`. Useful when later work invalidates or sharpens a claim the plan made. See `status-discipline.md`. |
 | `deferral_note` | Multiline string. Required when `status: Deferred`. Names the reason and (where known) the expected unblocker. |
@@ -126,6 +128,55 @@ This is most valuable on the doc-types an agent has to *triage* rather than read
 - **Never assume an existing `summary` means what this section describes.** On a file with `summary` and no `lede`, the value is almost certainly a legacy lede.
 - **A renderer doing `lede ?? summary` will render agent prose in a human slot** on any file written to this spec that lacks a `lede`. The fix is to write a real `lede`, not to shorten the `summary`.
 - **Migrating a legacy `summary` is a content edit, not a normalization** — a directed pass, outside an additive-only sweep. Same rule as repairing a broken lede.
+
+### Work dates vs. document dates — two different timelines
+
+Every other date on a `context-v/` document is about the **document**:
+`date_created` when the file appeared, the editorial pair when the content was
+set and last revised. `date_work_started` / `date_work_completed` are about the
+**work the document describes**.
+
+For a spec or a plan those come apart hard. A plan is written *before* the work,
+revised *during* it, and the work finishes long after the last edit:
+
+```yaml
+date_authored_initial_draft: 2026-04-02   # plan written
+date_authored_current_draft: 2026-04-28   # revised as scope moved
+date_work_started: 2026-04-08             # implementation began
+date_work_completed: 2026-06-11           # shipped
+```
+
+None of those four is derivable from another. A document whose editorial dates
+sit in April is not a document about April's work.
+
+**Why capture it.** Rendered surfaces build timelines, and a timeline keyed on
+authorship shows when someone sat down to type — not when anything happened. For
+`context-v/` this is worse than for changelog, because the gap between writing a
+plan and finishing the work it plans is routinely months. Any tooling that helps
+a developer fold `context-vigilance-kit` into their own workflow — how long did
+this actually take, what was in flight in Q2, where are the plans that were
+written and never worked — is asking about the work axis. It cannot ask until
+the data exists.
+
+**Rules.**
+
+- **Optional, and independently so.** `date_work_completed` on its own is a
+  useful record. Write what is known.
+- **`date_work_completed` must not precede `date_work_started`.**
+- **Do not derive either from the filesystem.** `date_created` is a fact about
+  the file. If the work dates are not known, omit them — an absent field is
+  honest, an inferred one quietly corrupts the timeline it was added to serve.
+- **Do not backfill.** Nobody reliably remembers when work started six months
+  ago, and a guessed timeline is worse than no timeline.
+- **They pair naturally with `status`.** `date_work_completed` is normally set in
+  the same edit that moves `status` to `Shipped`, and sits alongside
+  `date_first_published`. Where `date_first_published` records when the *result*
+  went out, `date_work_completed` records when the *effort* ended — those differ
+  whenever something is finished but held.
+
+The convention is already live on eleven entries in
+`content-farm/plugin-modules/perplexed`, which is why it is being written down
+rather than invented.
 
 ## Identity fields — `site_uuid` and `hex_code`
 

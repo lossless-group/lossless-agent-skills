@@ -3,6 +3,9 @@ site_uuid: 65485c7b-2f1c-4811-86ea-503a7b6fa577   # REGENERATE: uuidgen | tr 'A-
 hex_code: qpifps                    # REGENERATE: LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c6
 date_authored_initial_draft: YYYY-MM-DD
 date_authored_current_draft: YYYY-MM-DD
+# When the WORK happened, as opposed to when this was written. Optional.
+# date_work_started: YYYY-MM-DD
+# date_work_completed: YYYY-MM-DD
 date_first_published: YYYY-MM-DD
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD

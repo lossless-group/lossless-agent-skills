@@ -9,6 +9,11 @@ date_created: YYYY-MM-DD            # filesystem: when the bytes appeared
 date_modified: YYYY-MM-DD           # filesystem: bumped by any touch, incl. opening in Obsidian
 date_authored_initial_draft: YYYY-MM-DD   # editorial: when the content was first *set*
 date_authored_current_draft: YYYY-MM-DD   # editorial: last SUBSTANTIVE revision
+# When the WORK this spec describes happened — a different axis from the
+# editorial dates above. A plan is written before the work and finishes long
+# after the last edit. Optional; omit rather than guess.
+# date_work_started: YYYY-MM-DD
+# date_work_completed: YYYY-MM-DD
 date_authored_final_draft:          # leave empty until it's actually final
 authors:
   - AUTHOR

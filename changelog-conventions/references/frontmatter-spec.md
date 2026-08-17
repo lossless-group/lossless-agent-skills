@@ -169,6 +169,70 @@ Consequences to respect:
 
 Adding a `summary` to a file that already has a *legacy* `summary` is the one case where this field needs a decision rather than a fill-in. Resolve the legacy value first.
 
+### `date_work_started` and `date_work_completed`
+
+- **ISO dates with dashes.** Both optional, and independent of each other —
+  `date_work_completed` alone is a perfectly good record.
+- **Purpose: when the WORK happened.** Every other date on the entry is about
+  the *document*. These are about the thing the document describes.
+
+#### Why this is a separate axis, not a duplicate
+
+The editorial pair answers *when was this written*. The work pair answers *when
+did this happen*. Those are different questions and the answers routinely differ:
+
+```yaml
+date_work_started: 2026-05-09              # sat down to it Saturday
+date_work_completed: 2026-05-10            # finished Sunday
+date_authored_initial_draft: 2026-05-10    # wrote it up the same evening
+date_authored_current_draft: 2026-05-17    # corrected a claim a week later
+```
+
+One entry, three distinct facts. Collapsing them loses information that cannot
+be recovered later — nobody remembers in November which Saturday a thing started.
+
+**This matters for rendering, which is the point.** A timeline built on
+`date_authored_*` is a timeline of *writing*, and it will show a burst of
+activity on the day someone sat down to document a fortnight of work. A timeline
+built on the work pair shows the work. Sites that render a project history want
+the second one, and today they cannot have it because the data was never
+captured.
+
+It matters for tooling too. Any feature that helps a developer integrate
+`context-vigilance-kit` into their own workflow — "what did this repo actually do
+last quarter", "how long do these tasks really take", "show me the gaps" — is
+asking about work, not about authorship. The fields have to exist before a
+feature can read them.
+
+#### Rules
+
+- **`date_work_completed` must not precede `date_work_started`.** If only one is
+  known, write that one; do not invent the other.
+- **`date_work_completed` is normally on or before `date_authored_initial_draft`** —
+  you write the entry up after doing the work. A later value is not an error, but
+  it usually means the entry was drafted mid-flight and finished afterwards.
+- **Multi-day work is the case these exist for.** For a single-session change all
+  four dates collapse to the same day, and the pair adds nothing; skip it.
+- **Never derive them from the filesystem.** `date_created` is when the file
+  appeared, which is a fact about the writeup. If the work dates are not known,
+  leave them out — an absent field is honest, an inferred one is not.
+- **Optional means optional.** Do not backfill across old entries; there is no
+  reliable source for when work started three months ago, and guessing would
+  poison exactly the timelines these are meant to serve.
+
+#### Precedent
+
+`content-farm/plugin-modules/perplexed` has been running this convention on
+eleven entries since April 2026, and it is the reason the fields are being
+written down rather than invented. On those entries `date_work_completed` and
+`date_created` agree, which is what you would expect from same-day work — the
+convention pays off on the entries where they diverge.
+
+When both are present, **prefer `date_work_completed` over `date_created`** as
+the derivation source for a missing `date_authored_initial_draft`: it is a
+human-authored statement about when the work landed, where `date_created` is a
+filesystem fact.
+
 ### `site_uuid` and `hex_code` — stable identity
 
 Two write-once identifiers. Cheap to generate, near-useless in isolation, and increasingly load-bearing as the corpus grows — **write them on new entries starting now.** Retrofitting identity onto 930 existing entries is far more expensive than minting it at creation.
