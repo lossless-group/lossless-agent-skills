@@ -1,6 +1,6 @@
 # Which `context-v/` Folder? — Decision Guide
 
-Use this when the right folder isn't obvious. Eight canonical folders, three modes — plus two universal utility folders (`extra/`, `sitemap/`) and an experimental tier (`loops/`, `handoffs/`, `decisions/`, `contracts/`); see SKILL.md for those.
+Use this when the right folder isn't obvious. Eight canonical folders, three modes — plus two universal utility folders (`extra/`, `sitemap/`) and an experimental tier (`loops/`, `handoffs/`, `decisions/`, `habits/`, `contracts/`); see SKILL.md for those.
 
 ## Quick decision tree
 

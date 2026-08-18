@@ -66,7 +66,7 @@ augmented_with:
 That's why the field is named `lede` and not `description` — the word is a newsroom instruction: *write something that grabs attention.*
 
 **It is a rendering field first.** Changelog entries surface on index pages, content cards, the cross-repo changelog aggregator, search results, and OpenGraph/social previews. Every one of those needs a single good line under the title. An entry with a strong body and no lede renders as a bare title everywhere it appears; an entry whose lede is a truncated summary renders as noise. Both are avoidable for the cost of one sentence.
-- **Subtitle-length: one to (at most) a few sentences, never more than ~3 rendered lines.** It has to do its job in two seconds — a paragraph can't. When the lede wants to grow, move the long version into the `## Why Care?` section. Lede = the hook; `Why Care?` = the paragraph that earns the scroll.
+- **Subtitle-length: 140 characters maximum, target 90–130 — two rendered lines, never three.** A hard budget, not a guideline; prose guidance like "a few sentences" does not constrain a writer, human or agent. It has to do its job in two seconds — a paragraph can't. When the lede wants to grow, move the long version into the `## Why Care?` section. Lede = the hook; `Why Care?` = the paragraph that earns the scroll. *(Tightened 2026-08-17 from "~3 rendered lines". Existing entries written to the looser rule are not defects — this is the aspiration for new ones.)*
 - Avoid generic ledes ("Updates to the project") — make it specific
 - Examples:
   - ✅ `"From zero to four shipped skills in one Claude session — and a backlog longer than the shipped list."`
@@ -141,7 +141,7 @@ They are not long and short versions of each other. They are written for differe
 | **Job** | grab attention; convert interest into a click and time on page | situate the entry: purpose, workflow position, what consumes it |
 | **Voice** | newsroom hook; specific, surprising | plain and declarative; no salesmanship |
 | **Consumed by** | index pages, preview cards, search results, **OpenGraph/social unfurls** | agent retrieval, corpus ingest, roll-up logic, an agent deciding whether to open the file |
-| **Length** | one to a few sentences, ~3 rendered lines max | a few sentences; may exceed the lede without penalty, since nothing renders it in a card |
+| **Length** | **140 chars max, target 90–130** — two rendered lines. A hard budget. | a few sentences; may exceed the lede without penalty, since nothing renders it in a card |
 
 **The rendering split is the practical reason to keep them separate.** `lede` (or `description`) is what flows into OpenGraph automatically — so it is length-constrained by an unfurl card, and stuffing workflow context into it degrades a surface that exists to earn clicks. `summary` has no such constraint because no card renders it. Each field gets to be good at one thing.
 

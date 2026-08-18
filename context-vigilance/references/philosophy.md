@@ -20,7 +20,7 @@ Most development activity falls into one of these. When something doesn't fit, t
 
 ## The count is not the answer
 
-The canonical set is convention, not law. Teams experiment. Folders show up that no one planned for (`notes/`, `changelog/`, `research/`, etc.) — and the convention grows by exactly that path: `plans/` and `agent-skills/` both started as unplanned folders and were promoted to canon in 2026-07 after tree-wide adoption; `loops/`, `handoffs/`, `decisions/`, and `contracts/` are in the experimental tier now, walking the same road. When you encounter an unplanned folder:
+The canonical set is convention, not law. Teams experiment. Folders show up that no one planned for (`notes/`, `changelog/`, `research/`, etc.) — and the convention grows by exactly that path: `plans/` and `agent-skills/` both started as unplanned folders and were promoted to canon in 2026-07 after tree-wide adoption; `loops/`, `handoffs/`, `decisions/`, `habits/`, and `contracts/` are in the experimental tier now, walking the same road. When you encounter an unplanned folder:
 
 1. Ask what kind of cognitive activity it represents
 2. Discuss whether it deserves to be a new norm or merge into an existing one

@@ -1,6 +1,6 @@
 ---
 name: context-vigilance
-description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, plans, prompts, blueprints, reminders, agent-skills, explorations, issues — plus the universal extra/ and sitemap/, and the experimental loops/, handoffs/, decisions/, and contracts/), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
+description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, plans, prompts, blueprints, reminders, agent-skills, explorations, issues — plus the universal extra/ and sitemap/, and the experimental loops/, handoffs/, decisions/, habits/, and contracts/), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, the four-part epoch.major.minor.patch versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
 ---
 
 # Context Vigilance
@@ -57,6 +57,7 @@ Folders the team is actively trialing. Their shape is **not settled** — expect
 - **`context-v/loops/`** — Definitions of recurring operational loops: a loop's scope, cadence, per-iteration procedure, and exit conditions (e.g., a dependency-upgrade loop that fans out across sites until every build is green). Pairs naturally with agent loop-runners like Claude Code's `/loop` — the doc is the durable definition; the runner is the execution.
 - **`context-v/handoffs/`** — Session-to-session handoff notes: the state of work captured at the end of a working session (what landed, what's mid-flight, what the next session must know) so a future session — human or agent, same person or a collaborator — resumes without re-derivation. The agentic-tooling world is converging on handoff documents as a primitive; this folder is where ours live.
 - **`context-v/decisions/`** — Artifacts of clear decisions made: what was decided, when, by whom, and what alternatives were passed over. Supplements specs and plans by isolating the *decision itself* — a spec tells you the current state of intent, a decision doc tells you the moment intent changed and why. Kin to the industry's ADR (Architecture Decision Record) convention, but not limited to architecture.
+- **`context-v/habits/`** — Recurring maintenance practices the team commits to performing, each named `Maintain <the thing> [across <the scope>]`. A habit answers *"what do we keep doing, and what fires it"* — the trigger, the procedure, and how far it applies (`applies_to` is the load-bearing frontmatter field). Two trigger shapes are in use: **event-driven** (update the README when a change makes it untrue) and **periodic sweep** (walk every `context-v/` promoting stale `status:` values). **Distinct from `reminders/`:** a reminder is a correction — *when you do X, do it this way* — and fires only when you happen to be doing X. A habit is an obligation — *do X, on this trigger, across this scope* — and fires whether or not anything reminded you. Most habits are addressed to the **agent** rather than the developer, and should say so explicitly.
 - **`context-v/contracts/`** — Binding agreements, in two flavors that share one property: they are *not suggestions*. (1) **Constitution contracts** — standing rules agents must always follow, regardless of session, task, or model (invariants stronger than reminders: a reminder corrects drift, a contract defines the boundary of acceptable behavior). (2) **Interface contracts** — ironclad API-level documentation of how data must flow through the app or across a microservices architecture: schemas, payload shapes, ownership boundaries, who may write what. Where a blueprint explains *how the system is designed*, a contract states *what must never be violated*.
 
 When creating either, follow the standard frontmatter baseline and note in the doc that the folder is experimental. When you see one shaped differently from this description, that's expected — surface the divergence, don't normalize it.
@@ -77,7 +78,7 @@ Frontmatter in `context-v/` is **scattered in practice** — some files have lot
 ```yaml
 ---
 title: "Human-readable title"
-lede: "Subtitle-length hook — ~3 rendered lines max."
+lede: "Subtitle-length hook — 140 chars max, two rendered lines."
 publish: true
 date_created: YYYY-MM-DD
 date_modified: YYYY-MM-DD
@@ -167,7 +168,11 @@ Practical consequence: **if a doc will ever appear in a list, it wants a lede** 
 
 **The lede is a subtitle, not an abstract.** It's the single line a reader sees in a list view, a preview card, or an OpenGraph snippet before deciding to click. Its whole job is to make them want to keep reading — and a hook that runs long has stopped being a hook.
 
-The rule: **one to (at most) a few sentences, never more than ~3 rendered lines.** If you can't say it in a subtitle, the lede isn't the place — the material belongs in the body.
+The rule: **140 characters maximum, target 90–130 — two rendered lines, never three.** A hard budget, not a guideline. Write ONE clause that lands, not a sentence with a subordinate clause trailing off it. If you can't say it in a subtitle, the lede isn't the place — the material belongs in the body.
+
+**Why a number and not "a few sentences."** Prose guidance does not constrain a writer, human or agent. A 2026-08-17 sweep briefed against the old "~3 rendered lines" wording produced 55 ledes averaging 370 characters — every one of them good prose, every one of them clipping mid-sentence in an OpenGraph unfurl, and all of them rewritten. Give the budget as a count.
+
+**The one thing worse than a long lede is a vague short one.** Never trade specificity for brevity. "A profile of Qdrant, a vector database" is under budget and worthless. If a document genuinely resists a 140-character hook, surface that rather than papering over it.
 
 When you feel the lede wanting to grow — to carry the full context, the journey, the stakes, the file inventory — that's the signal to **start a `## Why Care?` section directly under the title** (or an equivalent context/intro section) and put the long version there. The body is unbounded; the lede is not.
 
@@ -274,6 +279,7 @@ Use **Train-Case** for filenames: `Train-Case.md`. Same convention as tags. Matc
 - Recurring operational loop definition? → **loops/** (experimental)
 - End-of-session state capture for the next session or a collaborator? → **handoffs/** (experimental)
 - Isolated record of a decision made — what, when, why, alternatives passed over? → **decisions/** (experimental)
+- Recurring practice with a trigger and a scope — *"we keep doing X"*? → **habits/** (experimental)
 - Inviolable rule — agent constitution or ironclad data-flow/API contract? → **contracts/** (experimental)
 
 When in doubt, see `references/doc-type-guide.md`.
