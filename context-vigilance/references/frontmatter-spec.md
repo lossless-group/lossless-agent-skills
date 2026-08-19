@@ -359,6 +359,66 @@ Being over-cautious makes the practice useless. These are **not** sensitive:
 - **Our own conventions, practices, and post-mortems.** Candour about what we got wrong is a feature of this corpus, not a liability.
 - **Illustrative figures and placeholder data** that aren't tied to a real party.
 
+### Credentials: the cases that don't look like credentials
+
+"Never paste a live credential value" is the rule. The failure mode is that the
+things which actually leak **do not look like values**, so a screen aimed at
+high-entropy secrets walks straight past them. Treat every one of these as a
+credential:
+
+| Looks like | Actually is | Why it matters |
+|---|---|---|
+| **Access Key ID** (`AKIA…`, R2/S3 key IDs) | half a credential | It is called an *ID*, so it reads as a name. It is not. It is one half of a key pair, and it names the account to attack. |
+| **A salt** (`*_SALT=`) | half a credential | Salts are "public by design" in the abstract. Committed **next to the hash they salt**, they hand over an offline cracking job. |
+| **A password/passcode hash** (`*_HASH=`) | crackable secret | A hash is not a one-way door when the salt is on the adjacent line and the passcode is human-chosen. |
+| **An account ID inside an endpoint URL** | not secret, but identifying | `https://<32-hex>.r2.cloudflarestorage.com` is public by design — but it pins the exact account, so it converts a stray key ID into a targeted one. Redact for hygiene; do not panic-rotate. |
+| **A token's *ID*** as distinct from its value | half a credential | Some providers derive the S3 secret from the token value (`SHA-256(token)`), which means ID and secret are two faces of one token. Rotating once invalidates both. |
+
+The test is not "does this look secret." It is: **would this value, plus one
+more thing an attacker might get, grant access?** If yes, it is a credential.
+
+Corollary worth internalising: a provider **Account ID cannot be rotated.** It
+is permanent. So it must never be the thing you were relying on to stay quiet —
+and equally, its exposure is not an incident on its own.
+
+### Write hot, redact at the commit boundary
+
+The docs that leak credentials are almost never written carelessly. They are
+written **during** the work — an exploration narrating an hour of getting auth
+to work, with the real values pasted in because you are using them in that
+moment. Forbidding that would make the notes worse.
+
+So the rule is a **boundary**, not a prohibition:
+
+1. **While working:** paste whatever you need. The working tree is not the risk.
+2. **Before `git add`:** sweep the diff for credential shapes. One command:
+
+   ```bash
+   git diff --cached -U0 | grep -nE '\b[0-9a-f]{32,64}\b|(KEY|TOKEN|SECRET|SALT|HASH|PASSCODE)[A-Z_]*\s*[:=]'
+   ```
+
+3. **Replace with the retrieval path, not a blank.** `<CLOUDFLARE_ACCOUNT_ID>`
+   or "in `~/.secrets` as `R2_ACCESS_KEY_ID`" keeps the doc's procedural value.
+   A deleted line makes the doc worse and teaches nobody where to look.
+4. **If it is already pushed: rotate.** Redacting the working tree does nothing
+   about history. Rotation is the fix; redaction is the cleanup.
+
+The boundary is the commit, because that is where the value stops being yours.
+
+### One document is several files
+
+`context-v/` documents are mirrored. Redacting the source is not the job —
+finding every copy is. A single exploration can exist as:
+
+- the source in `<repo>/context-v/`
+- a Chroma **`corpus/` mirror** (tracked, and in at least one **public** repo)
+- a splash **`src/rollup/` copy**
+- a site's `src/content/context-v/` copy
+- a vendored `agent-skills/` copy
+
+Grep the **whole tree** for the value, not the file. Regenerating the mirrors
+afterward is not sufficient on its own — the stale copy is already committed.
+
 ### The one reliable tell
 
 The documents that most often need genericizing are the ones *about* handling confidential material — a doc explaining a private-data submodule pattern, or a corpus data model, tends to quote the very filenames and paths it exists to protect. Worth a second look when the title mentions private data, datarooms, substantiation, or auth.
