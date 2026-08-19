@@ -1,4 +1,6 @@
 ---
+name: market-capture-analysis
+description: "Answer the first foundational VC question — how big can it get? — by walking revenue and EBITDA across penetration steps of TAM / SAM / SOM at the company's existing pricing and business model. Use whenever sizing a market or an opportunity; whenever asked \"how big is this\", \"what's the TAM\", \"what's the size of the prize\", or \"what happens at 1% / 5% / 10% penetration\"; whenever building or reviewing the market-sizing section of an investment memo; whenever a revenue model needs its assumptions made explicit and falsifiable. Produces a static if-then penetration grid with stated assumptions, not a forecast. Deliberately incomplete on its own — it says nothing about time, so it is designed to be consumed by timeline-scenario-analysis, which stress-tests the same grid against growth rates."
 title: "Market Capture Analysis"
 lede: "Answers the first of the two foundational VC questions — *how big can it get?* — by walking revenue and EBITDA across penetration steps of SAM/SOM/TAM at the company's existing pricing and business model. A static if-then picture: the size of the prize at each penetration step, with assumptions named so they can be challenged. Pairs with the sibling skill [[timeline-scenario-analysis]], which answers *how fast?*"
 date_authored_initial_draft: 2026-06-09
