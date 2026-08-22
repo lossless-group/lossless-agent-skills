@@ -163,6 +163,10 @@ Operations marked **[agent-tool]** carry `x-agent-tool: true` in the spec (expos
 - `GET /api/v1/base/posts/{id}` — show post + replies.
 - `POST /api/v1/base/replies` — reply to a post.
 - `POST /api/v1/base/search` — full-text search posts + articles.
+- `GET /api/v1/pipeline_prospects/{pipeline_prospect_id}/attachments` — list a prospect's files; merges `source: "direct"` (CRM attachments on the org/person) and `source: "questionnaire"` (founder's deal-intake uploads). 403 unless the pipeline is `investment`-type. **Not in the 202506 swagger — live docs only.**
+- `POST /api/v1/pipeline_prospects/{pipeline_prospect_id}/attachments` — attach directly (multipart: `attachment[file]`, optional `attachment[name]`). No data-room copy. Needs `edit_prospects?`. **Live docs only.**
+- `DELETE /api/v1/pipeline_prospects/{pipeline_prospect_id}/attachments/{attachment_id}` — delete a `direct` attachment only. **Live docs only.**
+- `GET /api/v1/pipeline_prospects/{pipeline_prospect_id}/attachments/{signed_id}/download` — download by **signed blob id**. **Live docs only.**
 - `GET /api/v1/base/attachments/{id}` — download a blob (binary / 302 if >50MB).
 
 ## agent_platform  *(not [agent-tool])*

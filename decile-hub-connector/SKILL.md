@@ -108,6 +108,64 @@ There is **no standalone Person/Organization schema** — stored fields are dyna
 - **Person:** `first_name`*, `last_name`*, `email`*, `middle_name`, `phone`, `linkedin`, `tag_list`, `custom_data_points`, `note`, `picture` (base64/URL), `address`, `referred_by`, `organizations: [{ name, title }]`.
 - **Organization:** `name`*, `website`, `description`, `tag_list`, `logo`, `custom_data_points`, `note`, `address`, `referred_by`, `people: [associated_person]`.
 
+## Files and attachments — three surfaces, and they are not interchangeable
+
+**Absent from the June 2026 swagger snapshot.** The `/pipeline_prospects/{id}/attachments`
+family exists only in the live docs at `https://<tenant>.decilehub.com/docs/api`
+— the on-disk spec has just `/api/v1/base/attachments/{id}`. Verified live
+2026-08-19; treat live docs as authoritative where the two disagree.
+
+| Surface | Write | Lands in | Data-room copy? |
+|---|---|---|---|
+| **Prospect / CRM attachment** | `POST /api/v1/pipeline_prospects/{id}/attachments` | The prospect's underlying **organization or person** — the UI's *Files → Organization Attachments* | **No** |
+| **Data room** | `POST /api/v1/files` (+ `folder_id`) | A data-room folder; add `attachable_type` + `attachable_id` to *also* show it on the record | Yes |
+| **Questionnaire upload** | *(read-only — the founder writes it)* | Arrives via a deal-intake form; readable from the same list endpoint | n/a |
+
+### `POST /api/v1/pipeline_prospects/{pipeline_prospect_id}/attachments`
+
+`multipart/form-data` — `attachment[file]` (binary, required) and optional
+`attachment[name]` (defaults to the filename without its extension, matching the
+web UI). **No file-type allow-list** is applied here — web-UI parity; the data
+room upload endpoint is stricter.
+
+- **`investment`-type pipelines only** — a prospect on a closing/investor pipeline
+  returns **403**.
+- Requires pipeline **edit** access (`edit_prospects?`), not just read.
+- `201` returns the same entry shape as the list endpoint, with `id` and `signed_id`.
+- `400` missing `attachment[file]` · `403` wrong pipeline type or no edit access ·
+  `404` prospect not in the caller's account · `422` validation.
+
+> **House naming convention for decks:** `<date>_<CompanyName>--<Round>.pdf`
+> (`202608_ImpulseLabs--Pre-Seed.pdf`) — `YYYYMMDD` when the send date is known,
+> `YYYYMM` when only the month is. VCs see the same company at multiple rounds;
+> the round token is what keeps a re-pitch distinguishable from the original.
+> Full rule in the `decilehub-interface` skill.
+
+> The `decile-mcp` tool `upload_prospect_attachment` fronts this with
+> **`file_data_base64`** instead of multipart — the server does the conversion.
+> Don't infer the REST contract from the MCP tool's shape.
+
+### `GET .../attachments` merges two sources — know which you're holding
+
+Entry shape: `signed_id`, `filename`, `content_type`, `byte_size`, `source`,
+`name`, `item_id`, `uploaded_at`.
+
+- **`source: "direct"`** — CRM attachments on the org/person, from the Hub UI or
+  from `POST /files` with `attachable_type`/`attachable_id`. Carry a `name`.
+- **`source: "questionnaire"`** — **files the founder uploaded through a
+  deal-intake questionnaire** (e.g. *Submit Your Company*): pitch decks, cap
+  tables, supporting docs. Carry an `item_id` matching the filename custom field
+  stored on the organization record.
+
+**This is where inbound decks actually live.** A company that pitched through the
+intake form has already delivered its deck — check for a `questionnaire` entry
+before asking anyone to send one, or uploading your own copy.
+
+Only `direct` entries can be deleted
+(`DELETE .../attachments/{attachment_id}`); questionnaire uploads are the
+founder's submission and are not yours to remove. Fetch bytes with
+`GET .../attachments/{signed_id}/download` — **by `signed_id`, not `id`**.
+
 ## Errors
 
 Canonical shape (used on most 4xx):
