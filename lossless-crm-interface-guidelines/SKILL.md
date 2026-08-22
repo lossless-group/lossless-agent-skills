@@ -1,6 +1,6 @@
 ---
 name: lossless-crm-interface-guidelines
-description: Conventions for reading and writing the operator's Twenty CRM instances (Lossless, Palmer AI, The Water Foundation) via MCP. Use whenever adding or enriching a company, person, deal, thesis, event, or portfolio relationship; when triaging a list or export into the CRM; or when extending the CRM schema. Encodes instance routing, the custom object model (Investment, Deal Source, Deal Prospect, Thesis, Thesis Fit, Events), the forced-choice scoring standard, provenance rules, and known MCP pitfalls.
+description: Conventions for reading and writing the operator's Twenty CRM instances (Lossless, Palmer AI, The Water Foundation) via MCP. Use whenever adding or enriching a company, person, deal, thesis, event, or portfolio relationship; when triaging a list or export into the CRM; or when extending the CRM schema. Encodes instance routing, the custom object model (Investment, Deal Source, Deal Prospect, Thesis, Thesis Fit, Events, Interaction), the forced-choice scoring standard, provenance rules, the companion-timeline-row rule that makes custom objects visible on a Person or Company timeline, and known MCP pitfalls.
 ---
 
 # Lossless CRM Interface Guidelines
@@ -282,6 +282,69 @@ M of which became deal sources, K of which became investments. That question is
 unanswerable without a persistent record, which is why events get modelled properly
 rather than written into a note.
 
+### Interaction — a single touchpoint, and its timeline row
+
+`Person` · `Organisation` · Interaction Date · Channel · Direction · Summary · Verbatim ·
+Needs Response
+
+The object that answers "when did I last speak to X" and "what has gone quiet" — questions
+Notes cannot. Paste the message exactly into `Verbatim`: verbatim is evidence, paraphrase
+is not. Analysis still belongs in a Note.
+
+`Channel` was enumerated generously at creation (`WHATSAPP`, `EMAIL`, `PHONE_CALL`,
+`VIDEO_CALL`, `IN_PERSON`, `SMS`, `LINKEDIN`, `SIGNAL`, `TELEGRAM`, `SLACK`, `X_DM`,
+`EVENT`, `DATA_ROOM`, `BROADCAST`, `OTHER`) and **must never be edited now that records
+exist**. `Direction` distinguishes `BROADCAST` — sent to a list, not to the operator
+personally — from a direct approach. That distinction is signal, so set it honestly.
+
+Interaction is also the answer to "I want *these* meetings in the CRM, with their content."
+It carries full text, it is created one record at a time by deliberate choice, and it needs
+no calendar connection — so it works for an operator who will not sync a calendar. Prefer
+it over any attempt to hand-write `calendarEvent` (see §8).
+
+#### Always write the companion timeline row
+
+Creating an Interaction generates its own `interaction.created` activity, but that row
+targets the *Interaction*. The Person's and Company's timelines stay empty. Twenty only
+fans a `linked-<object>.created` row out to a parent record for `noteTarget` and
+`taskTarget` — hardcoded as a two-entry map in `timeline-activity.service.ts` — so custom
+objects never propagate on their own. There is no setting for this.
+
+Write the row yourself, one per populated relation:
+
+```
+create_one_timeline_activity {
+  position: "first",
+  name: "linked-interaction.created",
+  happensAt: <interactionDate>,          // the interaction's date, NOT now()
+  linkedRecordId: <interaction id>,
+  linkedRecordCachedName: <interaction name>,
+  linkedObjectMetadataId: <interaction object metadata id>,
+  targetPersonId: <personId>,            // and/or targetCompanyId — one row each
+  workspaceMemberId: <operator's workspace member id>
+}
+```
+
+Rules that make it stick:
+
+- **Leave `properties` unset.** The frontend's `filterOutInvalidTimelineActivities` drops
+  any row whose `properties.diff` keys don't validate against the target object's fields.
+  A `.created` row with no diff skips validation entirely and survives. Adding a diff is
+  how you make the row silently vanish.
+- **`happensAt` is the interaction's date.** The timeline sorts on it. Defaulting to now
+  puts a three-week-old conversation at the top of the feed.
+- **Fetch `linkedObjectMetadataId` per workspace** with
+  `get_object_metadata {objectName:"interaction"}`. It is not portable between instances.
+- **One row per relation.** An Interaction with both `personId` and `organisationId` needs
+  two rows to appear on both timelines.
+
+Expect generic copy, and don't chase it. `EventRowDynamicComponent` switches on the linked
+object's name with cases only for `calendarEvent`, `message`, `task`, and `note`; anything
+else falls through to `EventRowMainObject`, which renders from the action (`created`) alone.
+The entry lands on the timeline at the right time with the right author, but it won't read
+"created a related Interaction → <name>". That card needs a case added to the frontend
+switch — a patched fork, and not worth carrying yet.
+
 ### Lists — working sets
 
 A `Lists` MULTI_SELECT on Person, for filterable working sets (e.g.
@@ -362,6 +425,17 @@ Learned the hard way. Each of these has cost a real mistake.
   Created At if you want chronological.
 - **Stale UI.** Twenty does not always live-refresh while an external client writes.
   If the user says records are missing, verify with a query before re-creating anything.
+- **Never hand-create a `calendarEvent`.** MCP exposes no create tool for it, and the REST
+  path is a trap: `CalendarEventCleanerService` deletes every calendarEvent with no
+  `calendarChannelEventAssociation`, and it runs at the end of every calendar import, on
+  connected-account destroy, and on blocklist changes. With no calendar connected the rows
+  sit there looking fine — until the day someone connects one, and then they are gone.
+  Use an Interaction instead. (`create_calendar_event` is a different tool: it writes an
+  event onto a connected Google/Microsoft account and can email invitations. It is not a
+  CRM record insert.)
+- **Custom objects do not reach a parent's timeline by themselves.** Any custom object
+  related to a Person or Company needs a companion `linked-<object>.created` row written
+  explicitly. See the Interaction section in §5 for the recipe; it generalises.
 
 ---
 
@@ -377,6 +451,8 @@ Learned the hard way. Each of these has cost a real mistake.
 - Leading with risk, hedging, or warning a professional about professional things.
 - A neutral middle in any score.
 - Setting a formal `My Role` on a firm where no arrangement exists.
+- Creating an Interaction without its companion timeline row, leaving the touchpoint
+  invisible on the Person and Company timelines where it is actually looked for.
 - Merging records across instances.
 - Silently applying a name correction without surfacing it.
 - Dumping 40+ tool calls into one turn.
