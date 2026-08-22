@@ -221,8 +221,11 @@ Rules:
 ## 5. Custom object model
 
 Beyond Twenty's native Company / Person / Note / Task, Lossless carries these. Each is a
-join object because the relationship itself holds data — MCP exposes only
-`MANY_TO_ONE` / `ONE_TO_MANY`, so a true many-to-many needs a middle record.
+join object because the relationship itself holds data — and because **Twenty has no
+many-to-many at all**. `RelationType` in `twenty-shared` is literally two values,
+`MANY_TO_ONE` and `ONE_TO_MANY` (verified against v2.24.1). This is a product limit, not
+an MCP one: no tool, API call or UI action can widen a singular relation. Whenever a
+record needs to hold *several* people or companies, the answer is always a join object.
 
 ### Investment — who invested in whom
 
@@ -302,6 +305,32 @@ It carries full text, it is created one record at a time by deliberate choice, a
 no calendar connection — so it works for an operator who will not sync a calendar. Prefer
 it over any attempt to hand-write `calendarEvent` (see §8).
 
+#### Interaction Participation — the plural participants
+
+`Interaction` · `Person` · `Company` · Participation Role · Notes
+
+`Interaction.Person` and `Interaction.Organisation` are MANY_TO_ONE, so they hold the
+**primary counterpart** and nothing more. A three-person meeting cannot live in them.
+Interaction Participation is the join that carries everyone, exactly mirroring Event
+Participation.
+
+`Participation Role`: `ORGANIZER` (called or hosted it) · `PRESENTER` (demoed, pitched
+or presented) · `ATTENDEE` (present, not presenting) · `COPIED` (on the thread, passive)
+· `UNKNOWN`. **Never edit this option list now that records exist.**
+
+When to write participations:
+
+- **Multi-party interactions — always.** Without a row, a second attendee is invisible to
+  `find_many_interaction_participations`, which is the query that answers "when did I last
+  speak to X". A timeline row alone makes them *visible* but not *queryable*; that is not
+  the same thing and is not sufficient.
+- **1:1 interactions — don't bother.** The singular fields already carry it. A join row per
+  WhatsApp message is noise.
+- **Leave the role null rather than guess.** On a backfill where you weren't told who did
+  what, an empty role is data; an invented one is damage.
+- One row per participant, and the company gets its own row when the org itself was a
+  party (the presenting company, the firm on the other side of the table).
+
 #### Always write the companion timeline row
 
 Creating an Interaction generates its own `interaction.created` activity, but that row
@@ -336,7 +365,9 @@ Rules that make it stick:
 - **Fetch `linkedObjectMetadataId` per workspace** with
   `get_object_metadata {objectName:"interaction"}`. It is not portable between instances.
 - **One row per relation.** An Interaction with both `personId` and `organisationId` needs
-  two rows to appear on both timelines.
+  two rows to appear on both timelines. Once participations exist, write one row per
+  *participant* — otherwise the people who were in the room but aren't the primary
+  counterpart never see the interaction on their timeline.
 
 Expect generic copy, and don't chase it. `EventRowDynamicComponent` switches on the linked
 object's name with cases only for `calendarEvent`, `message`, `task`, and `note`; anything
