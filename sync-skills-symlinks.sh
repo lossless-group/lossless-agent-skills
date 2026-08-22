@@ -20,8 +20,9 @@
 # (i.e. an agent-skills link is never dragged back to a skills/ copy).
 set -euo pipefail
 
-# This script lives at <mono-root>/context-v/skills/ ; the tree to scan is the
-# monorepo root two levels up.
+# This script lives at <mono-root>/context-v/agent-skills/ ; the tree to scan is
+# the monorepo root two levels up. (The anchor's own skills dir was renamed from
+# skills/ to agent-skills/ on 2026-08-22; MONO_ROOT is still ../.. either way.)
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MONO_ROOT="$(cd "$SELF_DIR/../.." && pwd)"
 DEST="$HOME/.claude/skills"
