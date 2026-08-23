@@ -93,6 +93,12 @@ many.alt.forEach((alt, i) => {
 const expand = (p) => (p.startsWith("~") ? join(homedir(), p.slice(1)) : p);
 const kebab = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
+// Kebab each path segment but keep the separators, so --repo and --slug can
+// each describe more than one folder level. "humain-vc/portfolio" stays two
+// folders instead of collapsing to "humain-vc-portfolio". A value with no
+// slash behaves exactly as before.
+const kebabPath = (s) => s.split("/").map(kebab).filter(Boolean).join("/");
+
 // Train-Case each BEM segment while preserving the `__` and `--` separators.
 // Matches the house convention already used by ogimage__Lossless-At--Banner.jpg.
 //
@@ -230,7 +236,7 @@ for (let i = 0; i < many.src.length; i++) {
 
   let url = null;
   if (!cfg.dryRun) {
-    const folder = `/${kebab(cfg.repo)}/${kebab(cfg.slug)}`;
+    const folder = `/${kebabPath(cfg.repo)}/${kebabPath(cfg.slug)}`;
     const auth = Buffer.from(`${IK_PRIVATE}:`).toString("base64");
     const form = new FormData();
     form.append("file", new Blob([readFileSync(outPath)]), `${stem}.${cfg.format}`);
