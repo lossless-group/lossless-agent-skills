@@ -263,6 +263,31 @@ After changing a submodule's tracked branch: update `branch =` in the parent's `
 
 See `references/branch-alignment.md` for the full recipe (FF mechanics, divergence checks, push-to-default-branch caveats).
 
+## Pointer bumps are a wrap-up activity, not a per-commit one
+
+Every commit inside a submodule dirties the parent's gitlink. Bumping the parent each time turns one
+unit of work into two commits — the real one, and a second that says only *pointer moved*. Across a
+working day that is pure drag, and it drowns the parent's history in noise.
+
+**The rhythm:**
+
+| When | What |
+|---|---|
+| During the session | Commit and push freely in the child. Leave the parent's ` M <submodule>` dirty. |
+| At wrap-up | Bump every moved pointer **once**, in a single `chore(submodule): bump <names>` commit. |
+
+A dirty gitlink mid-session is the **expected state**. It is not drift, not an error, and not
+something to surface as a finding.
+
+**The exception is collaboration.** A parent pointer is how another person's clone resolves which
+child commit to check out. If someone else is working the same tree, a stale pointer hands them a
+checkout that does not match what you said you shipped — so bump more eagerly. The
+once-at-wrap-up rhythm assumes a single operator, which is the usual case in this tree but should be
+checked rather than assumed.
+
+**For agents:** do not offer to commit parent pointers mid-session, and do not report a dirty gitlink
+as a problem. Raise it at wrap-up, or when the user asks.
+
 ## Nested pseudomonorepos
 
 The hierarchy can be:
