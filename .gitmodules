@@ -1,3 +1,6 @@
 [submodule "chroma-agent-skills"]
 	path = chroma-agent-skills
 	url = https://github.com/chroma-core/agent-skills.git
+[submodule "archify"]
+	path = archify
+	url = https://github.com/tt-a1i/archify.git
