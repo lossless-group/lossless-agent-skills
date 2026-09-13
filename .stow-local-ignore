@@ -1,0 +1,18 @@
+# GNU Stow ignore list — links each skill dir in this repo into ~/.claude/skills.
+#
+#   stow -d <mono-root>/context-v -t ~/.claude/skills agent-skills
+#
+# This file REPLACES Stow's built-in ignore defaults, so every top-level entry
+# that is not a skill dir must be listed here.
+
+# Top-level files and dot-entries (README.md, CLAUDE.md, *.sh, .git, .github, .claude, ...)
+^/[^/]*\.[^/]*$
+^/LICENSE$
+
+# Top-level dirs that are not skills
+^/changelog$
+^/splash$
+
+# Vendored submodules — their SKILL.md sits one level deeper; link those by hand
+^/archify$
+^/chroma-agent-skills$
