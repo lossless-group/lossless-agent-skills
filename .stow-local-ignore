@@ -16,3 +16,4 @@
 # Vendored submodules — their SKILL.md sits one level deeper; link those by hand
 ^/archify$
 ^/chroma-agent-skills$
+^/talk-normal$

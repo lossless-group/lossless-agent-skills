@@ -4,3 +4,6 @@
 [submodule "archify"]
 	path = archify
 	url = https://github.com/tt-a1i/archify.git
+[submodule "talk-normal"]
+	path = talk-normal
+	url = https://github.com/lossless-group/talk-normal.git
