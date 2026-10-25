@@ -1,0 +1,24 @@
+{
+  "_about": "Copy to config/private.json (gitignored) and fill in. Facts only. Credentials are NEVER stored here: name the environment variables and the file they load from. Unknown values stay null; the skill asks rather than guesses.",
+  "default_account": "<account-slug>",
+  "accounts": {
+    "<account-slug>": {
+      "display_name": "Whose Cloudflare account this is",
+      "account_id_env": "CLOUDFLARE_ACCOUNT_ID",
+      "api_token_env": "CLOUDFLARE_API_TOKEN",
+      "secrets_file": "~/.secrets",
+      "token_kind": "account | user",
+      "token_has_artifacts": null,
+      "workers_paid": null,
+      "namespaces": [
+        { "name": "default", "purpose": "What lives here and whose it is", "jurisdiction": null }
+      ],
+      "repo_naming": "<agent>-<session-or-task>-<purpose>",
+      "default_write_ttl_seconds": 14400,
+      "baselines": [
+        { "namespace": "default", "repo": "baseline-name", "read_only": true, "purpose": "What sessions fork from it" }
+      ],
+      "verified_on": null
+    }
+  }
+}
