@@ -1,0 +1,24 @@
+{
+  "_about": "Copy to config/private.json (gitignored) and fill in. Facts only, no credentials: those live in <client_stack>/hubspot/.env. Unknown values stay null; the skill asks rather than guesses.",
+  "default_portal": "<client-slug>",
+  "portals": {
+    "<client-slug>": {
+      "display_name": "Client display name",
+      "portal_id": null,
+      "client_stack": "self-host-stack/client-stacks/<client-slug>",
+      "connector": "native | mcp-connector | lossless-wrapper",
+      "hubs": {
+        "sales": "Free | Starter | Professional | Enterprise | null",
+        "marketing": null,
+        "service": null,
+        "content": null,
+        "revenue": null
+      },
+      "sensitive_data": null,
+      "custom_objects": [],
+      "pipelines_note": "Which pipelines matter and what they're for. Stage IDs come from get_properties, never from here.",
+      "admins": "Who can approve Tier 2 (schema) changes on the client side, by role.",
+      "verified_on": null
+    }
+  }
+}
