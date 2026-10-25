@@ -8,9 +8,11 @@ description: Operate Cloudflare Artifacts, Cloudflare's Git-compatible versioned
 > **Status: Draft (2026-10-25).** Built from Cloudflare's Artifacts docs
 > (pages last updated between 2026-04-25 and 2026-10-22). Artifacts is in
 > **open beta** (since 2026-10-01). **Tested live 2026-10-25:** token
-> verification, listing and getting namespaces, listing repos, and the
-> credential behavior in [Gotchas](#gotchas). **Not yet tested:** create,
-> fork, import, delete, tokens, and git clone/push. Anything marked
+> verification; listing and getting namespaces; listing and creating repos;
+> minting write tokens; header-auth push from a local clone; Worker-side
+> clone, commit, and concurrent push with isomorphic-git; REST log reads; and
+> the credential behavior in [Gotchas](#gotchas). **Not yet tested:** fork,
+> import, delete, and token revocation. Anything marked
 > *(verify)* is a belief to confirm on first use. When
 > a live call disagrees with this file, the live call wins. Fix the file.
 
@@ -236,6 +238,20 @@ explicitly**.
   10302, `FORK_IN_PROGRESS` 10303, `INTERNAL_ERROR` 10400,
   `UPSTREAM_UNAVAILABLE` 10401, `MEMORY_LIMIT` 10402. The `…_IN_PROGRESS`
   codes and `UPSTREAM_UNAVAILABLE` are retryable; the rest aren't.
+- **Writing from a Worker means isomorphic-git, and Cloudflare's example
+  filesystem is incomplete.** The binding can create repos and mint tokens but
+  can't write files, so a Worker clones into memory, commits, and pushes with
+  `isomorphic-git`. Tested 2026-10-25 with isomorphic-git 1.44.4: the
+  `MemoryFS` helper in Cloudflare's isomorphic-git example fails on clone with
+  `Cannot read properties of undefined (reading 'bind')`, because
+  isomorphic-git binds `readlink` and `symlink` on every fs and the helper
+  lacks both. Its errors also carry no `code`, and isomorphic-git checks
+  `err.code === "ENOENT"`. Add both methods, and throw errors with a Node-style
+  `code`. Reference implementation: `self-host-stack/hubs/event-hog-mcp/src/memory-fs.ts`.
+- **Concurrent pushes from a Worker: retry from a fresh clone.** Tested
+  2026-10-25: two simultaneous writes to one repo both landed when each
+  rejected push re-cloned and re-applied its change. Design writes to add
+  files or append, so a retry can't clobber a teammate's work.
 - **Jurisdiction is per namespace and permanent** (`eu` or `us`; omit it for
   unrestricted). A client with data-residency needs gets its own namespace,
   created explicitly before the first repo. A repo created first makes the
