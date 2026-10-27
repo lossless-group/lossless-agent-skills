@@ -92,7 +92,7 @@ Nested series (Deep Tech Week → Deep Tech Week Austin TX 2026) mirror the CRM'
    "nobody on stage is a deal", "no multilateral is published", unannounced attendees
    from prior years.
 
-**Fetching friction (learned on RAISE 2026):**
+**Fetching friction:**
 
 - **Cvent event sites** render their lists (selected firms, LP logo walls, side events)
   inside iframes. Firecrawl returns an almost-empty page and `document.body.innerText`
@@ -108,6 +108,21 @@ Nested series (Deep Tech Week → Deep Tech Week Austin TX 2026) mirror the CRM'
   `find_many_companies` call works, but generic tokens produce false positives
   (`Maven` → Maven Clinic, `Scop` → Descope). Verify every hit before marking it **CRM**.
   For `lists`-type fields, filter with `containsAny`; `in` errors.
+
+**More friction:**
+
+- **Check what year the lists are before assuming.** A homepage can still link last year's
+  lists while the speaker and program pages are already this year's. Label every entry by
+  year and treat prior-year-only lists (logo walls, side-event catalogues) as map-only.
+- **Server-rendered sites:** `curl` plus HTML parsing beats Firecrawl markdown. Strip
+  `<script>` blocks first, or inline JS pollutes the name lists.
+- **Logo-only sections** (selection committees, last year's cohort) carry no names. Get
+  them from image filenames or from social posts (Tavily advanced search finds the
+  LinkedIn and Instagram announcements).
+- **Sibling events across series:** organizers co-host ("Brand x Brand" events). Read
+  the existing series notes for cross-references before building a new map.
+- **Name matching:** constrain people matches on first *and* last name. Never substring-match
+  short firm names (EQT matched eleQtron, NEA matched Linear, First matched FirstMark).
 
 **Inferring the operator's own lens:** when the lens is the operator's and they don't
 state the goal, read the routed CRM's `funds`, `theses` (`fundVehicle`), and
@@ -211,6 +226,41 @@ sibling `<Series> <Year> Event Map.md`. See drift notes. Keep the prep sections 
 operator still wants for next year's repeat.
 
 ---
+
+### Awareness mode (not registered, not attending)
+
+Get value from an event just by knowing it is happening, without registering or
+attending. Skip Phases 5–6. Instead:
+
+1. **Event records:** create the series and instances in Twenty as usual, with `costTicket` 0,
+   `daysSpent` 0, `worthRepeating: TOO_EARLY`, and an `eventNotes` line naming the experiment and
+   a grading date about 90 days out.
+2. **Observations only:** one `event_participation` per (organization, instance) with
+   `metInPerson: false` and the most significant role (fold any other roles into the notes).
+   Give it a non-empty name, `<Org> @ <Instance> (observed)`, and notes recording the source
+   list and fetch date. **Never create Interactions.**
+3. **New companies** get minimal fields plus `needsReview: true`. Set a domain only when the
+   source page or a fetched site confirms it.
+4. **Vault notes:** new VC firms go in `vertical-toolkits/Venture-Capital-Firms/` and named
+   speakers in `Sources/People/`, both with `publish: false` and an "Observed at … Observed,
+   not met." line. Wikilink the prep map with vault-root paths
+   (`[[Sources/People/X|X]]`). The vault folder is `Sources/`; the repo folder is `sources/`.
+   Index the whole vault first so you link an existing note instead of duplicating it.
+5. **Grade it:** on the grading date, count observed organizations that turned into a
+   conversation, deal flow, or an LP lead, then set `worthRepeating`.
+
+**Bulk-write pitfalls:**
+
+- Batch writes cap at 20 records per call and return only IDs. Append each batch's IDs to a
+  scratchpad manifest so it can always be rebuilt.
+- Dedupe by domain *and* name. Domain catches what name matching misses ("14B Venture Capital"
+  vs "14B.vc"). Short names need exact patterns (`"X"`, `"X %"`), not `%X%`.
+- Roster "firm" strings don't match company names ("Sequoia", "Langdock / Visionaries
+  Club", "Baobab Ventures (ex ElevenLabs…)"). Map them to company records explicitly before
+  linking people. Take each participation's source URL from that event's own page, not from
+  whichever list first surfaced the organization (that may be last year's).
+- Clicking a bare `[[Name]]` in Obsidian creates an empty note at the vault root. Point links at
+  the real path, and remove the 0-byte stub only when it collides with a real note.
 
 ## 4. Discipline that runs through every phase
 
