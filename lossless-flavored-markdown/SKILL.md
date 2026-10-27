@@ -47,7 +47,7 @@ That's the whole shape. Everything else — the trigger map, the variant registr
 
 **JSR for consumption, astro-knots for development.** Sites and apps install via `jsr add @lossless-group/lfm`. Agents working *on* LFM itself work in `astro-knots/packages/lfm/` (or the dedicated repo, if/when it spins out). Releases go to JSR first; GitHub Packages is a mirror for internal-only consumers.
 
-## Five non-negotiable rules
+## Six non-negotiable rules
 
 ### 1. Polyglot syntax normalises — don't fight it
 
@@ -76,6 +76,10 @@ Hover popovers and link previews must work offline and appear instantly on hover
 ### 5. CSS-in-markdown is sandboxed
 
 Authors may pass `style="…"`, `class="…"`, or scoped CSS blocks. The renderer strips `url()`, `javascript:`, and `@import`. Don't try to inject content via styles; use a registered component instead.
+
+### 6. Section breaks are `***`, never `---`
+
+This holds in **every** markdown file in the tree, LFM-rendered or not. `---` is reserved for the opening YAML frontmatter. Anywhere else it is a hazard twice over: a parser can read it as a frontmatter delimiter, and a `---` directly under a paragraph is a setext H2 underline, so the whole paragraph renders as a heading. Write `***`, with a blank line above and below. Code that *emits* markdown uses `***`; code that *reads* breaks accepts both, so older files still parse. Table delimiter rows (`|---|`) are unaffected.
 
 ## Feature inventory — what LFM ships
 
@@ -118,6 +122,7 @@ For the full directive form (`:text-directive`, `::leaf-directive`, `:::containe
 ## Common pitfalls
 
 - **Sequential `[^1]` citations.** Always hex codes. See rule 2.
+- **`---` as a section break.** Use `***`. A paragraph followed by `---` with no blank line becomes an H2. See rule 6.
 - **Missing alt text.** `::image` requires `alt=""` even for decorative images. Empty string is the explicit "screen-reader skip" signal.
 - **Forgetting the auto-unfurl opt-out.** A URL on its own line embeds. To keep it as a plain link, prefix with a backslash: `\https://example.com`.
 - **Unbalanced `:::` delimiters.** Container directives are strict about open/close pairs. Lint with `pnpm lfm:check` in CI.
