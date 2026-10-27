@@ -74,6 +74,12 @@ Instagram or TikTok only if they're clearly professional.
 - No personal or family accounts, home addresses, or personal phone numbers,
   even if found. This is professional information only.
 
+**Then the organization's accounts:** its **LinkedIn company page** and its
+**X account** (plus YouTube if it posts talks). Posts about the session tag
+both the speaker and the organization, so both need to be ready. Take them
+from the organization's own site (footer links) or a confirmed search
+result, never from a guess at the name.
+
 ## 3. Features, then 4. mentions
 
 - **Feature:** the piece is *about* them or *by* them: an interview, profile,
@@ -113,6 +119,7 @@ Session: <title> (<day, time>)
 Why they matter here: <one line>
 
 Social: LinkedIn · X · …              (only what was found and confirmed)
+Organization: LinkedIn page · X · …
 Features (n): date · outlet · title — why it matters
 Mentions (n): …
 Video (n): …
@@ -123,7 +130,8 @@ Then **save it**:
 - **Connected to event-hog:** call `save_speaker_profile`. It writes
   `speakers/<name>.md` in the event workspace and records each link as an
   observation (`has_social`, `featured_in`, `mentioned_in`, `has_video`) with
-  its URL as the source, tied to this event. Saving the same person again
+  its URL as the source, tied to this event. Pass the organization's
+  accounts as `organization_socials`; they're recorded on the organization. Saving the same person again
   adds to the profile instead of duplicating it.
 - **Otherwise:** write the card to a markdown file where the user keeps
   event notes, with every URL kept.
