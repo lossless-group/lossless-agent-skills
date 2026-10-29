@@ -40,7 +40,7 @@ The work of deciding what to build *is* the work — "prep" here is not "minor p
 
 ### Journey Mode (unpaired)
 
-- **`context-v/explorations/`** — Documents where the destination is unclear. Research, prototype tradeoffs, option-space mapping, thinking out loud with AI as partner. Ends when you've learned enough to write a spec — or decided you don't need one.
+- **`context-v/explorations/`** — Documents where the destination is unclear. Research, prototype tradeoffs, option-space mapping, thinking out loud with AI as partner. Ends when you've learned enough to write a spec — or decided you don't need one. **Not a brief:** an exploration asks *where should we go?*; a brief (`briefs/`) already knows, and captures the intent and creative take before anyone scopes it. A brief can come out of an exploration, and a spec usually comes after both.
 - **`context-v/issues/`** — Issue-resolution journey logs. The painful, winding path through debugging. Capture so no human or AI has to retrace it.
 
 ### Universal utility folders (any project, any mode)
