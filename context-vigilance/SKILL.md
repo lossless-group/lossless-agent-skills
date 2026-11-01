@@ -212,12 +212,17 @@ A generated-then-abandoned lede is worse than no lede, because it renders as gar
 
 The `status:` field is the load-bearing signal of where a document sits in its lifecycle. A directory full of `status: Draft` plans, half of which actually shipped, is a directory you can't trust. **Status reflects reality** — promote it as work lands.
 
-Canonical values (Train-Case display strings, not machine enums):
+It's also what a workflow dashboard groups by, so the values (Train-Case display strings, not machine enums) come in families, one per kind of doc. The list will evolve.
 
-`Draft` → `In-Review` → `Signed-Off` → `Implementing` → `Shipped` · `Partially-Shipped` · `Deferred` · `Stale` · `Superseded` · `Archived`
+- **Planned work** (specs, plans, prompts): `Stub` → `Draft` → `In-Review` → `Signed-Off` or `Ready` → `Implementing` → `Shipped` · `Partially-Shipped`
+- **Issues:** `Open` → `Resolved`
+- **Decisions:** `Decided`
+- **Standing docs** (reminders, habits, contracts, loops, notes, blueprints): `Active` (a rule agents follow) or `Reference` (an explanation agents consult)
+- **Any doc:** `Deferred` · `Stale` · `Superseded` · `Archived`
 
 Companion fields that must move with status:
 
+- **`Stub`** — `publish: false`; promote it to `Draft` the moment someone writes it.
 - **`Shipped`** — set `date_first_published: YYYY-MM-DD`; optionally `post_ship_note:` for things learned after ship.
 - **`Partially-Shipped`** — set `date_first_published:` for the first shipped slice; append a `## Remaining work (as of YYYY-MM-DD)` section enumerating what's done and what's left.
 - **`Deferred`** — set `deferral_note:` explaining the named reason.
