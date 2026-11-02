@@ -12,11 +12,14 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
+    "@lossless-group/lfm": "npm:@jsr/lossless-group__lfm@^0.6.1",
     "astro": "^6.3.1",
     "astro-pagefind": "^1.8.6",
+    "mdast-util-to-string": "^4.0.0",
     "pagefind": "^1.5.2"
   },
   "devDependencies": {
+    "@types/mdast": "^4.0.4",
     "sharp": "^0.34.5"
   }
 }

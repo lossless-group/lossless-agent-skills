@@ -1,6 +1,9 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
+import AstroMarkdown from '@components/markdown/AstroMarkdown.astro';
+import Sources from '@components/markdown/Sources.astro';
+import { renderable } from '@lib/markdown';
 
 export async function getStaticPaths() {
   const entries = await getCollection('skills');
@@ -11,7 +14,6 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
 
 const title = ((entry.data.title ?? (entry.data as any).name ?? entry.id) as string);
 const description = ((entry.data.description ?? entry.data.lede ?? '') as string);
@@ -20,6 +22,7 @@ const tags = (entry.data.tags ?? []) as string[];
 const dirName = ((entry.data as any).dir_name ?? entry.id.replace(/__/g, '/')) as string;
 const fromPath = ((entry.data as any).from_path ?? `${dirName}/SKILL.md`) as string;
 const repoUrl = `https://github.com/lossless-group/lossless-agent-skills/blob/main/${fromPath}`;
+const { tree, citations } = await renderable(entry.body, fromPath);
 
 const base = import.meta.env.BASE_URL;
 const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
@@ -85,7 +88,8 @@ const jsonLd = JSON.stringify({
       </header>
 
       <article class="prose entry__body">
-        <Content />
+        <AstroMarkdown node={tree} />
+        {citations.length > 0 && <Sources citations={citations} />}
       </article>
     </div>
   </main>

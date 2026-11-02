@@ -16,6 +16,14 @@
 packages:
   - '.'
 
+minimumReleaseAgeExclude:
+  - '@jsr/lossless-group__lfm@0.6.1'
+
 onlyBuiltDependencies:
   - esbuild
   - sharp
+
+# pnpm 12 reads this map and ignores the list above; CI still runs pnpm 10.
+allowBuilds:
+  esbuild: true
+  sharp: true

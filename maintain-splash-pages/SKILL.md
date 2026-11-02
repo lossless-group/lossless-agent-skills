@@ -223,6 +223,8 @@ The lenient schemas + defensive renderers are a *pair*. Skipping either one crea
 
 The full pattern is in `lfm/splash/src/content.config.ts` and `lfm/splash/src/lib/date.ts` — copy and adapt, don't re-invent.
 
+**Render bodies through LFM, not `render()`.** A custom loader's `store.set({ id, data, body })` stores no rendered HTML, so `const { Content } = await render(entry)` builds cleanly and publishes a title over an empty page. Install `@lossless-group/lfm` from JSR (`.npmrc` with `@jsr:registry=https://npm.jsr.io`, dependency `npm:@jsr/lossless-group__lfm`), parse `entry.body` with `parseMarkdown`, and render the tree with `AstroMarkdown.astro`. Copy `src/lib/markdown.ts` and `src/components/markdown/` from this repo's `splash/`. **A 200 status doesn't prove a page works:** check that a live page's body has text.
+
 ## Search — Pagefind by default
 
 The convention is set: every splash ships search-by-default. The exploration `astro-knots/context-v/explorations/Implementing-Full-Text-Search-by-Default.md` named Pagefind as the strong default; we've now confirmed it twice (memopop-site, lfm/splash).
