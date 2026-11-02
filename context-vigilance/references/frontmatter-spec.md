@@ -53,7 +53,7 @@ tags:
 | `date_authored_current_draft` | YYYY-MM-DD | **Editorial.** When the doc last received a **substantive** revision. Never earlier than `initial_draft`; if the best source would be, set them equal. Moves together with `at_semantic_version`. |
 | `authors` | list of strings | **Humans only.** Always a list, even with one entry. |
 | `augmented_with` | list of strings | AI tools used. Format: `<tool> on <model name version>`. Include whenever an AI agent contributed materially. |
-| `at_semantic_version` | string `e.M.m.p` | Four-part. See `versioning.md`. New docs start at `0.0.0.1`. **This is the standard spelling** (~4,140 files). `semantic_version` (~330 files) is a **permanently-accepted alias for the same property and value** — not a legacy form awaiting migration. Write `at_`, read either, and never rewrite an existing file just to change which name it uses. Consumers resolve the field as `at_semantic_version ?? semantic_version`. |
+| `at_semantic_version` | string `M.m.p` or `e.M.m.p` | Three or four parts, the user's choice; never convert between them. See `versioning.md`. Templates start at `0.0.0.1`. **This is the standard spelling** (~4,140 files). `semantic_version` (~330 files) is a **permanently-accepted alias for the same property and value** — not a legacy form awaiting migration. Write `at_`, read either, and never rewrite an existing file just to change which name it uses. Consumers resolve the field as `at_semantic_version ?? semantic_version`. |
 | `tags` | list of strings | **Train-Case** (e.g., `Markdown-Rendering`). At least one tag. |
 
 ### Filesystem dates lie — which is why the editorial pair exists

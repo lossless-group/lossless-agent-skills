@@ -1,4 +1,4 @@
-# Lossless 4-Part Versioning
+# Versioning: Three or Four Parts
 
 > **Field name:** the standard is **`at_semantic_version`** — it reads naturally as "this doc is *at* version X," and it's what ~4,140 files and every template use. Write that one.
 >
@@ -8,7 +8,27 @@
 >
 > Bump it together with `date_authored_current_draft` — a version move and a substantive revision are the same event.
 
-The version field in `context-v/` frontmatter uses **four** integers, not three:
+A version can have **three parts or four**. The user picks; neither is enforced. Your job is to read each one correctly and keep to the format a doc or repo already uses.
+
+| Parts | Format | Example | Read it as | Where it comes from |
+|---|---|---|---|---|
+| Three | `major.minor.patch` | `0.1.0` | major 0, minor 1, patch 0 | [Semantic Versioning](https://semver.org/), the market standard. New work usually starts at `0.1.0`. |
+| Four | `epoch.major.minor.patch` | `0.1.0.0` | epoch 0, major 1, minor 0, patch 0 | Our extension for documents, adding a number for a change bigger than a major one. New docs start at `0.0.0.1`. |
+
+**Count the parts before you read the digits.** `0.1.0` and `0.1.0.0` look alike, but the `1` is a minor in the first and a major in the second.
+
+**Which to use:**
+
+- **Existing doc:** keep its format. Never convert a version from one format to the other.
+- **New doc:** match the other docs in the repo. If there's nothing to match, use the template's default, unless the user prefers otherwise.
+- **Published package:** always three parts. npm, JSR, and other semver tools don't accept four.
+
+**Where epochs come from:** the idea is from Anthony Fu's [Epoch Semantic Versioning](https://antfu.me/posts/epoch-semver). His published format still has three numbers, so existing tools keep working: `{EPOCH * 1000 + MAJOR}.MINOR.PATCH`. So `1002.3.0` means epoch 1, major 2, minor 3, patch 0, and a first number of 1000 or more is the sign of it. Our four-part format writes the epoch as its own number, which he describes as the ideal but too late for package tools to adopt.
+
+The bump rules are the same in both formats, except that only four-part has an epoch. The rest of this page shows four-part; for three-part, drop the first number.
+
+## Four-part format
+
 
 ```
 epoch . major . minor . patch
@@ -21,7 +41,7 @@ epoch . major . minor . patch
 
 ## Starting version
 
-New documents start at `0.0.0.1`.
+Four-part documents start at `0.0.0.1`; three-part work usually starts at `0.1.0`.
 
 ## Epoch semantics
 
