@@ -119,6 +119,7 @@ When status changes, its companion fields change in the same edit.
 | `Deferred` | `deferral_note:` naming the reason and any expected unblocker |
 | `Superseded` | `superseded_by: [[Successor-Doc]]` (and `supersedes:` on the successor) |
 | `Stale` / `Archived` | optional `archive_note:` if context isn't obvious |
+| any value | optional `status_note:` for detail a single value can't carry. When a sweep turns a compound status (`Open · Diagnosed · root cause pinned …`) into one value, the whole original string goes here verbatim |
 
 In every case, **update `date_modified` (and `date_last_updated` if the file uses it) in the same edit.** Status changes are meaningful edits.
 
