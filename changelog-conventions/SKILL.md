@@ -318,6 +318,10 @@ The three things that matter, so you rarely need to open the other skill:
 Everything else — resizing, EXIF stripping, JPEG-over-WebP, folder layout — the
 script handles. Load [[prep-images-for-embed]] only when something is unusual.
 
+## Content repos log what the corpus gained
+
+Repos that hold a markdown corpus rather than a program (`lossless-content`, `content-areas`) don't change like code, so a file list and a line count say almost nothing. Their entries record new records and articles, real revisions, moves, resolving wikilinks, citations, and a `tags_aggregated` map. Generate those numbers with `scripts/content-stats.py`, write the story by hand, and put links in the body, because nothing on the site turns frontmatter paths into links. See `references/content-repos.md`.
+
 ## Templates
 
 When creating a new entry, start from `templates/entry.md` (standard changelog) or `templates/release.md` (product release).
