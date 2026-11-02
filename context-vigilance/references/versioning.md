@@ -8,24 +8,35 @@
 >
 > Bump it together with `date_authored_current_draft` — a version move and a substantive revision are the same event.
 
-A version can have **three parts or four**. The user picks; neither is enforced. Your job is to read each one correctly and keep to the format a doc or repo already uses.
+A version comes in one of **three formats**. The user picks; none is enforced. Your job is to read each one correctly and keep to the format a doc or repo already uses.
 
-| Parts | Format | Example | Read it as | Where it comes from |
+| Format | Shape | Example | Read it as | Where it comes from |
 |---|---|---|---|---|
-| Three | `major.minor.patch` | `0.1.0` | major 0, minor 1, patch 0 | [Semantic Versioning](https://semver.org/), the market standard. New work usually starts at `0.1.0`. |
-| Four | `epoch.major.minor.patch` | `0.1.0.0` | epoch 0, major 1, minor 0, patch 0 | Our extension for documents, adding a number for a change bigger than a major one. New docs start at `0.0.0.1`. |
+| Semantic Versioning | `major.minor.patch` | `0.1.0` | major 0, minor 1, patch 0 | [semver.org](https://semver.org/), the market standard. New work usually starts at `0.1.0`. |
+| Four-part | `epoch.major.minor.patch` | `0.1.0.0` | epoch 0, major 1, minor 0, patch 0 | Our format for documents. Templates start at `0.0.0.1`. |
+| Epoch SemVer | `{epoch * 1000 + major}.minor.patch` | `1002.3.0` | epoch 1, major 2, minor 3, patch 0 | Anthony Fu's [Epoch Semantic Versioning](https://antfu.me/posts/epoch-semver). |
 
 **Count the parts before you read the digits.** `0.1.0` and `0.1.0.0` look alike, but the `1` is a minor in the first and a major in the second.
 
-**Which to use:**
+## Why Epoch SemVer exists
 
-- **Existing doc:** keep its format. Never convert a version from one format to the other.
-- **New doc:** match the other docs in the repo. If there's nothing to match, use the template's default, unless the user prefers otherwise.
-- **Published package:** always three parts. npm, JSR, and other semver tools don't accept four.
+An epoch is useful: it marks a change bigger than a major one. But semver is everywhere, and npm, JSR, and other semver tools don't accept a four-part version, so using four parts means juggling two systems. Epoch SemVer keeps the epoch and stays a valid three-part version.
 
-**Where epochs come from:** the idea is from Anthony Fu's [Epoch Semantic Versioning](https://antfu.me/posts/epoch-semver). His published format still has three numbers, so existing tools keep working: `{EPOCH * 1000 + MAJOR}.MINOR.PATCH`. So `1002.3.0` means epoch 1, major 2, minor 3, patch 0, and a first number of 1000 or more is the sign of it. Our four-part format writes the epoch as its own number, which he describes as the ideal but too late for package tools to adopt.
+- **Below 1000 it's ordinary semver.** While the epoch is 0, `0.1.0` reads the same in both, so there's nothing to tell apart.
+- **At 1000 or above, the first number holds the epoch:** divide by 1000 for the epoch; the remainder is the major. `1000.0.0` is the start of epoch 1.
+- **An epoch bump adds 1000 and resets the rest:** `2.3.1` → `1000.0.0`, and `1002.3.0` → `2000.0.0`.
 
-The bump rules are the same in both formats, except that only four-part has an epoch. The rest of this page shows four-part; for three-part, drop the first number.
+It's a good choice for new work, especially anything that also ships as a package. It isn't a migration: **existing versions stay as they are.**
+
+## Which to use
+
+- **Existing doc:** keep its format. Never convert a version, and never rewrite files to move a repo to another format.
+- **New doc:** match the other docs in the repo. If there's nothing to match, ask the user or use the template's default.
+- **Published package:** semver or Epoch SemVer, never four parts.
+
+To compare across formats, translate in your head rather than in the file: four-part `e.M.m.p` is Epoch SemVer `{e * 1000 + M}.m.p`, so `1.2.3.4` is `1002.3.4`.
+
+The bump rules are the same in every format, except that plain semver has no epoch. The rest of this page shows four-part; for the other formats, leave off the first number and move the epoch as above.
 
 ## Four-part format
 
@@ -41,7 +52,7 @@ epoch . major . minor . patch
 
 ## Starting version
 
-Four-part documents start at `0.0.0.1`; three-part work usually starts at `0.1.0`.
+Four-part documents start at `0.0.0.1`; semver and Epoch SemVer work usually starts at `0.1.0`.
 
 ## Epoch semantics
 
