@@ -1,11 +1,11 @@
 ---
 name: generate-consistent-og-images
-description: "How to generate share-imagery (OpenGraph banners, portraits, squares, tall WhatsApp/iMessage cards) for any Lossless site or splash page so the resulting images form a coherent visual family — via two coexisting techniques: Ideogram illustration, or rasterizing the project's own hero/specimen component with macOS's `qlmanage`+`sips` (or a Playwright screenshot for higher fidelity). Use whenever a site, splash, plugin page, or fundraise deck needs an OG image generated or refreshed; whenever the user says \"make an og image\", \"generate a banner\", \"we need a share image\", \"regenerate banners across formats\", \"the unfurl looks stale\", \"screenshot the hero for the share image\", \"turn this component into an OG image\"; whenever scaffolding a new Astro Knots site that doesn't yet have an `og:image` or a `DESIGN.md`; whenever per-page or per-component custom illustrative imagery is needed even if it deliberately departs from the OG-image canon; whenever an existing OG image (of either technique) might already be live and a decision is needed about replacing vs. keeping it. Encodes the pattern of (1) choose Ideogram illustration vs. hero rasterization per the Strategy Choice section, (2) check / create a DESIGN.md following the Google Stitch open spec, (3) check / add an `imagery:` recipe block to that DESIGN.md, (4) call Ideogram v3 generate with every field locked except `prompt` and `aspect_ratio` (or rasterize the hero via `qlmanage`+`sips`), (5) save with the canonical naming convention, (6) treat WhatsApp + iMessage chat-preview as the primary share surface and other socials as secondary, (7) run the Case Protocol before wiring anything into a live `og:image` tag. The skill never sees an API key in source — `IDEOGRAM_API_KEY` lives in `~/.secrets` and is inherited from the shell, same pattern as the `crawl-fetch-ingest` skill."
+description: "How to generate share-imagery (OpenGraph banners, portraits, squares, tall WhatsApp/iMessage cards) for any Lossless site or splash page so the resulting images form a coherent visual family — via three coexisting techniques: per-page cards rendered at build time in the site itself (the default for any site with more than a few pages: a tall og:image and wide twitter:image for every page and section), Ideogram illustration, or rasterizing the project's own hero/specimen component with macOS's `qlmanage`+`sips` (or a Playwright screenshot for higher fidelity). Use whenever a site, splash, plugin page, or fundraise deck needs an OG image generated or refreshed; whenever the user says \"make an og image\", \"generate a banner\", \"we need a share image\", \"regenerate banners across formats\", \"the unfurl looks stale\", \"screenshot the hero for the share image\", \"turn this component into an OG image\"; whenever scaffolding a new Astro Knots site that doesn't yet have an `og:image` or a `DESIGN.md`; whenever per-page or per-component custom illustrative imagery is needed even if it deliberately departs from the OG-image canon; whenever an existing OG image (of either technique) might already be live and a decision is needed about replacing vs. keeping it. Encodes the pattern of (1) choose Ideogram illustration vs. hero rasterization per the Strategy Choice section, (2) check / create a DESIGN.md following the Google Stitch open spec, (3) check / add an `imagery:` recipe block to that DESIGN.md, (4) call Ideogram v3 generate with every field locked except `prompt` and `aspect_ratio` (or rasterize the hero via `qlmanage`+`sips`), (5) save with the canonical naming convention, (6) treat WhatsApp + iMessage chat-preview as the primary share surface and other socials as secondary, (7) run the Case Protocol before wiring anything into a live `og:image` tag. The skill never sees an API key in source — `IDEOGRAM_API_KEY` lives in `~/.secrets` and is inherited from the shell, same pattern as the `crawl-fetch-ingest` skill."
 ---
 
 # Generate Consistent OG Images
 
-> Two techniques, either one valid: generate a wordless illustration with Ideogram (two variables per request — aspect ratio and a one-sentence prompt; everything else locked at the `DESIGN.md` level), or rasterize the project's own hero/specimen component with `qlmanage`+`sips`. Illustration quality is stochastic — some runs land, some don't — while a hero rasterization is deterministic and on-message whenever the hero already says the thing. Pick per project, or per format, and let both coexist.
+> **Sites with more than a few pages: render a card per page at build time** (Technique C below), tall `og:image` plus wide `twitter:image`. For a single site-wide or splash image, two more techniques, either one valid: generate a wordless illustration with Ideogram (two variables per request — aspect ratio and a one-sentence prompt; everything else locked at the `DESIGN.md` level), or rasterize the project's own hero/specimen component with `qlmanage`+`sips`. Illustration quality is stochastic — some runs land, some don't — while a hero rasterization is deterministic and on-message whenever the hero already says the thing. Pick per project, or per format, and let both coexist.
 
 ## When to use this skill
 
@@ -55,7 +55,27 @@ How:
 3. **Higher-fidelity alternative:** screenshot the live component in a headless browser (Playwright's `page.screenshot()` at a fixed viewport) instead of hand-authoring separate markup. This guarantees pixel-parity with the real rendered site — actual fonts, gradients, CSS masks/filters, JS-driven layout — at the cost of a Playwright dependency. Prefer this over the `qlmanage` route when the hero relies on CSS/JS features QuickLook's renderer may not reproduce faithfully (it's WebKit-based but not a full browser tab — untested against remote web-font loads, CSS filters/masks, and JS-driven layout).
 4. **Same naming convention, same preservation discipline** as the Ideogram path — archive the outgoing file before overwriting, don't skip the format-per-surface thinking just because there's no Ideogram call involved.
 
+### Technique C — Per-page cards rendered at build time (default for content sites)
+
+Every page, event, article and section gets its own card, drawn from its own
+content with satori and rasterized with sharp during `astro build`, by a static
+endpoint (`src/pages/og/[variant]/[...key].jpg.ts`). Each page emits **one tall
+1080×1440 `og:image`** and the wide 1200×630 card in `twitter:image` only. No
+runtime, no host-specific API, and the cards exist the moment the content does.
+
+- Full pattern, design rules and lessons:
+  `astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-Image.md`.
+- Reference implementations: `astro-knots/sites/cathode-site` (dark brand, LFM)
+  and `astro-knots/sites/edviro-blog` (light brand, Astro MDX), both shipped
+  2026-11-17 and confirmed as clean tall cards in iMessage.
+- A or B still make the **site card** (the home page and any page with no card
+  of its own) when it deserves artwork. Wire it the same way: tall as
+  `og:image`, wide as `twitter:image`.
+
 ### Choosing per project
+
+- **More than a handful of pages, or any long-form content?** Technique C, and
+  use A or B only for the site card.
 
 - Ask: *does the hero/specimen already say what we want the OG image to say?* If yes, Technique B is often the safer default — deterministic, on-message, no illustration-quality lottery.
 - Technique A is the better fit for subjects with no single UI element that captures the pitch — metaphor, narrative, abstract concepts.
