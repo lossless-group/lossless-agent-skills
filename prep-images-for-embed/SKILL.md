@@ -45,8 +45,10 @@ IMAGEKIT_PUBLIC_KEY="public_..."
 IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/<id>"
 ```
 
-Tooling: `sips` (macOS built-in) does resize and JPEG. `exiftool` strips
-metadata. `cwebp` is only needed for the discouraged `--format webp` path.
+Tooling: `sips` (macOS built-in) does resize, rotation and JPEG. `exiftool`
+reads a phone photo's orientation and strips metadata (ImageMagick's `magick`
+works as a fallback for both). `cwebp` is only needed for the discouraged
+`--format webp` path.
 
 ## The call
 
@@ -309,7 +311,18 @@ imagery can be listed or cleared in one command.
 4. **Retina screenshots are 2×.** A "900px" macOS screenshot is often 1800px of
    pixels. The 1600px default is a reasonable ceiling for in-page content; raise
    it with `--width` when detail actually matters.
-5. **The ImageKit folder is derived, not configurable per-call** —
+5. **Phone photos are stored sideways.** A camera saves the sensor's pixels and
+   an EXIF Orientation flag that tells viewers how to turn them. `sips` ignores
+   the flag, and stripping metadata throws it away, so before 2026-11-16 a
+   portrait phone photo uploaded rotated 90°. The script now reads the flag
+   (exiftool, else magick) and bakes the rotation into the pixels first; without
+   either tool it warns.
+6. **Landscape is preferred; portrait is allowed.** `--width` caps the long
+   side, so a landscape image lands at 1600 wide and a genuine portrait phone
+   photo at 1600 tall (1200×1600). The script flags portrait output. Embed it in
+   a narrower figure (around 22–26rem, centered) rather than full column width,
+   or it runs a screen and a half tall.
+7. **The ImageKit folder is derived, not configurable per-call** —
    `/<repo>/<slug>/`. That is intentional: it mirrors where the content lives, so
    the CDN stays navigable.
 

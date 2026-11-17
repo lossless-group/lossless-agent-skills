@@ -25,7 +25,9 @@
  *   --format   jpg (default) | webp. Upload JPEG — ImageKit converts to WebP
  *              for browsers that accept it AND serves JPEG to those that do not.
  *              Uploading WebP makes the fallback a PNG up to 3x larger. Measured.
- *   --width    max width in px (default 1600). Images smaller are left alone.
+ *   --width    max long side in px (default 1600): landscape lands this wide,
+ *              portrait this tall. Images smaller are left alone. Phone photos
+ *              are rotated upright from their EXIF Orientation first.
  *   --quality  encoder quality (default 82).
  *   --staging  staging dir (default <cwd>/.image-staging)
  *   --emit     md (default) | lfm | html | figure | json
@@ -200,6 +202,31 @@ const dims = (p) => {
   };
 };
 
+// EXIF Orientation (1–8), read with exiftool or ImageMagick; sips can't read it.
+// 1 when neither tool is installed or the file has no flag.
+let warnedNoOrientationTool = false;
+const readOrientation = (p) => {
+  try {
+    if (has("exiftool")) return +execFileSync("exiftool", ["-n", "-s3", "-Orientation", p], { encoding: "utf8" }).trim() || 1;
+    if (has("magick")) return +execFileSync("magick", ["identify", "-format", "%[EXIF:Orientation]", p], { encoding: "utf8" }).trim() || 1;
+  } catch { return 1; }
+  if (!warnedNoOrientationTool) {
+    console.error("  ! neither exiftool nor magick found: phone photos may upload rotated (brew install exiftool).");
+    warnedNoOrientationTool = true;
+  }
+  return 1;
+};
+// sips steps that turn each orientation upright, applied in order.
+const ORIENT_OPS = {
+  2: [["--flip", "horizontal"]],
+  3: [["--rotate", "180"]],
+  4: [["--flip", "vertical"]],
+  5: [["--rotate", "90"], ["--flip", "horizontal"]],
+  6: [["--rotate", "90"]],
+  7: [["--rotate", "270"], ["--flip", "horizontal"]],
+  8: [["--rotate", "270"]],
+};
+
 // ---------- process ----------
 const STAMP = isoStamp();
 const results = [];
@@ -213,15 +240,32 @@ for (let i = 0; i < many.src.length; i++) {
   const stem = `${trainCase(many.name[i])}_${STAMP}`;
   const outPath = join(cfg.staging, `${stem}.${cfg.format}`);
   const before = kb(src);
-  const srcDims = dims(src);
 
   // Resize into a temp PNG first so the encoder gets clean input, and strip
   // metadata — screenshots can carry window titles, device info, and location.
   const tmp = join(cfg.staging, `.tmp-${stem}.png`);
   execFileSync("sips", ["-s", "format", "png", src, "--out", tmp], { stdio: "pipe" });
-  if (srcDims.w > cfg.width) execFileSync("sips", ["-Z", String(cfg.width), tmp], { stdio: "pipe" });
+
+  // Phone photos are stored sideways with an EXIF Orientation flag. sips ignores
+  // the flag, and stripping metadata below would throw it away, so the upload
+  // came out rotated. Bake the rotation into the pixels before anything else.
+  const orientation = readOrientation(src);
+  for (const args of ORIENT_OPS[orientation] ?? []) execFileSync("sips", [...args, tmp], { stdio: "pipe" });
+
+  // --width caps the long side: landscape lands at --width wide, a genuine
+  // portrait photo at --width tall.
+  const tmpDims = dims(tmp);
+  if (Math.max(tmpDims.w, tmpDims.h) > cfg.width) execFileSync("sips", ["-Z", String(cfg.width), tmp], { stdio: "pipe" });
+  if (tmpDims.h > tmpDims.w) {
+    console.error(
+      `  ! ${many.name[i]} is portrait (${tmpDims.w}×${tmpDims.h}). Fine for a genuine phone photo;\n` +
+      "    landscape is preferred for embeds, so place it in a narrower figure rather than full width.",
+    );
+  }
   if (has("exiftool")) {
     try { execFileSync("exiftool", ["-all=", "-overwrite_original", tmp], { stdio: "pipe" }); } catch {}
+  } else if (has("magick")) {
+    try { execFileSync("magick", [tmp, "-strip", tmp], { stdio: "pipe" }); } catch {}
   }
 
   if (cfg.format === "webp") {
@@ -268,7 +312,7 @@ for (let i = 0; i < many.src.length; i++) {
   });
 
   console.error(
-    `  ${stem}.${cfg.format}  ${srcDims.w}×${srcDims.h} → ${finalDims.w}×${finalDims.h}  ` +
+    `  ${stem}.${cfg.format}  ${tmpDims.w}×${tmpDims.h} → ${finalDims.w}×${finalDims.h}  ` +
     `${before}KB → ${after}KB (−${results.at(-1).savedPct}%)${url ? "" : "  [dry-run]"}`,
   );
 }
