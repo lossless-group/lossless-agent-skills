@@ -97,6 +97,38 @@ Plus the Twitter card pair:
 
 **How to apply:** For one-off shares, just paste `https://example.com/page?v=2`. For a permanent re-unfurl on a marketing page, bump a version in the canonical URL and add a redirect from the old. For Facebook/LinkedIn, use their debuggers (see references/unfurler-matrix.md).
 
+## Share every page and every section with its own image
+
+**Rule:** Every page gets its own share card, and every h2/h3 of long-form content
+gets its own card and its own share URL. A site where every link unfurls as the
+same logo, or with no image, is unfinished.
+
+**Why:** Chat apps ignore `#fragments`, so `page#heading` always unfurls with the
+page's card, never the section someone meant to send. A section needs a real URL
+(`/s/<collection>/<slug>/<heading-id>/`) whose `og:image` is that section's card,
+which then redirects to `page#heading`.
+
+**How to apply:**
+
+- Generate cards **at build time** on static sites: satori (layout) → resvg (PNG)
+  → sharp (JPEG), from a static `.jpg.ts` endpoint with `getStaticPaths`. No
+  runtime needed. Server sites can use an on-demand endpoint instead (mpstaton-site's
+  `/api/og`).
+- One `og:image` per page: the tall 3:4 card (1080×1440). The wide card
+  (1200×630) is `twitter:image` only.
+- Heading ids come from `@lossless-group/lfm` (`node.data.id`, `tree.data.headings`),
+  never recomputed in the render layer, so share pages and buttons agree.
+- Share buttons: native share sheet on touch devices, copy on desktop.
+- Satori reads TTF/OTF/WOFF only, not WOFF2 or EOT (fontsource serves WOFF).
+  Give every text block an explicit width, or titles run off the card.
+- Generated images served by Netlify or Vercel are already on a CDN, so rule 1's
+  GitHub Pages concern doesn't apply. Still set `Content-Type: image/jpeg`,
+  `Access-Control-Allow-Origin: *` and a cache header on `/og/*`.
+- Keep `/s/` share pages `noindex` and out of the sitemap; canonical is `page#heading`.
+
+Full pattern and reference implementation (`astro-knots/sites/cathode-site`):
+`astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-Image.md`.
+
 ## The minimum viable `<head>`
 
 ```html
