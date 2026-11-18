@@ -1,6 +1,6 @@
 ---
 name: cloudflare-artifacts-interface
-description: Operate Cloudflare Artifacts, Cloudflare's Git-compatible versioned storage for agents, from an agent session through the REST API, Wrangler, a Worker binding, or plain git. Use when someone wants a repo per agent, session, task, or user; wants to create, fork, import, list, read, or delete Artifacts repos or namespaces; needs a read or write token for git clone/push; wants to hand a workspace to another agent or reviewer; wants to read files from a repo without cloning; wants to clean up stale repos or check cost; or mentions "Artifacts", "artifacts.cloudflare.net", "art_v1_" tokens, "env.ARTIFACTS", or "wrangler artifacts". Supplies the three-credential model (API token for control, repo token for git, binding inside a Worker), safety tiers that put deletes, namespace jurisdictions, and long-lived write tokens behind a confirmation, token hygiene (never persist a token in .git/config), naming that avoids collisions, and the billing and size limits that make bulk creation a decision.
+description: Operate Cloudflare Artifacts, Cloudflare's Git-compatible versioned storage for agents, from an agent session through the REST API, Wrangler, a Worker binding, or plain git. Use when someone wants a repo per agent, session, task, or user; wants to create, fork, import, list, read, or delete Artifacts repos or namespaces; needs a read or write token for git clone/push; wants to hand a workspace to another agent or reviewer; wants to read files from a repo without cloning; wants to clean up stale repos or check cost; or mentions "Artifacts", "artifacts.cloudflare.net", "art_v1_" or "art_v2_" tokens, "env.ARTIFACTS", or "wrangler artifacts". Supplies the three-credential model (API token for control, repo token for git, binding inside a Worker), safety tiers that put deletes, namespace jurisdictions, and long-lived write tokens behind a confirmation, token hygiene (never persist a token in .git/config), naming that avoids collisions, and the billing and size limits that make bulk creation a decision.
 ---
 
 # Cloudflare Artifacts Interface
@@ -11,8 +11,10 @@ description: Operate Cloudflare Artifacts, Cloudflare's Git-compatible versioned
 > verification; listing and getting namespaces; listing and creating repos;
 > minting write tokens; header-auth push from a local clone; Worker-side
 > clone, commit, and concurrent push with isomorphic-git; REST log reads; and
-> the credential behavior in [Gotchas](#gotchas). **Not yet tested:** fork,
-> import, delete, and token revocation. Anything marked
+> the credential behavior in [Gotchas](#gotchas). **Tested live 2026-11-17:**
+> Wrangler OAuth login, Wrangler repo create, REST token listing and
+> revocation with the OAuth token. **Not yet tested:** fork, import, and
+> delete. Anything marked
 > *(verify)* is a belief to confirm on first use. When
 > a live call disagrees with this file, the live call wins. Fix the file.
 
@@ -45,7 +47,7 @@ exist and what each is for, and the repo naming pattern.
 | **Namespace** | Top-level container. Groups repos by environment, tenant, or shard. Created implicitly by the first repo that names it, or explicitly (needed to set a jurisdiction). Name: 2–63 chars, starts with a letter or digit, then letters, digits, `.`, `_`, `-` |
 | **Repo** | One isolated Git service. Address = namespace + name, unique **within** the namespace. APIs also return an opaque repo `id` |
 | **Remote** | `https://<ACCOUNT_ID>.artifacts.cloudflare.net/git/<namespace>/<repo>.git`. **Use the `remote` returned by the API**, never a hand-built one |
-| **Repo token** | `art_v1_<40 hex>?expires=<unix seconds>`. Scoped to **one repo**, `read` or `write`, TTL 60 s to 1 year |
+| **Repo token** | `art_v2_x_<40 hex>?expires=<unix seconds>` (seen 2026-11-17; older tokens are `art_v1_<40 hex>…`). Match any `art_v\d+_` prefix. Scoped to **one repo**, `read` or `write`, TTL 60 s to 1 year |
 | **Fork** | A new repo starting from another's history, then diverging, with its own tokens. `read_only` and `default_branch_only` options |
 | **Read-only repo** | A repo flagged `read_only` at create, fork, or import: a fixed baseline nobody can push to |
 
@@ -60,7 +62,7 @@ Three surfaces reach the same repos ([`references/api-map.md`](references/api-ma
 | Credential | Used for | Where it comes from |
 |---|---|---|
 | **Cloudflare API token** | REST control plane, as `Authorization: Bearer` | Cloudflare dashboard, with **Artifacts → Read** (reads) and **Artifacts → Edit** (writes) |
-| **Repo token** (`art_v1_…`) | git clone/fetch/pull (`read`), push (`write`) | Minted by the control plane, per repo |
+| **Repo token** (`art_v2_x_…`, formerly `art_v1_…`) | git clone/fetch/pull (`read`), push (`write`) | Minted by the control plane, per repo |
 | **Worker binding** (`env.ARTIFACTS`) | Control plane from inside a Worker, no token in code | `artifacts` block in the Wrangler config, bound to one namespace |
 
 An API token never works for git, and a repo token never works for REST.
@@ -101,8 +103,18 @@ per item is a cost decision. Say the expected count before running it.
   client must push. Re-mint per session rather than sharing one.
 - **Always pass `scope` explicitly.** `POST /tokens` **defaults to `write`**
   with a 24-hour TTL. Create, fork, and import responses also return a token.
-  Treat it as write-capable *(verify the scope)* and don't hand it to a
-  reader.
+  **It is a `write` token with a 24-hour TTL** (tested 2026-11-17 on a
+  Wrangler create). Don't hand it to a reader, and revoke it if you don't
+  need it.
+- **Creating a repo prints a write token.** `wrangler artifacts repos create`
+  prints `token: art_v2_x_…` in plain text, and the REST create returns it
+  in JSON. In an agent session that output lands in the transcript. Pipe it
+  through a redaction filter that matches every format, `sed -E
+  's/art_v[0-9]+_[A-Za-z0-9_]+(\?expires=[0-9]+)?/<token redacted>/g'`, or
+  revoke the token right after creating the repo: list
+  `GET NS/repos/:name/tokens?state=active`, then `DELETE NS/tokens/:id`.
+  A filter keyed to one prefix misses the next format. On 2026-11-17 an
+  `art_v1_` filter let an `art_v2_x_` token through.
 - **Never put a token in a remote URL that persists.**
   `git clone https://x:<token>@…` writes the token into `.git/config`, where
   it outlives the session and gets copied with the folder. Use the header
@@ -228,6 +240,12 @@ explicitly**.
   It **doesn't create namespaces (so no jurisdiction), fork, or import**: use
   REST or the binding for those. `repos delete` prompts for confirmation
   unless `--force`/`-y`. Don't pass `-y` without a yes from the person.
+- **Wrangler's OAuth login reaches Artifacts when the API token can't.**
+  Tested 2026-11-17: `wrangler login` requests `artifacts:write`, and its
+  OAuth token (in `~/Library/Preferences/.wrangler/config/default.toml` on
+  macOS) also works as a Bearer token on the REST routes, including token
+  listing and revocation, which Wrangler itself can't do. Use it as a
+  stopgap while an API token is missing Artifacts permission. Never print it.
 - **Push is git protocol v1 only**, and some optional v1 fetch capabilities
   (`filter`, `include-tag`) aren't supported. So `git clone --filter=…`
   partial clones may not work *(verify)*. For large repos in sandboxes, use

@@ -45,7 +45,7 @@ File, raw, and blob routes return bytes.
 
 | Operation | Tier | REST | Wrangler | Binding |
 |---|---|---|---|---|
-| Mint `{repo, scope? (default **write**), ttl? (60–31,536,000 s, default 86,400)}` | 0 for short `read`; 1 for short `write`; **3** for `write` > 1 day | `POST NS/tokens` → `{id, plaintext, scope, expires_at}` | `artifacts repos issue-token <REPO> --namespace --scope --ttl` | `handle.createToken(scope?, ttl?)` |
+| Mint `{repo, scope? (default **write**), ttl? (60–31,536,000 s, default 86,400)}` | 0 for short `read`; 1 for short `write`; **3** for `write` > 1 day | `POST NS/tokens` → `{id, plaintext, scope, expires_at}`; `plaintext` is `art_v2_x_…` (formerly `art_v1_…`) | `artifacts repos issue-token <REPO> --namespace --scope --ttl` | `handle.createToken(scope?, ttl?)` |
 | List (`state` active\|expired\|revoked\|all, `per_page` ≤100, `page`) | 0 | `GET NS/repos/:name/tokens` | — | `handle.listTokens()` |
 | Revoke | 1 (**2** if another agent may hold it) | `DELETE NS/tokens/:id` | — | `handle.revokeToken(tokenOrId)` |
 
