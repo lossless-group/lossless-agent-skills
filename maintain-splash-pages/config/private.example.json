@@ -1,0 +1,11 @@
+{
+  "_about": "Copy to config/private.json (gitignored) and fill in. Says which analytics every splash gets and how its tracking ID reaches the build. Facts only: a browser tracking ID is public, but never put a secret here or in a site.",
+  "analytics": {
+    "provider": "openpanel | plausible | umami | fathom | none",
+    "skill": "The skill that wires and verifies this provider, e.g. openpanel-analytics. Load it before writing the component.",
+    "env_var": "The build-time variable holding the tracking ID, e.g. OPENPANEL_CLIENT_ID",
+    "id_lives_in": "Where that ID is stored for a GitHub Pages build: a repo Variable (not a Secret), passed in the workflow's build step",
+    "client_naming": "How to name the provider-side site or client, e.g. splash_<repo>",
+    "allowed_origin": "The origin to allow on the provider side, e.g. https://lossless-group.github.io (origin only, no path)"
+  }
+}

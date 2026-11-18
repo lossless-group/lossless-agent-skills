@@ -1,6 +1,6 @@
 ---
 name: maintain-splash-pages
-description: The Lossless Group's pattern for repo-level splash pages — small Astro sites at <repo>/splash/ that ship to GitHub Pages on push to main, render the repo's changelog/ + context-v/ alongside curated marketing copy, and stay isolated from any package the repo also publishes. Use proactively whenever scaffolding a noteworthy new repo (every "important" repo wants one), when shipping a coherent chunk of work that an external reader would land on, when adding a feature (search, sort, tags row, theme mode) to an existing splash, when converting a legacy apps/<name>/ site to splash/, when troubleshooting a Pages deploy, or when the user mentions "splash", "GitHub Pages", "lossless-group.github.io", "Pagefind on our site", or working under a splash/ directory. Codifies the proven shape across three reference implementations (memopop-site, content-farm/splash, lfm/splash) and the package-isolation discipline that keeps splashes safe to add to repos that also publish to JSR/npm.
+description: The Lossless Group's pattern for repo-level splash pages — small Astro sites at <repo>/splash/ that ship to GitHub Pages on push to main, render the repo's changelog/ + context-v/ alongside curated marketing copy, and stay isolated from any package the repo also publishes. Use proactively whenever scaffolding a noteworthy new repo (every "important" repo wants one), when shipping a coherent chunk of work that an external reader would land on, when adding a feature (search, sort, tags row, theme mode, analytics) to an existing splash, when hooking up analytics (provider read from config/private.json), when converting a legacy apps/<name>/ site to splash/, when troubleshooting a Pages deploy, or when the user mentions "splash", "GitHub Pages", "lossless-group.github.io", "Pagefind on our site", or working under a splash/ directory. Codifies the proven shape across three reference implementations (memopop-site, content-farm/splash, lfm/splash) and the package-isolation discipline that keeps splashes safe to add to repos that also publish to JSR/npm.
 status: Draft
 ---
 
@@ -87,6 +87,7 @@ Skills this one always pulls along:
 - **`context-vigilance`** — `context-v/` schemas, frontmatter, lenient parsing. The splash renders `context-v/`.
 - **`changelog-conventions`** — `changelog/` structure. The splash renders `changelog/`.
 - **`pseudomonorepos`** — search-first behavior, parent-vs-child level discipline. Especially for the rollup variant.
+- **The analytics skill named in `config/private.json`** — `openpanel-analytics` for the Lossless Group. Every splash ships analytics; see *Analytics* below.
 
 ## Reference implementations
 
@@ -128,6 +129,7 @@ These are deliberate. Don't drift without a reason.
 - **Build trigger:** push to `main`. Aligns with the `development` → `main` → `master` tier model.
 - **Deploy action:** `actions/deploy-pages@v4` with `actions/configure-pages@v5` using `enablement: true` so the workflow bootstraps Pages on first run.
 - **No submodule fetching in CI** even for pseudomonorepos — rolled-up content is pre-synced and committed; CI does pure file IO.
+- **The build step passes the analytics ID** from a repo Variable (`env: <ENV_VAR>: ${{ vars.<ENV_VAR> }}`), with the variable name taken from the config. See *Analytics* below.
 
 ### Local dev
 
@@ -275,6 +277,24 @@ Pagefind's default UI exposes CSS variables. Map them to your semantic tokens so
 
 Don't fork the UI. Variable overrides have been sufficient through three implementations.
 
+## Analytics — every splash, provider from the config
+
+Every splash ships analytics from its first deploy. Which provider is a per-organization choice, so this skill doesn't hard-code one: it reads `config/private.json` next to this file (gitignored; shape in `config/private.example.json`).
+
+- **Read `analytics` from the config.** It names the `provider`, the `skill` that wires and verifies it, the build-time `env_var` holding the tracking ID, where that ID lives (`id_lives_in`), how to name the provider-side client (`client_naming`), and the `allowed_origin`. The Lossless Group's config says OpenPanel: `openpanel-analytics`, `OPENPANEL_CLIENT_ID`, `splash_<repo>`, `https://lossless-group.github.io`.
+- **If the config is missing, ask once** which analytics provider to use, and offer to write the answer to `config/private.json`. `provider: "none"` is a valid answer; record it rather than asking again.
+- **Load the provider's skill before writing any code**, and follow it for the component, the layout include, and verification. The splash-specific parts are below.
+
+Wire-up for a GitHub Pages splash:
+
+1. **Component** — `src/components/Analytics.astro`, production-only and inert without an ID, rendered once in `BaseLayout`'s `<head>`. Copy it from the provider's skill or a sibling splash.
+2. **Workflow** — pass the ID on the build step of `.github/workflows/pages.yml`: `env: <env_var>: ${{ vars.<env_var> }}`. If the step already has an `env:` block, add the line to it; a second `env:` key is invalid YAML.
+3. **Provider side** — the user creates the client (named per `client_naming`) with `allowed_origin` as its only allowed domain, and pastes the ID. Only the ID: a browser tracker never needs the secret, so don't store one anywhere.
+4. **Repo Variable** — `gh variable set <env_var> -R lossless-group/<repo> --body <id>`. A Variable, not a Secret: the ID ships in the HTML anyway.
+5. **Redeploy and verify** per the provider's skill: the live HTML carries the ID, and a test event from `allowed_origin` is accepted. For OpenPanel a missing allowed domain returns **401** while the script loads normally.
+
+The order that works with a human in the loop: wire 1 and 2 and build locally with a stand-in ID (`<env_var>=test-id pnpm build`, then grep `dist/index.html` for it) while the user creates the client; then 4 and 5 once the ID arrives.
+
 ## Sort controls on list pages
 
 Both `/changelog/` and `/context-v/` carry a `<SortControls>` component above the list. Default sort: `date_modified` descending (newest first). Options: `Modified` | `Created` | `Published` | `Title`.
@@ -368,6 +388,7 @@ Verify before declaring the habit met (lifted from the habit doc, slightly tight
 - [ ] Mode toggle works: light/dark/vibrant all render without FOUC, persist across reloads
 - [ ] Search returns results when typing into the header popover or `/search` page
 - [ ] Sort controls reorder correctly on `/changelog/` and `/context-v/`; default is `date_modified` descending
+- [ ] Analytics per `config/private.json`: the live HTML carries the tracking ID, and a test event from the allowed origin is accepted (not 401). Skip only when the config says `provider: "none"`
 - [ ] (Pseudomonorepos only) `pnpm rollup:sync` runs locally; `splash/src/rollup/` is committed; rolled-up content appears with provenance
 - [ ] (Publishing repos only) Verify all four package-isolation boundaries — JSR `publish.include`, npm `files`, build entry list, parent workspace exclusion
 
@@ -387,7 +408,7 @@ Verify before declaring the habit met (lifted from the habit doc, slightly tight
 5. **Resolve the visual posture with the user** — ask: *"following a reference or getting creative?"* If creative, propose the divergence axes (mode default, type pairing, hero composition, card chrome, ornament, voice) before laying out components. Stay distinct from sibling splashes; reuse the semantic-token contract.
 6. **Wire the content collections** with lenient schemas pointing at `../changelog` and `../context-v`. Use the proven preprocessor stack.
 7. **Add Pagefind** — `data-pagefind-body` on detail pages, `data-pagefind-ignore="all"` on list teasers, `kind:` + `tag:` filter spans.
-8. **Add the GitHub Pages workflow** — `.github/workflows/pages.yml` with `actions/deploy-pages@v4`.
+8. **Add the GitHub Pages workflow** — `.github/workflows/pages.yml` with `actions/deploy-pages@v4`. **Hook up analytics in the same pass:** read `config/private.json`, load the provider's skill, add the component and the workflow `env:` line, and ask the user for the client ID. See *Analytics*.
 9. **Write `splash/README.md`** — local dev, deploy, package isolation table (if publishing), where to edit content.
 10. **Verify acceptance criteria** — run through the checklist above before declaring done.
 11. **Author a changelog entry** at the repo root for the splash addition. Per `changelog-conventions`, lead with `## Why Care?` then `## What's New?`.
@@ -410,6 +431,7 @@ These are the gotchas worth flagging in advance so the next implementation doesn
 11. **Render the existing changelog conventions field-for-field.** When wiring a changelog/ list, remember the conventions skill's mandatory frontmatter (8 fields including `lede`). The splash should display all of them gracefully — but never crash if a legacy entry is missing several.
 12. **Convention fixes belong in the schema, not in per-page code.** When you find a frontmatter-shape bug (e.g. `augmented_with` mismatch), fix it in `content.config.ts` so every page benefits. Don't paper over it at the call site.
 13. **Aesthetic divergence is the goal, not a risk to manage.** The first three splashes (before lfm) ended up looking like each other — same hero shape, same card geometry, same ornament strategy, with brand-spine recolors layered on top. The path out: ask the user upfront whether to follow a reference or get creative, propose the divergence axes explicitly, and **diverge in shape, not just in hue**. When agent creativity in visual design produces something genuinely distinct, that's the right outcome — splashes are the experimentation surface where this kind of move belongs.
+14. **Analytics has to be in the skill, or it doesn't happen.** Until 2026-11-18 this skill never mentioned analytics. An audit in May wired the splashes that existed then; every splash scaffolded afterwards (augment-it, dididecks-ai, lossless-agent-skills, id-didi-sh, flave, hope-ai) shipped without it, and nobody noticed for six months. A one-time audit fixes the past; only a step in the scaffolding flow fixes the future.
 
 ## What this skill deliberately is not
 
