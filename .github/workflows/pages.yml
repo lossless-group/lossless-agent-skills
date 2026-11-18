@@ -53,6 +53,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          OPENPANEL_CLIENT_ID: ${{ vars.OPENPANEL_CLIENT_ID }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
