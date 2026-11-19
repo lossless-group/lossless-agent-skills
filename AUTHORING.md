@@ -35,6 +35,8 @@ Three skills (`maintain-splash-pages`, `open-graph-share-seo-geo`, `lossless-fla
 
 ## Adding a nested-skill collection (like `chroma-agent-skills`)
 
+For whether a third-party repo should be a submodule, a fork, a vendored copy, or a skill pack at all, see [`THIRD-PARTY.md`](./THIRD-PARTY.md). This section covers only the linking.
+
 When upstream publishes a *collection* of skills inside a single repo (`<repo>/skills/<name>/SKILL.md` layout):
 
 1. Add the upstream as a git submodule: `git submodule add <url> <repo-name>`
