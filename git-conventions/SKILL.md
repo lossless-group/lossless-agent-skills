@@ -1,6 +1,6 @@
 ---
 name: git-conventions
-description: The Lossless Group's git commit message conventions — structured headers with action verbs and effort groupings, paragraph-spaced bodies that explain impact before implementation, and "Also included" riders for minor changes. Use when writing commit messages, reviewing commits, or when the user mentions "commit message format", "git conventions", or asks how to structure a commit.
+description: The Lossless Group's git commit message conventions — structured headers with action verbs and effort groupings, paragraph-spaced bodies that explain impact before implementation, and "Also included" riders for minor changes. Use when writing commit messages, reviewing commits, or when the user mentions "commit message format", "git conventions", or asks how to structure a commit. Also use before pushing to a branch other than the checked-out one (e.g. `git push origin development:master`), which leaves the local branch behind its remote.
 ---
 
 # Git Conventions
@@ -266,6 +266,32 @@ Documentation:
 Also included:
 - Fixed typo in README
 ```
+
+## Pushing to a branch you're not on
+
+Promoting through the tiers often means pushing one branch onto another
+without checking it out: `git push origin development:master`, or
+`git push origin HEAD:main`. Git updates the remote branch and the
+`origin/master` tracking ref, but **not local `master`**. The next session
+that commits on local `master` forks it from the remote, and `git status`
+shows `ahead N, behind M` on a laptop where nobody else is working.
+
+Observed in astro-knots on 2026-11-19: three sessions pushed promotions and
+submodule bumps to `origin/master` from `development` while local `master`
+picked up two commits of its own. It took a rebase to reconcile.
+
+**Rule:** after any push to a branch you're not on, fast-forward that local
+branch in the same step.
+
+```bash
+git push origin development:master
+git branch -f master origin/master    # only if master is not checked out
+# or, without forcing: git fetch origin master:master (fails if not a fast-forward)
+```
+
+Prefer `git fetch origin master:master`. It refuses anything that isn't a
+fast-forward, so it surfaces a diverged local branch instead of silently
+discarding its commits. If it refuses, stop and reconcile; don't force.
 
 ## Push-output gotchas
 
