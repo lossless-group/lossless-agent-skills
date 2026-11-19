@@ -127,7 +127,7 @@ which then redirects to `page#heading`.
 - Keep `/s/` share pages `noindex` and out of the sitemap; canonical is `page#heading`.
 
 Full pattern and reference implementation (`astro-knots/sites/cathode-site`):
-`astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-Image.md`.
+`astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-OG-Image.md`.
 
 ## The minimum viable `<head>`
 

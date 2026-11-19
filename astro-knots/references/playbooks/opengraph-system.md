@@ -100,7 +100,7 @@ the wide card as `twitter:image`. Sections get `/s/…` share pages and the head
 anchor shares them.
 
 Reference implementation: `sites/cathode-site`. Blueprint:
-`astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-Image.md`.
+`astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-OG-Image.md`.
 
 ## Checklist for a new site
 

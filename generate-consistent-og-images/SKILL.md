@@ -64,7 +64,7 @@ endpoint (`src/pages/og/[variant]/[...key].jpg.ts`). Each page emits **one tall
 runtime, no host-specific API, and the cards exist the moment the content does.
 
 - Full pattern, design rules and lessons:
-  `astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-Image.md`.
+  `astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-OG-Image.md`.
 - Reference implementations: `astro-knots/sites/cathode-site` (dark brand, LFM)
   and `astro-knots/sites/edviro-blog` (light brand, Astro MDX), both shipped
   2026-11-17 and confirmed as clean tall cards in iMessage.
