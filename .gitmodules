@@ -7,3 +7,6 @@
 [submodule "talk-normal"]
 	path = talk-normal
 	url = https://github.com/lossless-group/talk-normal.git
+[submodule "humanizer"]
+	path = humanizer
+	url = https://github.com/lossless-group/humanizer.git
