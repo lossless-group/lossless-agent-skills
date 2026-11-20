@@ -24,7 +24,7 @@ In practice this means:
 
 - **Tall aspect ratios get production attention**, not just landscape banners. `3x4` (WhatsApp / iMessage default) and `2x3` (extra-tall) variants are first-class assets, not afterthoughts.
 - **Subject lives in the lower portion of the frame** by default so the top half stays clean for the receiver's preview crop (chat platforms aggressively top-crop tall images).
-- **The 1200×630 OG-canonical banner is one format among several**, not the only target. Other social-specific banners (LinkedIn portrait, Twitter Card) are still produced when needed, but never at the expense of a polished tall variant.
+- **The tall card is the one `og:image`; the 1200×630 banner goes in `twitter:image`** and is edge-routed to LinkedIn, Bluesky and Discord. Never two `og:image` tags. Which variant each platform gets: rule 6 of the `open-graph-share-seo-geo` skill.
 
 This shapes the aspect-ratio enum below and the naming convention.
 
@@ -71,6 +71,13 @@ runtime, no host-specific API, and the cards exist the moment the content does.
 - A or B still make the **site card** (the home page and any page with no card
   of its own) when it deserves artwork. Wire it the same way: tall as
   `og:image`, wide as `twitter:image`.
+- **A + C together: the illustration is the card's art.** Generate a wordless
+  Ideogram illustration per page and render it in the card's picture slot; every
+  word on the card comes from the page's metadata. Prompt for the band the card
+  gives it ("subject left, quiet right"), store it as `share_art` with the prompt
+  in `image_prompt`, and let the page's section cards reuse it.
+- **Private pages get a "Private" pill on the card**, driven by the same flag
+  that gates the route. The pill is a label; the card itself is public.
 
 ### Choosing per project
 
@@ -199,15 +206,15 @@ ogimage__{Site-Name}--{Format-Or-Variant}.{ext}
 ```
 
 - `Site-Name` — the project's canonical name in PascalCase or Hyphen-Joined-PascalCase: `Content-Farm`, `Reach-Edu-Hub`, `Calmstorm-Decks`, `Perplexed`.
-- `Format-Or-Variant` — one of: `Default`, `Banner`, `BannerTall`, `BannerTallMax`, `Portrait`, `PortraitTall`, `Square`. `Default` aliases whichever format is the canonical share image (typically `Banner`).
+- `Format-Or-Variant` — one of: `Default`, `Banner`, `BannerTall`, `BannerTallMax`, `Portrait`, `PortraitTall`, `Square`. `Default` aliases whichever format is the canonical share image (`BannerTall`, the `og:image`).
 - Extension: prefer `.jpg` per the `open-graph-share-seo-geo` skill's JPEG-over-WebP rule. Convert from Ideogram's PNG output with `ffmpeg -i in.png -q:v 2 out.jpg` (quality 2 is near-lossless and lands ~95 KB at 1200×630).
 
 Example set for `content-farm`:
 
 ```
-public/ogimage__Content-Farm--Default.jpg          # the canonical banner (also serves as style_reference)
-public/ogimage__Content-Farm--Banner.jpg           # alias of Default
-public/ogimage__Content-Farm--BannerTall.jpg       # WhatsApp / iMessage default tall
+public/ogimage__Content-Farm--Default.jpg          # the canonical share image, alias of BannerTall
+public/ogimage__Content-Farm--Banner.jpg           # twitter:image; edge-routed to LinkedIn, Bluesky, Discord
+public/ogimage__Content-Farm--BannerTall.jpg       # og:image, for WhatsApp / iMessage
 public/ogimage__Content-Farm--BannerTallMax.jpg    # dramatic-tall variant
 public/ogimage__Content-Farm--Portrait.jpg         # LinkedIn portrait / IG feed
 public/ogimage__Content-Farm--PortraitTall.jpg     # Stories / Reels / TikTok
@@ -220,12 +227,12 @@ If the image is destined for a CDN (per the `open-graph-share-seo-geo` skill's "
 
 | Format key | Ideogram `aspect_ratio` | When to use |
 |---|---|---|
-| `banner` | `16x9` | Default share — OpenGraph, Twitter / X, Slack, generic |
-| `banner_tall` | `3x4` | **WhatsApp & iMessage chat-preview cards (the Lossless default tall)** |
+| `banner_tall` | `3x4` | **The `og:image`: WhatsApp & iMessage chat-preview cards (the Lossless default)** |
+| `banner` | `16x9` | `twitter:image` (X); edge-routed to LinkedIn, Bluesky and Discord |
 | `banner_tall_max` | `2x3` | Dramatic-tall variant; use when the subject genuinely benefits from height |
-| `portrait` | `4x5` | LinkedIn portrait, Instagram feed post |
+| `portrait` | `4x5` | Native LinkedIn image posts and Instagram feed, uploaded by hand; no meta tag |
 | `portrait_tall` | `9x16` | Instagram Stories, Reels, TikTok |
-| `square` | `1x1` | Avatars, square OG fallbacks, Discord embeds |
+| `square` | `1x1` | Avatars; `twitter:image` only when `twitter:card` is `summary` |
 
 The keys live in `imagery.aspect_ratios` of the project's `DESIGN.md`; the values may differ if a project has a different target mix, but the **format names** stay the same across projects so cross-site automation can talk in one vocabulary.
 

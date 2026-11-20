@@ -81,13 +81,28 @@ Plus the Twitter card pair:
 
 **Why:** Width and height let the unfurler reserve layout space without downloading the image. Type lets it skip formats it cannot render. Alt is required for accessibility *and* used by some clients (Slack) as the fallback caption. `secure_url` is legacy but still consulted by older clients. Omitting any of these turns into "sometimes it shows, sometimes it doesn't."
 
-### 6. Standard banner dimensions: 1200 × 630
+### 6. Tall first: one tall `og:image`, the wide banner in `twitter:image`
 
-**Rule:** Default OG banners are **1200 × 630** (the "Image-Gin wide" standard). Plugin/page-specific overrides may use other ratios but must declare matching width/height in the meta tags.
+**Rule:** The one `og:image` is the **tall 1080 × 1440 (3:4) JPEG**. The wide **1200 × 630** banner goes in `twitter:image` only. Never emit two `og:image` tags. Declared width and height must match the file.
 
-**Why:** 1200 × 630 is the largest size Facebook/LinkedIn/X render without re-cropping, the size iMessage and WhatsApp expect for "rich" previews, and small enough (~90–150 KB JPEG) for fast unfurling. 1408 × 704 and similar non-standard sizes get center-cropped or downscaled inconsistently.
+**Why:** We share through iMessage and WhatsApp, and both show a tall image much larger than a wide one. Static HTML has only two image slots: `og:image`, read by iMessage, WhatsApp, LinkedIn, Bluesky, Discord, Slack and Facebook, and `twitter:image`, read by X. There is no `linkedin:image`. Keep the tall card under 300 KB for WhatsApp.
 
-**How to apply:** Image-Gin is configured to export 1200 × 630. If you are hand-cropping in Figma, snap to that size. Never declare width/height that do not match the actual file.
+**How to apply:**
+
+| Variant | Size | Where it goes |
+|---|---|---|
+| `banner_tall` | 1080 × 1440 | `og:image` |
+| `banner` | 1200 × 630 | `twitter:image`; edge-routed to LinkedIn, Bluesky and Discord |
+| `square` | 1200 × 1200 | only with `twitter:card` `summary` |
+| `portrait` | 1200 × 1500 | no tag; for native LinkedIn image posts, uploaded by hand |
+
+LinkedIn, Bluesky and Discord read `og:image`, so in static HTML they get the tall card. LinkedIn's link-preview frame is 1.91:1 (1200 × 627), so the 1200 × 630 banner already fits it and no LinkedIn-specific size is needed. To send them the banner, rewrite the image block at the edge (Vercel Routing Middleware or a Netlify Edge Function) by crawler user agent:
+
+- Test for iMessage first: its UA contains both `facebookexternalhit` and `Twitterbot`. Leave it on the tall card.
+- `LinkedInBot`, `Cardyb` (Bluesky) and `Discordbot` get the banner. `WhatsApp/` keeps the tall card.
+- Rewrite the whole block (`og:image`, `:width`, `:height`, `:type`, `:alt`), send `Vary: User-Agent`, and verify with `curl -A '<UA>'`.
+
+Not built on any site yet (2026-11-19). Full routing table: `astro-knots/context-v/blueprints/Maintain-an-Elegant-Open-Graph-System.md`, section "Which Image Each Platform Gets".
 
 ### 7. Cache-bust to force a re-unfurl
 
@@ -125,6 +140,16 @@ which then redirects to `page#heading`.
   GitHub Pages concern doesn't apply. Still set `Content-Type: image/jpeg`,
   `Access-Control-Allow-Origin: *` and a cache header on `/og/*`.
 - Keep `/s/` share pages `noindex` and out of the sitemap; canonical is `page#heading`.
+- **Illustrations are the card's art, not the card.** An Ideogram illustration
+  fills the card's picture slot and contains no words; the title, kicker and
+  summary come from the page's metadata. One illustration per page
+  (`share_art`, with its prompt in `image_prompt`), reused by that page's
+  section cards. Pages with no art get the text card.
+- **Private pages still get a full card, plus a "Private" pill.** The same flag
+  that gates the route draws the pill, near the kicker so WhatsApp's square crop
+  keeps it. The card and the unfurl are public to anyone the link reaches, so
+  the pill is a label, not protection: put nothing on the card you wouldn't type
+  in the message.
 
 Full pattern and reference implementation (`astro-knots/sites/cathode-site`):
 `astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-OG-Image.md`.
