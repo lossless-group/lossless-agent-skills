@@ -68,9 +68,18 @@ runtime, no host-specific API, and the cards exist the moment the content does.
 - Reference implementations: `astro-knots/sites/cathode-site` (dark brand, LFM)
   and `astro-knots/sites/edviro-blog` (light brand, Astro MDX), both shipped
   2026-11-17 and confirmed as clean tall cards in iMessage.
-- A or B still make the **site card** (the home page and any page with no card
-  of its own) when it deserves artwork. Wire it the same way: tall as
-  `og:image`, wide as `twitter:image`.
+- **Two kinds of share decide which technique a page gets.**
+  - *Content shares* (an article, memo or update, or a heading in one) are
+    about that content: Technique C cards, text first.
+  - *Site shares* (home, about, collection indexes, other generic pages, a
+    splash) have room for the illustration. Generate the full Technique A set
+    from one prompt (`banner_tall`, `banner`, `portrait`, `square`; it's
+    cheap), and the edge routing serves each platform its shape: `banner_tall`
+    as `og:image` for iMessage and WhatsApp, `banner` as `twitter:image` and
+    for LinkedIn, Bluesky and Discord, `square` for on-site thumbnails.
+    Frontmatter keys: `banner_tall_image`, `banner_image`, `portrait_image`,
+    `square_image`, plus `image_prompt`. With no set, the page gets the
+    universal card.
 - **A + C together: the illustration is the card's art, not the card.** Here
   Ideogram does not make `BannerTall` or `Banner`; satori renders both cards and
   the illustration is one layer inside them. Generate one wordless `share_art`
@@ -79,9 +88,6 @@ runtime, no host-specific API, and the cards exist the moment the content does.
   Subject left of center, right fifth expendable, anchored `left center`. Every
   word on the card comes from the page's metadata. Store the URL as `share_art`
   with the prompt in `image_prompt`, and let the page's section cards reuse it.
-- **Ideogram `BannerTall` and `Banner` are for Technique A only**: a site card or
-  splash image with no per-page text, where the illustration *is* the whole
-  image.
 - **Private pages get a "Private" pill on the card**, driven by the same flag
   that gates the route. The pill is a label; the card itself is public.
 
