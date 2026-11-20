@@ -111,14 +111,14 @@ One `_slim-log.md` per dataroom, beside its top folder. It's the record of
 what changed, so a single file can be traced and re-requested:
 
 ```markdown
-# Slim log: ProfileHealth dataroom
+# Slim log: <Company> dataroom
 
 Started <date> · <before> → <after>
 
 | File | Was | Now | Action | Check | Note |
 |---|---|---|---|---|---|
-| Team/Shane Parrish, CXO.pdf | 162.1MB | 22.9MB | pdf-compress | text 1317→1303, p3 viewed | |
-| Company Overview/Profile Deck.pdf | 63.7MB | 8.3MB | pdf-compress | 24 pages, p5 viewed | image-only PDF |
+| Team/<Executive bio>.pdf | 162.1MB | 22.9MB | pdf-compress | text 1317→1303, p3 viewed | |
+| Company Overview/<Company> Deck.pdf | 63.7MB | 8.3MB | pdf-compress | 24 pages, p5 viewed | image-only PDF |
 | SPV Deck.pptx | 101.6MB | <size> | deck-to-pdf + pdf-compress | <n> slides | 80MB media1.mov dropped |
 | _zip-originals/Team-…zip | 163.3MB | — | removed | zip-check SAFE 9/9 | |
 ```
