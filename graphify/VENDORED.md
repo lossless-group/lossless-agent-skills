@@ -5,7 +5,8 @@ Fix problems upstream, or record them in this file.
 
 | | |
 |---|---|
-| Upstream | [`safishamsi/graphify`](https://github.com/safishamsi/graphify) (MIT, see `LICENSE`) |
+| Upstream | [`Graphify-Labs/graphify`](https://github.com/Graphify-Labs/graphify) (MIT, see `LICENSE`), formerly `safishamsi/graphify` |
+| Our fork | [`lossless-group/graphify`](https://github.com/lossless-group/graphify), a stable source to refresh from |
 | Package | `graphifyy` on PyPI, which provides the `graphify` CLI the skill drives |
 | Version | `0.9.32` (also in `.graphify_version`) |
 | Vendored | 2026-10-05, from the output of `graphify install` |
