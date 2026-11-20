@@ -1,6 +1,6 @@
 ---
 name: git-conventions
-description: The Lossless Group's git commit message conventions — structured headers with action verbs and effort groupings, paragraph-spaced bodies that explain impact before implementation, and "Also included" riders for minor changes. Use when writing commit messages, reviewing commits, or when the user mentions "commit message format", "git conventions", or asks how to structure a commit. Also use before pushing to a branch other than the checked-out one (e.g. `git push origin development:master`), which leaves the local branch behind its remote.
+description: The Lossless Group's git commit message conventions — structured headers with action verbs and effort groupings, paragraph-spaced bodies that explain impact before implementation, and "Also included" riders for minor changes. Use when writing commit messages, reviewing commits, or when the user mentions "commit message format", "git conventions", or asks how to structure a commit. Also use when deciding what to commit after finishing work, including dirty files the session didn't write (settled leftovers vs work in progress), and before pushing to a branch other than the checked-out one (e.g. `git push origin development:master`), which leaves the local branch behind its remote.
 ---
 
 # Git Conventions
@@ -266,6 +266,39 @@ Documentation:
 Also included:
 - Fixed typo in README
 ```
+
+## What to commit: settled vs in progress
+
+**When work the user asked for is done, commit it, push it, and promote it across
+`development`, `main` and `master`. Don't ask "want me to commit?".** Bump parent pointers
+at wrap-up, per §5.
+
+Most repos also hold dirty files the current session didn't write. Judge each one; don't
+sweep blindly and don't stop at the first file you didn't touch.
+
+| Question | If yes |
+|---|---|
+| Code or content? | Content (notes, meeting notes, a wikilink fix) is low-consequence: lean towards committing. Code needs the questions below. |
+| Part of a cluster of related unpushed changes? | Related edits across a codebase are a feature the user will resume, even if untouched for days. Leave it. |
+| Touched in the last couple of hours, or plainly mid-edit? | The user or a parallel session is working there. Leave it. |
+| Personal data or secrets? | Never commit keys or `.env` values. Personal data needs the user's say and a private repo (contacts in `client-content` are its purpose). |
+| An isolated, settled leftover? | Commit it, one commit per client or area. |
+
+Age alone decides nothing: a week-old file can be mid-feature, an hour-old one a finished
+note. Check with `git status`, `git diff --stat`, and `stat -f '%Sm' <file>` (macOS).
+
+- **Report what you left**, one line per file or cluster, with the reason, so the user can
+  overrule.
+- **"Commit everything in X" overrides the judgment.** Every dirty file in X, nested
+  submodules included.
+- **Nested repos with other remotes count.** If a submodule's remote needs a credential that
+  is in `~/.secrets` (a Cloudflare Artifacts workspace, say), mint a short token, push, and
+  revoke it. That is the job, not a question.
+- **Still confirm** outward-facing actions beyond git: publishing a package, tagging a
+  release, a PR into a client's org, deletes, long-lived credentials.
+
+Full reasoning: `context-v/reminders/Commit-What-Is-Settled-Leave-What-Is-In-Progress.md`
+at the anchor monorepo root.
 
 ## Pushing to a branch you're not on
 
