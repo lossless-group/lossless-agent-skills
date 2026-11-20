@@ -71,11 +71,17 @@ runtime, no host-specific API, and the cards exist the moment the content does.
 - A or B still make the **site card** (the home page and any page with no card
   of its own) when it deserves artwork. Wire it the same way: tall as
   `og:image`, wide as `twitter:image`.
-- **A + C together: the illustration is the card's art.** Generate a wordless
-  Ideogram illustration per page and render it in the card's picture slot; every
-  word on the card comes from the page's metadata. Prompt for the band the card
-  gives it ("subject left, quiet right"), store it as `share_art` with the prompt
-  in `image_prompt`, and let the page's section cards reuse it.
+- **A + C together: the illustration is the card's art, not the card.** Here
+  Ideogram does not make `BannerTall` or `Banner`; satori renders both cards and
+  the illustration is one layer inside them. Generate one wordless `share_art`
+  per page at **`4x3`**: the tall card shows it as its top band (1080×806, about
+  4:3) and the wide card crops it into its right 58% (696×630, nearly square).
+  Subject left of center, right fifth expendable, anchored `left center`. Every
+  word on the card comes from the page's metadata. Store the URL as `share_art`
+  with the prompt in `image_prompt`, and let the page's section cards reuse it.
+- **Ideogram `BannerTall` and `Banner` are for Technique A only**: a site card or
+  splash image with no per-page text, where the illustration *is* the whole
+  image.
 - **Private pages get a "Private" pill on the card**, driven by the same flag
   that gates the route. The pill is a label; the card itself is public.
 
@@ -233,6 +239,7 @@ If the image is destined for a CDN (per the `open-graph-share-seo-geo` skill's "
 | `portrait` | `4x5` | Native LinkedIn image posts and Instagram feed, uploaded by hand; no meta tag |
 | `portrait_tall` | `9x16` | Instagram Stories, Reels, TikTok |
 | `square` | `1x1` | Avatars; `twitter:image` only when `twitter:card` is `summary` |
+| `share_art` | `4x3` | Art layer inside per-page cards (Technique C); never an `og:image` by itself |
 
 The keys live in `imagery.aspect_ratios` of the project's `DESIGN.md`; the values may differ if a project has a different target mix, but the **format names** stay the same across projects so cross-site automation can talk in one vocabulary.
 
