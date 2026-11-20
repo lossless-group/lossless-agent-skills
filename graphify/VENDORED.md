@@ -8,8 +8,8 @@ Fix problems upstream, or record them in this file.
 | Upstream | [`Graphify-Labs/graphify`](https://github.com/Graphify-Labs/graphify) (MIT, see `LICENSE`), formerly `safishamsi/graphify` |
 | Our fork | [`lossless-group/graphify`](https://github.com/lossless-group/graphify), a stable source to refresh from |
 | Package | `graphifyy` on PyPI, which provides the `graphify` CLI the skill drives |
-| Version | `0.9.32` (also in `.graphify_version`) |
-| Vendored | 2026-10-05, from the output of `graphify install` |
+| Version | `0.9.113` (also in `.graphify_version`) |
+| Vendored | 2026-11-19 (first 2026-10-05), from the output of `graphify install` |
 
 ## Why a copy and not a submodule
 
