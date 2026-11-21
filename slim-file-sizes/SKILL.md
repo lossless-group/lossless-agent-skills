@@ -30,7 +30,7 @@ could be 600KB is the same problem, a few hundred times over.
 
 | Input | Output | Script | Setting that still looks right | Watch for |
 |---|---|---|---|---|
-| PDF with text | PDF | `pdf-compress.sh` | Images to 200 dpi, JPEG q80; text and fonts untouched | The script refuses if text is lost or the file grows. Fallback: `ocrmypdf --skip-text -O2` (touches only images) |
+| PDF with text | PDF | `pdf-compress.sh` | Images to 200 dpi, JPEG q80; text and fonts untouched | The script refuses if text is lost, a page looks different, or the file grows. Fallback: `ocrmypdf --skip-text -O2` (touches only images) |
 | PDF of images only (screenshot decks, scans) | PDF | `pdf-compress.sh` | Same | Has no text to begin with; `ocrmypdf --optimize 2` adds a text layer, which helps analysis |
 | `.key` | PDF, then compress | `deck-to-pdf.sh` | Keynote export, "Better" image quality | Only Keynote reads current `.key` files (LibreOffice's importer stops at Keynote 6) |
 | `.pptx` / `.ppt` | PDF, then compress | `deck-to-pdf.sh` | PowerPoint export | LibreOffice and other converters swap fonts and break SmartArt; use them only on a server |
@@ -64,7 +64,7 @@ original is the agent's decision, after checking.
 
 | Script | Does | Exit codes |
 |---|---|---|
-| `pdf-compress.sh <pdf> [--dpi 200]` | Writes `<name>.slim.pdf` | 0 ok · 3 not smaller · 4 text lost |
+| `pdf-compress.sh <pdf> [--dpi 200]` | Writes `<name>.slim.pdf` | 0 ok · 3 not smaller · 4 text lost · 5 a page looks different |
 | `deck-to-pdf.sh <deck> [--app keynote\|powerpoint]` | Writes `<name>.pdf`; lists embedded video first | 0 ok · 4 export failed |
 | `video-720p.sh <video> [--height 1080]` | Writes `<name>.720p.mp4` | 0 ok · 3 not smaller |
 | `image-to-webp.sh <image> [--max 2400]` | Writes `<name>.webp` | 0 ok · 3 not smaller |
@@ -88,7 +88,9 @@ can run at once. Inside one dataroom:
    `_zip-originals/` or `oversized/`. Log the removed paths.
 4. **One file at a time:** pick the script, run it, then check.
    - The exit code is 0.
-   - PDFs: the script's text check passed. Open one page to look at it:
+   - PDFs: the script's text and page checks passed (exit 0). Exit 5 means a page
+     came out different: keep the original, don't retry with other settings.
+     Open one page to look at it:
      `gs -q -sDEVICE=jpeg -r200 -dFirstPage=N -dLastPage=N -o /tmp/p.jpg <pdf>`, then view the image.
      Check a dense page (a table, a chart, small print) once per document type.
    - Decks: the slide count matches, and any dropped video is logged.
@@ -150,7 +152,15 @@ Started <date> · <before> → <after>
    deck yet: check the first export closely.
 7. **Video only disappears from decks.** A standalone video file gets
    re-encoded, not dropped, unless the user says otherwise.
-8. **Not for brand or design assets.** Logos, fonts and design source files
+8. **The text check can't see pictures.** A deck that is almost all images has
+   almost no text, so a blanked slide or a lost photo passes a text check. An
+   earlier pass damaged two founder decks this way (blank slides, a missing
+   image, a block over three slides). `pdf-compress.sh` now also renders every
+   page of the original and the result small and in gray and compares them,
+   refusing (exit 5) when any page differs by more than `--max-diff` (default
+   0.06 RMSE; ordinary JPEG recompression stays well under it). It names the
+   pages. Trust that refusal: the original stays.
+9. **Not for brand or design assets.** Logos, fonts and design source files
    for our own sites aren't founder content. Leave them alone.
 
 ## When space is still short: move files to a CDN
