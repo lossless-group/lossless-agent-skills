@@ -10,3 +10,6 @@
 [submodule "humanizer"]
 	path = humanizer
 	url = https://github.com/lossless-group/humanizer.git
+[submodule "agent-reach"]
+	path = agent-reach
+	url = https://github.com/Panniantong/Agent-Reach.git
