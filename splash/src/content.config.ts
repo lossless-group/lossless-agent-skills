@@ -60,7 +60,8 @@ const PARENT_CHANGELOG = resolve(PARENT_DIR, 'changelog');
 
 // ─── Skills loader — auto-discover <repo>/<slug>/SKILL.md (depth 1 + 2) ───
 // Depth 1: top-level skills (this repo's own).
-// Depth 2: submodule-hosted skills (e.g. chroma-agent-skills/chroma-cloud/).
+// Depth 2: submodule-hosted skills (e.g. archify/archify/).
+// Depth 3: vendored plugin layouts (floorplan/skills/floorplan/), see below.
 // Skip splash/, node_modules/, dist/, .astro/, .git/.
 
 const SKILL_EXCLUDES = new Set([
@@ -81,7 +82,11 @@ function skillsLoader() {
       let loaded = 0;
       let skipped = 0;
 
-      const patterns = ['*/SKILL.md', '*/*/SKILL.md'];
+      // Depth 3, two vendored layouts only (not a blanket depth-3 glob, which
+      // would pick up chroma-agent-skills/src/ duplicates):
+      //   <repo>/skills/<name>/SKILL.md   plugin repos (chroma-agent-skills, floorplan)
+      //   <repo>/<pkg>/skill/SKILL.md     a Python package's skill (agent-reach)
+      const patterns = ['*/SKILL.md', '*/*/SKILL.md', '*/skills/*/SKILL.md', '*/*/skill/SKILL.md'];
 
       for (const pattern of patterns) {
         try {
