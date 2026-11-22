@@ -879,6 +879,17 @@ Per the `generate-consistent-og-images` skill's **preservation discipline**:
 - Raw candidates from each run land in `.ideogram-candidates/<subject>-<aspect>-<timestamp>/` (dot-prefixed, outside `public/` so the Pages workflow doesn't deploy them).
 - When replacing a canonical JPEG, move the old one to `.ogimage-archive/ogimage__Lossless-Agent-Skills--{Format}--{YYYY-MM-DD}.jpg` *before* writing the new one. The unfurler URL stays stable; old bytes survive in archive with a date stamp.
 
+### Trademark pack
+
+In `public/`, every piece outlined to paths (an `<img>` cannot load web fonts).
+
+| Piece | File |
+|---|---|
+| appIcon | `appIcon__Lossless-Agent-Skills.svg` |
+| favicon | `favicon.svg` (`$_` outlined in JetBrains Mono 700) |
+| wordmark | `wordmark__Lossless-Agent-Skills--{Dark,Light}-Mode.svg`: *Lossless Agent Skills* in JetBrains Mono 600 with a teal `_` cursor, echoing the `$_` mark |
+| trademark | `trademark__Lossless-Agent-Skills--{Dark,Light}-Mode.svg`: appIcon + wordmark |
+
 ## Do's and Don'ts
 
 - **Do** lead every section with a folio (`#01 · Featured`, `#02 · Recent`).
