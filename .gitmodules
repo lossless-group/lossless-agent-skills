@@ -13,3 +13,6 @@
 [submodule "agent-reach"]
 	path = agent-reach
 	url = https://github.com/Panniantong/Agent-Reach.git
+[submodule "floorplan"]
+	path = floorplan
+	url = https://github.com/lossless-group/floorplan.git
