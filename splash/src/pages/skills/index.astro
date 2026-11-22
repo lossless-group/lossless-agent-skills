@@ -4,7 +4,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import SortControls from '@components/SortControls.astro';
 import { STATIC_SEO } from '@lib/seo';
 
-const entries = (await getCollection('skills')).sort((a, b) => {
+// Our own skills. Vendored ones (someone else's, mounted here) have their own
+// page at /vendored/.
+const all = await getCollection('skills');
+const vendoredCount = all.filter((s) => s.data.vendored).length;
+const entries = all.filter((s) => !s.data.vendored).sort((a, b) => {
   const ta = ((a.data.title ?? a.id) as string).toLowerCase();
   const tb = ((b.data.title ?? b.id) as string).toLowerCase();
   return ta.localeCompare(tb);
@@ -23,9 +27,11 @@ const base = import.meta.env.BASE_URL;
         <p class="folio" data-num="#">Skills</p>
         <h1>{entries.length} skills, one collection</h1>
         <p class="page__lede">
-          Every skill in <code>lossless-agent-skills</code>. Tool-agnostic — works
+          Every skill we wrote for <code>lossless-agent-skills</code>. Tool-agnostic — works
           with any agent that follows the Agent Skills spec. Sort by title or
           status; press <kbd class="mono">/</kbd> to search the bodies.
+          The {vendoredCount} skills we use from other people are under
+          <a href={`${base}vendored/`}>Vendored</a>.
         </p>
       </header>
 

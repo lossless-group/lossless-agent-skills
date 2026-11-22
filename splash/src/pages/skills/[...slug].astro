@@ -21,7 +21,13 @@ const status = ((entry.data.status ?? '') as string);
 const tags = (entry.data.tags ?? []) as string[];
 const dirName = ((entry.data as any).dir_name ?? entry.id.replace(/__/g, '/')) as string;
 const fromPath = ((entry.data as any).from_path ?? `${dirName}/SKILL.md`) as string;
-const repoUrl = `https://github.com/lossless-group/lossless-agent-skills/blob/main/${fromPath}`;
+// A vendored skill's files live in its own repo (a submodule here), so link
+// there; a path inside lossless-agent-skills would point into a gitlink and 404.
+const vendored = Boolean((entry.data as any).vendored);
+const sourceRepo = ((entry.data as any).source_repo ?? '') as string;
+const repoUrl = vendored && sourceRepo
+  ? sourceRepo
+  : `https://github.com/lossless-group/lossless-agent-skills/blob/main/${fromPath}`;
 const { tree, citations } = await renderable(entry.body, fromPath);
 
 const base = import.meta.env.BASE_URL;
@@ -67,13 +73,16 @@ const jsonLd = JSON.stringify({
 
     <div class="container-narrow">
       <p class="entry__back mono" data-pagefind-ignore>
-        <a href={`${base}skills/`}>← Skills</a>
+        {vendored
+          ? <a href={`${base}vendored/`}>← Vendored</a>
+          : <a href={`${base}skills/`}>← Skills</a>}
       </p>
 
       <header class="entry__header">
         <div class="entry__meta mono" data-pagefind-ignore>
           <span class="entry__path">{dirName}/SKILL.md</span>
           {status && <span class="pill" data-status={status}>{status}</span>}
+          {vendored && <span class="pill">Vendored</span>}
         </div>
         <h1>{title}</h1>
         {description && <p class="entry__lede">{description}</p>}
@@ -83,7 +92,11 @@ const jsonLd = JSON.stringify({
           </div>
         )}
         <p class="entry__source mono" data-pagefind-ignore>
-          <a href={repoUrl} target="_blank" rel="noopener">View on GitHub →</a>
+          <a href={repoUrl} target="_blank" rel="noopener">
+            {vendored && sourceRepo
+              ? `Source: ${sourceRepo.replace(/^https:\/\/github\.com\//, '')} →`
+              : 'View on GitHub →'}
+          </a>
         </p>
       </header>
 

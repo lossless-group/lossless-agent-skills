@@ -79,6 +79,12 @@ export const STATIC_SEO = {
       'The full catalog — every skill in this collection, with status, tags, and a one-line lede.',
   },
 
+  vendored: {
+    title: 'Vendored skills',
+    description:
+      'Skills other people wrote that we load alongside our own, each pinned to its source repo.',
+  },
+
   changelog: {
     title: 'Changelog',
     description:

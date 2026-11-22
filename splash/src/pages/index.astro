@@ -7,7 +7,8 @@ import { STATIC_SEO } from '@lib/seo';
 import { formatDate, toDate } from '@lib/date';
 
 // Featured skills — show Active first, then alpha. Cap at 6 on the home page.
-const skills = (await getCollection('skills')).sort((a, b) => {
+// Our own skills only; vendored ones (someone else's) live at /vendored/.
+const skills = (await getCollection('skills')).filter((s) => !s.data.vendored).sort((a, b) => {
   const sa = ((a.data.status ?? '') as string).toLowerCase();
   const sb = ((b.data.status ?? '') as string).toLowerCase();
   const aActive = sa === 'active' ? 0 : 1;

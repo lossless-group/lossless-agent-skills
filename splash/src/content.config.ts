@@ -74,6 +74,31 @@ interface LocalLoaderOptions {
   provenance: string;
 }
 
+// ─── Vendored skills — someone else's, mounted here ───────────────────────
+// A top-level dir is vendored when it's a git submodule (listed in
+// ../.gitmodules) or a copied-in skill with a VENDORED.md (graphify). The map's
+// value is the source repo: the submodule URL, or VENDORED.md's Upstream link.
+
+async function vendoredSources(): Promise<Map<string, string | undefined>> {
+  const out = new Map<string, string | undefined>();
+  try {
+    const text = await readFile(resolve(PARENT_DIR, '.gitmodules'), 'utf8');
+    let path: string | undefined;
+    for (const line of text.split('\n')) {
+      const m = line.match(/^\s*(path|url)\s*=\s*(.+?)\s*$/);
+      if (!m) continue;
+      if (m[1] === 'path') path = m[2];
+      else if (path) { out.set(path.split('/')[0], m[2].replace(/\.git$/, '')); path = undefined; }
+    }
+  } catch { /* no submodules */ }
+  for await (const file of fsGlob('*/VENDORED.md', { cwd: PARENT_DIR })) {
+    const text = await readFile(resolve(PARENT_DIR, file), 'utf8');
+    const m = text.match(/Upstream[^\n]*?\((https:\/\/github\.com\/[^)\s]+)\)/);
+    out.set(file.split('/')[0], m?.[1]);
+  }
+  return out;
+}
+
 function skillsLoader() {
   return {
     name: 'skills-loader',
@@ -86,6 +111,7 @@ function skillsLoader() {
       // would pick up chroma-agent-skills/src/ duplicates):
       //   <repo>/skills/<name>/SKILL.md   plugin repos (chroma-agent-skills, floorplan)
       //   <repo>/<pkg>/skill/SKILL.md     a Python package's skill (agent-reach)
+      const vendored = await vendoredSources();
       const patterns = ['*/SKILL.md', '*/*/SKILL.md', '*/skills/*/SKILL.md', '*/*/skill/SKILL.md'];
 
       for (const pattern of patterns) {
@@ -110,6 +136,8 @@ function skillsLoader() {
               from: (data as any).from ?? 'lossless-agent-skills',
               from_path: (data as any).from_path ?? file,
               dir_name: dirname(file),
+              vendored: vendored.has(topDir),
+              source_repo: vendored.get(topDir),
             };
 
             const parsed = await safeParse({ id, data: merged }, parseData, logger);
@@ -195,6 +223,9 @@ const skillSchema = z
     lede: lenientString,
     status: lenientString,
     dir_name: lenientString,
+    // Set by the loader: someone else's skill, and the repo it comes from.
+    vendored: lenientBoolean,
+    source_repo: lenientString,
 
     tags: lenientStringArray,
     authors: lenientStringArray,
