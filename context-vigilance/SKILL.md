@@ -1,6 +1,6 @@
 ---
 name: context-vigilance
-description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, plans, prompts, blueprints, reminders, agent-skills, explorations, issues — plus the universal extra/ and sitemap/, and the experimental loops/, handoffs/, decisions/, habits/, contracts/, docs/, and briefs/), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, three- or four-part versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
+description: Lossless Group's framework for managing context-v/ directories in any project. Use whenever creating, updating, or organizing files in any context-v/ folder (specs, plans, prompts, blueprints, reminders, agent-skills, explorations, issues — plus the universal extra/ and sitemap/, and the experimental loops/, handoffs/, decisions/, habits/, contracts/, docs/, briefs/, and mirrors/), or when the user asks about context engineering, AI co-development workflow, or the "context-v" convention. Enforces directory roles, three- or four-part versioning, YAML frontmatter standard, wikilink cross-references, and the prep/reflective/journey cognitive modes.
 ---
 
 # Context Vigilance
@@ -48,7 +48,7 @@ The work of deciding what to build *is* the work — "prep" here is not "minor p
 Two folders that aren't doc-types so much as infrastructure, applicable to every project:
 
 - **`context-v/extra/`** — Scratch and out-of-band material: half-thoughts, pasted transcripts, working files that aren't ready to be (or shouldn't become) real docs. **Gitignored by default** — add `context-v/extra/` to the repo's `.gitignore` when scaffolding. Corpus rollups and ingesters already exclude it by convention; the gitignore makes the privacy boundary structural rather than tooling-dependent.
-- **`context-v/sitemap/`** — Maps of the project's own surfaces: pages, routes, slides, endpoints, screens — described as context docs so agents can reason about "what exists where" without crawling the source. First proven across the deck client-sites; applicable to any project with a navigable surface.
+- **`context-v/sitemap/`** — Maps of the project's own surfaces: pages, routes, slides, endpoints, screens — described as context docs so agents can reason about "what exists where" without crawling the source. First proven across the deck client-sites; applicable to any project with a navigable surface. A sitemap is in effect a mirror (see `mirrors/` below) for a website; the word fits pages and routes, not apps or services. `mirrors/` may eventually absorb `sitemap/`, but no migration has started: keep using `sitemap/` where it already exists.
 
 ### Experimental tier (proposed, not yet consistent)
 
@@ -62,6 +62,7 @@ Folders the team is actively trialing. Their shape is **not settled** — expect
 - **`context-v/docs/`** — User guides: how a person gets set up with, runs, or uses the project (e.g. getting started with Tauri in an app repo). Written for the human operating the thing, not for the agent building it. **Distinct from `blueprints/`:** a blueprint explains how the system is designed; a doc explains how to use it. First seen in `memopop-orchestrator`, 2026-10-28.
 - **`context-v/briefs/`** — Creative thinking and intent, captured: what we want and why, in whatever shape the thought arrives (a creative brief for imagery, the feel a product should have, the outcome someone is after). Loosely analogous to Anthropic's `intent.md`, but no required headings. Upstream of a spec: a brief says the intent, a spec scopes the work. **Distinct from `explorations/`:** an exploration weighs options when the destination is unclear; a brief states the destination. First seen in `memopop-ai` (`MemoPop-Creative-Brief`), 2026-10-28.
 - **`context-v/skill-packs/`** — Third-party repositories, usually forks under `lossless-group`, that bundle many skills. Added as submodules and **not linked** into any harness: they're there to mine for our own skills, not to load. Distinct from `agent-skills/`, which holds skills we author or load. The rule for which shape a third-party skill takes lives in `lossless-agent-skills/THIRD-PARTY.md`. First seen in `astro-knots` (`seo-skills`), 2026-11-19.
+- **`context-v/mirrors/`** — A reflection of what is **built and running right now** (infrastructure, a deployment, a service topology, a running pipeline), written so a person or an agent can understand and act on it without reading the code or opening a dashboard. A mirror doesn't plan or argue; it reports. It records `date_mirrored` (when it was taken) and `mirrors:` (the source it reflects), and ends with how to re-take it. **When it drifts, re-take it from the source; don't edit it from memory.** Distinct from `blueprints/`, which explain how a system is *designed* and stay true while the design holds; a mirror says what's *live* and goes stale on its own. Distinct from `sitemap/`, which maps a website's surfaces; mirrors cover apps and services too. First seen in `dididecks-ai` (`Railway-Setup-for-AIStack-AIDecks`, a Railway project mirrored from the Railway API), 2026-11-21.
 
 When creating either, follow the standard frontmatter baseline and note in the doc that the folder is experimental. When you see one shaped differently from this description, that's expected — surface the divergence, don't normalize it.
 
@@ -289,6 +290,7 @@ Use **Train-Case** for filenames: `Train-Case.md`. Same convention as tags. Matc
 - Isolated record of a decision made — what, when, why, alternatives passed over? → **decisions/** (experimental)
 - Recurring practice with a trigger and a scope — *"we keep doing X"*? → **habits/** (experimental)
 - Inviolable rule — agent constitution or ironclad data-flow/API contract? → **contracts/** (experimental)
+- What's live right now (deployment, infrastructure, services), described so it can be acted on without the code or the dashboard? → **mirrors/** (experimental)
 
 When in doubt, see `references/doc-type-guide.md`.
 
