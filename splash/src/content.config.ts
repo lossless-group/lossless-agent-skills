@@ -114,42 +114,59 @@ function skillsLoader() {
       const vendored = await vendoredSources();
       const patterns = ['*/SKILL.md', '*/*/SKILL.md', '*/skills/*/SKILL.md', '*/*/skill/SKILL.md'];
 
+      // Collect every match first, shortest path first, so the dedupe below
+      // is deterministic (glob order isn't).
+      const files: string[] = [];
       for (const pattern of patterns) {
         try {
-          for await (const file of fsGlob(pattern, { cwd: PARENT_DIR })) {
-            const topDir = file.split('/')[0];
-            if (SKILL_EXCLUDES.has(topDir)) continue;
-
-            const abs = resolve(PARENT_DIR, file);
-            const text = await readFile(abs, 'utf8');
-            const { data, body } = parseFrontmatter(text);
-
-            if ((data as any).publish === false) { skipped++; continue; }
-
-            // Slug: parent directory path with slashes replaced — keeps
-            // chroma-agent-skills/chroma-cloud distinct from siblings.
-            const id = dirname(file).replace(/\//g, '__');
-            const merged = {
-              ...data,
-              // Normalize: SKILL.md uses `name`, the rest of the site uses `title`.
-              title: (data as any).title ?? (data as any).name ?? id,
-              from: (data as any).from ?? 'lossless-agent-skills',
-              from_path: (data as any).from_path ?? file,
-              dir_name: dirname(file),
-              vendored: vendored.has(topDir),
-              source_repo: vendored.get(topDir),
-            };
-
-            const parsed = await safeParse({ id, data: merged }, parseData, logger);
-            store.set({ id, data: parsed, body });
-            loaded++;
-          }
+          for await (const file of fsGlob(pattern, { cwd: PARENT_DIR })) files.push(file);
         } catch (err) {
           if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
         }
       }
+      files.sort((a, b) => a.split('/').length - b.split('/').length || a.length - b.length || a.localeCompare(b));
 
-      logger.info(`[skills] ${loaded} loaded — ${skipped} skipped(publish:false).`);
+      // A vendored repo can ship one skill in several harness-specific copies
+      // with the same name (talk-normal/skill and talk-normal/skill-hermes).
+      // List it once: the shortest path wins.
+      const seenVendored = new Set<string>();
+
+      for (const file of files) {
+        const topDir = file.split('/')[0];
+        if (SKILL_EXCLUDES.has(topDir)) continue;
+
+        const abs = resolve(PARENT_DIR, file);
+        const text = await readFile(abs, 'utf8');
+        const { data, body } = parseFrontmatter(text);
+
+        if ((data as any).publish === false) { skipped++; continue; }
+
+        if (vendored.has(topDir)) {
+          const key = `${topDir}::${(data as any).name ?? dirname(file)}`;
+          if (seenVendored.has(key)) { skipped++; continue; }
+          seenVendored.add(key);
+        }
+
+        // Slug: parent directory path with slashes replaced — keeps
+        // chroma-agent-skills/chroma-cloud distinct from siblings.
+        const id = dirname(file).replace(/\//g, '__');
+        const merged = {
+          ...data,
+          // Normalize: SKILL.md uses `name`, the rest of the site uses `title`.
+          title: (data as any).title ?? (data as any).name ?? id,
+          from: (data as any).from ?? 'lossless-agent-skills',
+          from_path: (data as any).from_path ?? file,
+          dir_name: dirname(file),
+          vendored: vendored.has(topDir),
+          source_repo: vendored.get(topDir),
+        };
+
+        const parsed = await safeParse({ id, data: merged }, parseData, logger);
+        store.set({ id, data: parsed, body });
+        loaded++;
+      }
+
+      logger.info(`[skills] ${loaded} loaded — ${skipped} skipped (publish:false, or a duplicate vendored copy).`);
     },
   };
 }
