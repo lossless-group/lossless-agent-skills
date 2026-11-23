@@ -157,8 +157,7 @@ Also included:
 
 Committing in a submodule dirties the parent's recorded gitlink. When the work is done and
 pushed, finish the job: bump the pointer in each parent up the tree in one
-`chore(submodule): bump <names>` commit, staging only the pointers you moved (never another
-session's dirty gitlinks), push, and fast-forward the parent's `development`, `main` and
+`chore(submodule): bump <names>` commit, push, and fast-forward the parent's `development`, `main` and
 `master` to it.
 
 - Several child commits in one stretch of work share one bump. Don't make a parent commit
