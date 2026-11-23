@@ -21,7 +21,12 @@ Order:
 
 Usage:
   images-to-pdf.py <dir | img img ...> -o deck.pdf [--max-long 1600] [--quality 85]
-                   [--order auto|capture|name] [--crop-chrome] [--dry-run]
+                   [--order auto|capture|name] [--crop-chrome | --crop WxH+X+Y] [--dry-run]
+
+  --crop WxH+X+Y   one fixed box for every page (ImageMagick geometry), for whole-window
+                   captures where --crop-chrome can't see the slide edges. Find the box with
+                   --measure on one screenshot.
+  --measure        print the bright slide box inside the first image and stop
 
 Never overwrites the output and never deletes an input.
 Exit codes: 0 ok, 2 bad args / nothing to do, 3 output exists.
@@ -114,6 +119,32 @@ def detect_chrome_box(images: list[Image.Image]):
     return box
 
 
+def measure_box(im: Image.Image) -> str:
+    """Largest bright (slide) run across the middle row and column. For window captures:
+    shadow, frame and toolbars are dark or transparent; the slide is near-white at its
+    edges. Check the printed ratio (16:9 = 1.778) before trusting it."""
+    import numpy as np
+
+    a = np.asarray(im.convert("RGBA")).astype(int)
+    lum = a[..., :3].mean(axis=2) * (a[..., 3] > 0)
+    h, w = lum.shape
+
+    def longest(v):
+        best, start = (0, 0), None
+        for i, x in enumerate(list(v) + [0]):
+            if x > 200 and start is None:
+                start = i
+            elif x <= 200 and start is not None:
+                if i - start > best[1] - best[0]:
+                    best = (start, i)
+                start = None
+        return best
+
+    x0, x1 = longest(lum[int(h * 0.3)])
+    y0, y1 = longest(lum[:, x0 + 30])  # the slide's left margin, clear of content
+    return f"{x1 - x0}x{y1 - y0}+{x0}+{y0}  (ratio {(x1 - x0) / max(1, y1 - y0):.3f})"
+
+
 def normalize(img: Image.Image, max_long: int) -> Image.Image:
     img = ImageOps.exif_transpose(img)
     if img.mode in ("RGBA", "LA", "P"):
@@ -138,6 +169,8 @@ def main() -> int:
     ap.add_argument("--quality", type=int, default=85)
     ap.add_argument("--order", choices=["auto", "capture", "name"], default="auto")
     ap.add_argument("--crop-chrome", action="store_true")
+    ap.add_argument("--crop", help="fixed box WxH+X+Y applied to every page")
+    ap.add_argument("--measure", action="store_true", help="print the slide box in the first image and stop")
     ap.add_argument("--dry-run", action="store_true", help="print the page order and stop")
     a = ap.parse_args()
 
@@ -153,6 +186,9 @@ def main() -> int:
     print(f"{len(files)} images, order={order}")
     for n, f in enumerate(files, 1):
         print(f"  {n:3d}  {f.name}")
+    if a.measure:
+        print("  slide box:", measure_box(Image.open(files[0])))
+        return 0
     if a.dry_run:
         return 0
     if a.out.exists():
@@ -161,7 +197,16 @@ def main() -> int:
 
     src_bytes = sum(f.stat().st_size for f in files)
     images = [Image.open(f) for f in files]
-    box = detect_chrome_box(images) if a.crop_chrome else None
+    box = None
+    if a.crop:
+        m = re.fullmatch(r"(\d+)x(\d+)\+(\d+)\+(\d+)", a.crop)
+        if not m:
+            print("error: --crop must look like 3282x1846+199+306", file=sys.stderr)
+            return 2
+        w, h, x, y = map(int, m.groups())
+        box = (x, y, x + w, y + h)
+    elif a.crop_chrome:
+        box = detect_chrome_box(images)
 
     doc = pymupdf.open()
     sizes = set()

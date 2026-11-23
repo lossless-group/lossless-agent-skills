@@ -16,6 +16,9 @@ description: Turn a folder of slide images (macOS screenshots of a DocSend or Dr
 S=~/code/lossless-monorepo/context-v/agent-skills/convert-images-to-pdf/scripts
 uv run --script $S/images-to-pdf.py <folder> -o <deck>.pdf --dry-run   # check the page order first
 uv run --script $S/images-to-pdf.py <folder> -o <deck>.pdf
+# window captures with browser chrome: measure the slide box, then crop to it
+uv run --script $S/images-to-pdf.py <folder> -o <deck>.pdf --measure
+uv run --script $S/images-to-pdf.py <folder> -o <deck>.pdf --crop 3282x1846+199+306
 ```
 
 The script declares its own dependencies (PEP 723), so `uv` installs them on
@@ -61,9 +64,18 @@ why this skill exists.
 2. **Watermarks.** DocSend stamps the viewer's email or name on each page. The
    memopop deck analyst has extracted a DocSend watermark *as the company name*.
    Crop it out, or tell the user before the run.
-3. **Viewer chrome.** `--crop-chrome` crops only when every page agrees on the
-   same slide box, and otherwise crops nothing. Crop nothing rather than crop
-   content.
+3. **Viewer chrome. Look at page 1 before stitching.** Two kinds:
+   - *Slide area only, with toolbars above and below:* `--crop-chrome` crops
+     only when every page agrees on the same slide box, and otherwise crops
+     nothing. Crop nothing rather than crop content.
+   - *Whole-window capture* (macOS window screenshot: a drop shadow, the browser
+     frame, the "Dropbox DocSend" bar): `--crop-chrome` can't see the slide
+     edges. Run `--measure` on the folder. It prints the slide box in the first
+     image as `WxH+X+Y` with its ratio. If the ratio is 1.778 (16:9), pass that
+     box with `--crop`. Check that every screenshot has the same pixel size
+     first, because a fixed box assumes one window size. Measured on a 13-slide
+     DocSend deck (2026-11-22): 3680×2392 window captures, box
+     `3282x1846+199+306`, 25.7 MB → 1.6 MB.
 4. **Confidentiality.** A founder's deck stays in a private repo (`io/<firm>/`,
    a client-site). Loose `Screenshot *.png` files at a deal root are
    gitignored by `setup-new-firm`. The stitched PDF in `inputs/` is the
