@@ -16,3 +16,6 @@
 [submodule "floorplan"]
 	path = floorplan
 	url = https://github.com/lossless-group/floorplan.git
+[submodule "skill-packs/astro-knots"]
+	path = skill-packs/astro-knots
+	url = https://github.com/lossless-group/astro-knots-skills-pack.git

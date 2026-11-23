@@ -17,6 +17,21 @@ import { parseMarkdown } from '@lossless-group/lfm';
 
 const REPO_BLOB = 'https://github.com/lossless-group/lossless-agent-skills/blob/main';
 
+/**
+ * Skill packs are their own repos, mounted as submodules at skill-packs/<pack>/.
+ * On GitHub a path inside one is a gitlink and 404s, so link to the pack repo.
+ */
+const PACK_REPOS: Record<string, string> = {
+  'astro-knots': 'https://github.com/lossless-group/astro-knots-skills-pack/blob/main',
+};
+
+/** GitHub URL for a repo-relative path, following a skill pack into its own repo. */
+export function githubBlob(path: string): string {
+  const m = path.match(/^skill-packs\/([^/]+)\/(.*)$/);
+  if (m && PACK_REPOS[m[1]]) return `${PACK_REPOS[m[1]]}/${m[2]}`;
+  return `${REPO_BLOB}/${path}`;
+}
+
 type Index = Map<string, string>;
 let index: Index | null = null;
 
@@ -63,7 +78,7 @@ function resolveRelativeLinks(body: string, sourcePath: string): string {
   return outsideCode(body, (text) =>
     text.replace(/(\]\()([^)\s]+)/g, (match, open: string, url: string) => {
       if (/^([a-z][a-z0-9+.-]*:|#|\/)/i.test(url)) return match;
-      return `${open}${REPO_BLOB}/${posix.normalize(posix.join(dir, url))}`;
+      return `${open}${githubBlob(posix.normalize(posix.join(dir, url)))}`;
     }),
   );
 }

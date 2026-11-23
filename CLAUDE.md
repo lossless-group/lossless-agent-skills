@@ -5,9 +5,13 @@ skill, each with a top-level `SKILL.md` following the
 [Agent Skills spec](https://agentskills.io/specification). It is **public**, and it is
 mounted into the anchor pseudomonorepo at `context-v/agent-skills/`.
 
-Skills for one audience are grouped into **skill packs** at
-`skill-packs/<pack>/skills/<name>/` (see `skill-packs/astro-knots/README.md`).
-Put a new Astro-site skill there, not at the root. Both sync scripts, the
+Skills for one audience are grouped into **skill packs**. Each pack is its own
+repo, mounted as a submodule at `skill-packs/<pack>/`, with skills at
+`skills/<name>/`. The Astro site skills are in
+[`astro-knots-skills-pack`](https://github.com/lossless-group/astro-knots-skills-pack)
+at `skill-packs/astro-knots/`. Put a new Astro-site skill there, not at the
+root. Unlike the vendored submodules, we own the pack repos: commit inside the
+pack (on `main`), push, then bump the pointer here. Both sync scripts, the
 splash and the context-v-corpus scripts find pack skills; Stow does not, so
 link them by hand on a Stow machine.
 

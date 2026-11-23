@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import AstroMarkdown from '@components/markdown/AstroMarkdown.astro';
 import Sources from '@components/markdown/Sources.astro';
-import { renderable } from '@lib/markdown';
+import { renderable, githubBlob } from '@lib/markdown';
 
 export async function getStaticPaths() {
   const entries = await getCollection('skills');
@@ -27,7 +27,7 @@ const vendored = Boolean((entry.data as any).vendored);
 const sourceRepo = ((entry.data as any).source_repo ?? '') as string;
 const repoUrl = vendored && sourceRepo
   ? sourceRepo
-  : `https://github.com/lossless-group/lossless-agent-skills/blob/main/${fromPath}`;
+  : githubBlob(fromPath);
 const { tree, citations } = await renderable(entry.body, fromPath);
 
 const base = import.meta.env.BASE_URL;
