@@ -132,8 +132,7 @@ See `references/content-rollup.md` for the full mechanism — endpoint shape, au
 Pseudomonorepos and their submodules share a three-tier branch model: **`development` → `main` → `master`**.
 
 - `development` is where most work lands.
-- `main` is what `development` gets promoted to when it reaches something noteworthy.
-- `master` is `stable` — updated only when the dust has settled.
+- `main` and `master` are kept at the same commit as `development`: when work is done, all three move together.
 
 **Aspiration:** when the parent is on a tier, every submodule is on the same tier. Parent on `development` → all submodules on `development`. Same for `main` and `master`. Look for root-level scripts like `switch-all-to-development-branch.sh` before writing your own.
 
@@ -239,7 +238,7 @@ When working in this tree, **multiple skills apply at once.** Don't pick one —
 - `references/the-tree.md` — current state of the lossless-monorepo tree (living doc)
 - `references/search-first.md` — concrete recipes for finding prior work
 - `references/lifecycle-workflow.md` — the 5-phase Start → Progress → Reflect → Publish → Market loop, with diagrams
-- `references/branch-alignment.md` — the development → main → master tier model and how to keep parent + submodules aligned
+- `references/branch-alignment.md` — keeping development, main and master at parity across parent and submodules
 - `references/content-rollup.md` — how parent splashes/sites should aggregate `changelog/` and `context-v/` from their submodules via the GitHub Content API
 - `context-vigilance/SKILL.md` — the documentation framework that `context-v/` follows
 - `astro-knots/SKILL.md` — the websites child of the tree

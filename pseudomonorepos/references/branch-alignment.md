@@ -1,16 +1,6 @@
 # Branch Alignment Across the Tree
 
-Pseudomonorepos and their children share a three-tier branch model: **development → main → master**. The aspiration is that the parent and every submodule sit on the same tier at the same time.
-
-## The three tiers
-
-| Branch | Role | Rhythm |
-|---|---|---|
-| `development` | Where most activity happens. The working edge. | Most commits land here. |
-| `main` | Promoted from `development` when it reaches something noteworthy. | Periodic. |
-| `master` | Stable. Only updated when the dust has settled. | Rare. |
-
-> **Lazy reality:** when humans skip the discipline, work piles up in `development` and never gets promoted. Sometimes `main` ends up being treated as the working branch instead of `development`. `master` is often the most stale branch in the repo — that's expected, not a bug.
+Every repo in the tree keeps `development`, `main` and `master`, and they sit at the same commit. When work is done, commit it, merge it, push, and fast-forward all three (plus any working branch) to it. Bump parent submodule pointers whenever a child moves, and sync the parents the same way.
 
 ## The alignment expectation
 
