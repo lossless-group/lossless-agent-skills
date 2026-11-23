@@ -153,30 +153,20 @@ Also included:
 
 **Common mistake:** Same as changelogs — rushing to commit, then realizing context is stale, then making an "oops(context-v): update stale spec" commit.
 
-#### Do NOT bump the parent pseudomonorepo's submodule pointer
+#### Bump the parent pseudomonorepo's pointer as the last step of shipping
 
-**Not per commit. Not per push. Once, at wrap-up.**
+Committing in a submodule dirties the parent's recorded gitlink. When the work is done and
+pushed, finish the job: bump the pointer in each parent up the tree in one
+`chore(submodule): bump <names>` commit, staging only the pointers you moved (never another
+session's dirty gitlinks), push, and fast-forward the parent's `development`, `main` and
+`master` to it.
 
-Committing in a submodule dirties the parent's recorded gitlink immediately. It is tempting to
-"tidy" that by committing the parent too — resist it. On a working day with twenty child commits,
-that habit produces twenty parent commits whose entire content is *a pointer moved*, burying the
-handful of parent commits that actually say something.
-
-The working rhythm:
-
-1. Work in the child repo. Commit and push there as often as the work warrants.
-2. Leave the parent's ` M <submodule>` dirty. **This is the expected mid-session state, not a
-   problem to fix.**
-3. At wrap-up — end of session, end of day, or when handing off — bump the parent pointers **once**,
-   in a single `chore(submodule): bump <names>` commit.
-
-**When this does not apply:** if someone else is working the same parent concurrently, their clone
-resolves whatever pointer you last pushed, so a stale pointer can hand them a checkout that does not
-match the work you described. Bump more eagerly when collaborating. The once-at-wrap-up rhythm
-assumes a single operator on the tree, which is the common case here.
-
-Corollary for agents: **do not offer to commit parent pointers mid-session, and do not treat a dirty
-gitlink as an error worth reporting.** Mention it at wrap-up or when asked.
+- Several child commits in one stretch of work share one bump. Don't make a parent commit
+  per child commit.
+- Don't save the bump for "wrap-up" or wait to be asked. A pointer left stale makes every
+  other clone, deploy and session check out the wrong child commit.
+- Mid-change, while a child is still being worked on, a dirty gitlink is normal and not
+  worth reporting.
 
 **The discipline:** Pause before `git commit`. Ask:
 1. Is this the end of a coherent flow of work? → Consider changelog.
@@ -271,7 +261,7 @@ Also included:
 
 **When work the user asked for is done, commit it, push it, and promote it across
 `development`, `main` and `master`. Don't ask "want me to commit?".** Bump parent pointers
-at wrap-up, per §5.
+when the work ships, per §5.
 
 Most repos also hold dirty files the current session didn't write. Judge each one; don't
 sweep blindly and don't stop at the first file you didn't touch.

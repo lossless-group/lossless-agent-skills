@@ -78,5 +78,5 @@ next.
 - Don't paraphrase the plan or prompts from memory. They change; read them each run.
 - Don't edit the pipeline docs during a run unless the user asks. Collect
   friction from the subagents' reports and offer the fixes at the end.
-- Don't commit to a client-site's `development` branch without the user's
-  go-ahead.
+- When the variants build and play in the shell, commit and push the
+  client-site and sync its tiers, without waiting to be asked.
