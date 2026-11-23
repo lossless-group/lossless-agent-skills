@@ -317,8 +317,9 @@ Not a checklist — a default rhythm. Adjust to the situation.
 6. **Lead with the why.** First paragraph readable by an outsider.
 7. **Cross-link** to related docs using `[[wikilinks]]`.
 8. **Filename & tags:** Train-Case (`My-New-Doc.md`, tags like `- New-Pattern`).
-9. **When editing an existing doc:** bump `semantic_version` per `references/versioning.md` and update `date_modified`. Respect existing frontmatter shape.
-10. **If the doc is ballooning, propose a split** before continuing. Better two clean docs than one bloated one.
+9. **Update the indexes, in the same change, without being asked.** Add the doc's line to its folder's `index.md` (`* [Title](File.md) - <lede>`). If the folder is new, create its `index.md` (frontmatter `type: <Folder-Name>`) and add the folder's line to `context-v/index.md` (`* [Notes](notes/) - <what it holds>`). Never report a stale index as a follow-up: fix it. The context-vigilance-kit's `hooks/check-index.py` checks this after every write and names any missing line; `python3 check-index.py --all <context-v>` audits a whole tree.
+10. **When editing an existing doc:** bump `semantic_version` per `references/versioning.md` and update `date_modified`. Respect existing frontmatter shape.
+11. **If the doc is ballooning, propose a split** before continuing. Better two clean docs than one bloated one.
 
 ## Developing a spec (the rich case)
 
