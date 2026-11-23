@@ -11,7 +11,13 @@
 
 # Top-level dirs that are not skills
 ^/changelog$
+^/context-v$
 ^/splash$
+
+# Skill packs: skill-packs/<pack>/skills/<name>/SKILL.md sits three levels
+# deeper than Stow links. Link those by hand (or with sync-skills.sh):
+#   for d in skill-packs/*/skills/*/; do ln -s "$PWD/$d" <skills-dir>/; done
+^/skill-packs$
 
 # Vendored submodules — their SKILL.md sits one level deeper; link those by hand
 ^/archify$

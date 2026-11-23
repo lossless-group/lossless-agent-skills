@@ -62,6 +62,9 @@ const PARENT_CHANGELOG = resolve(PARENT_DIR, 'changelog');
 // Depth 1: top-level skills (this repo's own).
 // Depth 2: submodule-hosted skills (e.g. archify/archify/).
 // Depth 3: vendored plugin layouts (floorplan/skills/floorplan/), see below.
+// Depth 4: skill packs (skill-packs/<pack>/skills/<name>/), our own skills
+//          grouped by audience. They keep their bare name as the slug, so a
+//          skill's page doesn't move when it joins a pack.
 // Skip splash/, node_modules/, dist/, .astro/, .git/.
 
 const SKILL_EXCLUDES = new Set([
@@ -112,7 +115,7 @@ function skillsLoader() {
       //   <repo>/skills/<name>/SKILL.md   plugin repos (chroma-agent-skills, floorplan)
       //   <repo>/<pkg>/skill/SKILL.md     a Python package's skill (agent-reach)
       const vendored = await vendoredSources();
-      const patterns = ['*/SKILL.md', '*/*/SKILL.md', '*/skills/*/SKILL.md', '*/*/skill/SKILL.md'];
+      const patterns = ['*/SKILL.md', '*/*/SKILL.md', '*/skills/*/SKILL.md', '*/*/skill/SKILL.md', 'skill-packs/*/skills/*/SKILL.md'];
 
       // Collect every match first, shortest path first, so the dedupe below
       // is deterministic (glob order isn't).
@@ -149,7 +152,8 @@ function skillsLoader() {
 
         // Slug: parent directory path with slashes replaced — keeps
         // chroma-agent-skills/chroma-cloud distinct from siblings.
-        const id = dirname(file).replace(/\//g, '__');
+        const pack = topDir === 'skill-packs' ? file.split('/')[1] : undefined;
+        const id = pack ? file.split('/')[3] : dirname(file).replace(/\//g, '__');
         const merged = {
           ...data,
           // Normalize: SKILL.md uses `name`, the rest of the site uses `title`.
@@ -158,6 +162,7 @@ function skillsLoader() {
           from_path: (data as any).from_path ?? file,
           dir_name: dirname(file),
           vendored: vendored.has(topDir),
+          pack,
           source_repo: vendored.get(topDir),
         };
 

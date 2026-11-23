@@ -3,7 +3,13 @@
 This repo is the shared skill library for The Lossless Group — one directory per
 skill, each with a top-level `SKILL.md` following the
 [Agent Skills spec](https://agentskills.io/specification). It is **public**, and it is
-mounted into the anchor pseudomonorepo at `context-v/skills/`.
+mounted into the anchor pseudomonorepo at `context-v/agent-skills/`.
+
+Skills for one audience are grouped into **skill packs** at
+`skill-packs/<pack>/skills/<name>/` (see `skill-packs/astro-knots/README.md`).
+Put a new Astro-site skill there, not at the root. Both sync scripts, the
+splash and the context-v-corpus scripts find pack skills; Stow does not, so
+link them by hand on a Stow machine.
 
 ## Symlink sync — opening & closing habit
 

@@ -27,10 +27,10 @@ Developing them all at once would be a nightmare and would freeze conventions th
 | Skill | Where | Shipped |
 |---|---|---|
 | `context-vigilance` | [`./context-vigilance/`](./context-vigilance/) | 2026-05-04 |
-| `astro-knots` | [`./astro-knots/`](./astro-knots/) | 2026-05-04 |
+| `astro-knots` | [`./astro-knots/`](./skill-packs/astro-knots/skills/astro-knots/) | 2026-05-04 |
 | `pseudomonorepos` | [`./pseudomonorepos/`](./pseudomonorepos/) | 2026-05-04 |
 | `changelog-conventions` | [`./changelog-conventions/`](./changelog-conventions/) | 2026-05-04 |
-| `theme-system` | [`./theme-system/`](./theme-system/) | 2026-05-04 (scaffold) |
+| `theme-system` | [`./theme-system/`](./skill-packs/astro-knots/skills/theme-system/) | 2026-05-04 (scaffold) |
 | `git-conventions` | [`./git-conventions/`](./git-conventions/) | 2026-05-04 (scaffold) |
 
 ---

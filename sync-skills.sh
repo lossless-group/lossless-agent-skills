@@ -82,6 +82,16 @@ for dir in "$REPO_ROOT"/*/; do
   fi
 done
 
+# Skill packs: skill-packs/<pack>/skills/<name>/SKILL.md. Linked flat, by name,
+# like any other skill; the pack is only how this repo groups them.
+shopt -s nullglob
+for dir in "$REPO_ROOT"/skill-packs/*/skills/*/; do
+  [[ -f "$dir/SKILL.md" ]] || continue
+  rel="${dir#"$REPO_ROOT"/}"; rel="${rel%/}"
+  NESTED_SKILLS+=("$rel:$(basename "$rel")")
+done
+shopt -u nullglob
+
 # Canonicalize a path — resolve every symlink and ".." in the chain.
 # Pure bash + cd/pwd -P; works on macOS and Linux.
 canonical_path() {

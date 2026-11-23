@@ -11,6 +11,10 @@
 # Two source layouts are accepted, ANYWHERE in the tree:
 #     <repo>/context-v/agent-skills/<name>/SKILL.md    (canonical)
 #     <repo>/context-v/skills/<name>/SKILL.md          (legacy)
+#     <repo>/context-v/agent-skills/skill-packs/<pack>/skills/<name>/SKILL.md
+#                                                      (a skill pack: one folder
+#                                                       per audience, same flat
+#                                                       link in ~/.claude/skills)
 #
 # PRECEDENCE — when the same skill name exists in more than one place:
 #   **The most recently updated folder wins.** "Updated" is the newest mtime of
@@ -73,7 +77,7 @@ list_candidates() {
     done < <(find "$MONO_ROOT" \
                  -type d \( -name node_modules -o -name .git \) -prune -o \
                  -type f -name SKILL.md -print 2>/dev/null \
-               | grep -E "/context-v/${flavor}/[^/]+/SKILL.md$" || true)
+               | grep -E "/context-v/${flavor}/([^/]+|skill-packs/[^/]+/skills/[^/]+)/SKILL.md$" || true)
   done
 }
 
