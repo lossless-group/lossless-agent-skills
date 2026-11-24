@@ -420,6 +420,7 @@ For an export or list of 50–400 rows:
 3. Present a numbered batch of 20–50 as a scannable table with a flag on anything
    already in the CRM, any name collision, and any stale-looking entry.
 4. Wait for selection. Do not create records from a list the user hasn't triaged.
+   (This is for imported lists only; lists built for the operator follow §7.1.)
 5. Create companies first, capture the returned IDs, then create people referencing
    those IDs in the same turn.
 6. Apply list tags on create. Retrofitting tags is slower than setting them once.
@@ -427,6 +428,29 @@ For an export or list of 50–400 rows:
 
 Skip person records for handle-only contacts (single mononyms, Discord-style handles).
 They cannot be matched or contacted later. Say which ones were skipped and why.
+
+### 7.1 Working lists built in a session are not imports
+
+The triage rule above is for **someone else's export**: a spreadsheet, a CRM dump, a
+conference attendee list. It does not apply to a list the agent builds *for* the operator
+as part of a project (a lead list, target list or investor list whose destination
+includes the CRM). For those, the operator asking for the list is the selection.
+
+- **Every person on the working list goes into the CRM**, tagged with the list's
+  `Lists` value, in the same pass that writes the markdown or proposal. Not just the
+  people the operator named personally, and not "next step: load into Twenty".
+- **Uncertainty goes in the record, not in withholding it.** Unknown degree is written
+  as "degree not yet known"; facts from memory are marked as such (§3.3).
+- **Every enrichment lands in the CRM too.** A handle, follower count, firm or degree
+  added to the markdown is written to the record in the same pass, unasked.
+- **Reconcile before reporting done.** Count the records carrying the list tag and
+  compare with the source list. If they differ, find the gap and close it before
+  saying the work is finished.
+
+Failure this prevents (2026-11-24): a 123-person lead list existed in markdown while
+only 85 were in Twenty. The first 41 research names had been held back as "untriaged",
+the gap was never surfaced, and it came out only by accident during a later pass. One
+count check would have caught it at any point.
 
 **Turn size matters.** Very long turns have caused client freezes. Keep to roughly 8–12
 tool calls per turn; split a large batch across turns rather than doing everything at
