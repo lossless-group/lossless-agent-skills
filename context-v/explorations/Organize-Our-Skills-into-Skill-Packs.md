@@ -2,14 +2,14 @@
 title: "Organize Our Skills into Skill Packs"
 lede: "Forty-odd skills in one flat folder work for us. To work for anyone else, they need to become packs: each one a repo with its own name, audience, and install, living where it's used and mounted here too."
 date_created: 2026-11-22
-date_modified: 2026-11-22
+date_modified: 2026-11-27
 date_authored_initial_draft: 2026-11-22
-date_authored_current_draft: 2026-11-22
+date_authored_current_draft: 2026-11-27
 authors:
   - Michael Staton
 augmented_with:
   - Claude Code on Claude Opus 5.5
-at_semantic_version: 0.0.0.2
+at_semantic_version: 0.0.0.3
 status: Open
 site_uuid: 9ee9f5ec-ecc9-4796-b989-a8ede7deeb3a
 hex_code: plp58x
@@ -311,6 +311,136 @@ The MCP also syncs `build-a-moodboard`, `maintain-design-system-page`,
 `generate-site-design-variants` is Astro work too. They are candidates for
 this pack; `write-site-narrative` may belong to `content-and-share`.
 
+***
+
+## Every skill we have, and every one proposed (2026-11-27)
+
+Found by walking the whole tree for `SKILL.md` (plus the MemoPop and event-hog
+folders that serve skills over MCP), and by reading `CANDIDATES.md` and recent
+`context-v/` docs for skills that are named but not written. Third-party skills
+we only study are counted at the end, not listed. **Bold** marks a skill that
+exists in more than one place.
+
+### 1. In this repo, at the root (37)
+
+| Group | Skills |
+|---|---|
+| Our working method | **`context-vigilance`**, **`pseudomonorepos`**, **`study-repos-first`**, **`git-conventions`**, **`changelog-conventions`**, `gh-cli-projects-tasks-conventions`, **`search-lossless-corpus`**, **`maintain-filemap`**, `obsidian-vault-hygiene`, `surrealdb-canonical-layer`, `shares-down-to-the-edge`, `cloudflare-artifacts-interface`, `graphify` |
+| VC, CRM, deals | **`competitive-analysis`**, **`market-capture-analysis`**, **`timeline-scenario-analysis`**, `refactor-memo-to-form-requirements`, **`crawl-fetch-ingest`**, **`lossless-crm-interface-guidelines`**, `decile-hub-connector`, `hubspot-interface`, `create-contact-list-from-image-or-spreadsheet`, `expense-report-generation` |
+| Decks | **`deck-iteration-workflow`**, **`remake-deck`**, **`slide-target`**, **`overlay-svg-text`** |
+| Events | **`event-prep`**, **`augment-speakers-panelists`** |
+| Sites and design (pack candidates) | **`build-a-moodboard`**, **`maintain-design-system-page`**, **`spike-then-refactor-into-components`**, **`write-site-narrative`** |
+| Images and files | `prep-images-for-embed`, `slim-file-sizes`, `convert-images-to-pdf` |
+| Writing | `humanizer` (vendored, see 3) |
+
+### 2. In `skill-packs/astro-knots` (9)
+
+**`astro-knots`**, **`theme-system`**, **`maintain-design-md`**,
+**`lossless-flavored-markdown`**, **`maintain-splash-pages`**,
+**`generate-consistent-og-images`**, **`open-graph-share-seo-geo`**,
+`openpanel-analytics`, **`trademark-packs-files`**.
+
+### 3. Vendored here, read-only (7)
+
+`archify`, `chroma-local`, `chroma-cloud` (chroma-agent-skills), `floorplan`,
+`humanizer`, `talk-normal`, `agent-reach`.
+
+### 4. Written by us, living only outside this repo (about 75)
+
+These are the ones a visitor to `lossless-agent-skills` never sees.
+
+| Where | Skills that exist only there | Copies of skills from here |
+|---|---|---|
+| `ai-labs/context-vigilance-kit/agent-skills/` | `blueprint`, `decide`, `explore`, `handoff`, `implement`, `init`, `issue`, `kickoff`, `loop`, `new`, `plan`, `prep`, `prompt`, `reflect`, `remind`, `spec`, `upgrade`, `mobile-x-platform-w-tauri` (18) | `context-vigilance`, `pseudomonorepos` |
+| `ai-labs/memopop-ai/context-v/agent-skills/` | `12ps-5os-scorecard`, `thesis-bleed-cleanup` | `competitive-analysis`, `market-capture-analysis`, `timeline-scenario-analysis` |
+| `ai-labs/memopop-ai/agent-skills/` | `source-with-extracts-md`, `sources-md-curation`, `user-adds-adhoc-sources` | |
+| `memopop-orchestrator/context-v/agent-skills/` | `adhoc-edits-workflow`, `manage-memo-citations`, `repair-memo-citations`, `setup-new-firm` | |
+| `memopop-orchestrator/plugin/skills/` | `memopop` (the Claude Code plugin) | |
+| `memopop-orchestrator/src/connector/skills/` (flat `.md`, served over MCP) | `change-the-outline-for-this-memo`, `compile-and-check-the-site`, `edit-wording`, `fix-a-source-or-citation`, `just-edit-the-memo`, `preview-a-memo`, `rewrite-a-section-from-its-research` | |
+| `ai-labs/mcps/event-hog-mcp/kit/skills/` (served over MCP) | `capture-slides`, `conference-attendee-export`, `draft-follow-up-emails`, `maintain-design-system`, `parallel-content-generation-starters`, `prioritize-attendees`, `recreate-slides-in-brand` | `augment-speakers-panelists` |
+| `ai-labs/dididecks-ai/context-v/agent-skills/` | `setup-new-dddecks-workspace` | **19 copies**: `astro-knots`, `changelog-conventions`, `context-vigilance`, `crawl-fetch-ingest`, `deck-iteration-workflow`, `generate-consistent-og-images`, `git-conventions`, `maintain-design-md`, `maintain-filemap`, `lossless-flavored-markdown`, `maintain-splash-pages`, `open-graph-share-seo-geo`, `overlay-svg-text`, `pseudomonorepos`, `remake-deck`, `search-lossless-corpus`, `slide-target`, `study-repos-first`, `theme-system` |
+| `ai-labs/augment-it/context-v/agent-skills/` | `decile-hub-interface`, `inbox-curation`, `triage-inbox-w-suggestions` | |
+| `ai-labs/hope-ai/context-v/agent-skills/` | `personal-strategic-plan` | |
+| `astro-knots/context-v/agent-skills/` | `dependency-upgrade-loop`, `generate-site-design-variants` | |
+| `astro-knots/mcps/astro-knots-mcp/skills/` (synced by `sync-skills.mjs`) | `knot-check`, `start-an-astro-knot` | 13 copies, generated |
+| `astro-knots/sites/twf-next/.claude/skills/` | `port-legacy`, `port-survey`, `twf-bio`, `twf-claims`, `twf-copy`, `twf-design`, `twf-figures`, `twf-intake`, `twf-media`, `twf-portraits`, `twf-sources`, `twf-upscale`, `twf-water` (site-specific; `twf-claims` and `twf-design` also in `.agents/skills/`) | |
+| `astro-knots/sites/fullstack-vc/public/downloads/skills/` | `create-html-breakout-highlights` (offered as a download) | |
+| `fantasy-gm/context-v/agent-skills/` | `design-system`, `mobile-app` | |
+| `self-host-stack/context-v/agent-skills/` | `custom-domain-cutover`, `decilehub-interface`, `vc-firm-profile-ingest` | |
+| `self-host-stack/client-stacks/*/` | `twenty-interface` (palmer-ai and reach-edu, two copies) | `lossless-crm-interface-guidlines` (misspelled copy, lossless stack) |
+| `~/.claude/skills/` only | `use-railway` (and a real-directory `graphify` that shadows the one in this repo) | |
+
+Name collisions this turned up, each of which should become one skill:
+
+- **Decile Hub, three ways:** `decile-hub-connector` (here), `decile-hub-interface`
+  (augment-it), `decilehub-interface` (self-host-stack).
+- **Design systems, five ways:** `maintain-design-md`, `maintain-design-system-page`,
+  `maintain-design-system` (event-hog), `design-system` (fantasy-gm), and the
+  `maintain-design-systems` candidate.
+- **Twenty CRM, two ways:** `lossless-crm-interface-guidelines` and
+  `twenty-interface`.
+
+### 5. Proposed, not made
+
+| Candidate | Source | Note |
+|---|---|---|
+| `lossless-loop` | `CANDIDATES.md` | The 5-phase lifecycle; stubbed in `pseudomonorepos/references/` |
+| `fill-enrich-components-w-data` | `CANDIDATES.md` | Follow-up to `crawl-fetch-ingest` |
+| `maintain-design-systems` | `CANDIDATES.md` | Overlaps the five design-system skills above |
+| `astro-component-patterns` | `CANDIDATES.md` | Would go in the `astro-knots` pack |
+| `lossless-house-style` | `CANDIDATES.md` | Voice and formatting; may overlap `talk-normal`, `humanizer` |
+| `submodule-hygiene` | `CANDIDATES.md` | Wraps the existing reattach scripts |
+| `monorepo-nav` | `CANDIDATES.md` | May fold into `pseudomonorepos` |
+| `obsidian-integration` | `CANDIDATES.md` | Partly covered by `obsidian-vault-hygiene` |
+| `profiles-doctype` | `CANDIDATES.md` | Probably a `context-vigilance` doc type, not a skill |
+| `study-pattern` | `CANDIDATES.md` | Mostly shipped as `study-repos-first` |
+| `inquiry-vs-explorations` | `CANDIDATES.md` | A reminder, not a skill |
+| `flave-bundle` | `ai-labs/flave-ai/context-v/specs/Master-Flave-…` | Teaches the Flave bundle conventions; the spec says write it first |
+| A router skill per pack | This exploration, "A way in" | One per pack once packs exist |
+| Packs: `vc-skill-pack`, `event-skill-pack`, `lossless-dev`, `content-and-share` | This exploration, "A first pack map" | Only `astro-knots` is made |
+
+`CANDIDATES.md` is stale: `lfm` shipped as `lossless-flavored-markdown`, and
+most of what's listed in 1 and 4 isn't in its Promoted table.
+
+### 6. Third-party, studied, not loaded
+
+`astro-knots/context-v/skill-packs/seo-skills/` (30 skills, mined per
+`THIRD-PARTY.md`), the 14 `speckit-*` skills spec-kit generated in augment-it,
+and the skills inside upstream repos pinned in `ai-labs/studies/` and
+`self-host-stack/core/`.
+
+***
+
+## One source, many spots
+
+Section 4 shows that a skill doesn't live in two spots, it lives in up to six:
+this repo, a product's `context-v/`, a Claude Code plugin, a folder an MCP
+server serves (event-hog, astro-knots-mcp, MemoPop's connector), a site's
+download page, and the harness's skills directory. The rule has to be **one
+source of truth, any number of spots**, and the only spots that may hold a copy
+are ones a script fills from the source and nobody edits by hand.
+`astro-knots-mcp`'s `sync-skills.mjs` already works that way.
+
+**There is no separate host for skills.** Every place that lists them indexes
+git repos:
+
+- **skills.sh / `npx skills`** (Vercel) installs from a GitHub repo, and
+  `npx skills add <owner>/<repo> --skill <name>` takes one skill out of a repo
+  that holds many.
+- **A Claude Code plugin marketplace** is a repo with a
+  `.claude-plugin/marketplace.json` listing as many plugins as you like, and a
+  plugin's `source` can be a subdirectory of another repo (`git-subdir`).
+
+So **packs don't each need a repo.** `lossless-agent-skills` can be the single
+source *and* the marketplace: each pack a folder with its own `plugin.json`,
+listed in one `marketplace.json`, installable on its own. Products then
+install the pack (MemoPop's plugin depends on `vc-skill-pack`) or sync the
+skills they serve from it at build time, instead of keeping copies. That is a
+fourth option beside A, B and C above, cheaper than all three: **D, one repo,
+packs as folders, every other spot generated.** It also means
+`astro-knots-skills-pack` didn't have to be its own repo; it could fold back
+into a folder here, with the submodule kept or dropped.
+
 ## Open questions
 
 1. **Option B's owner rule.** When MemoPop needs `competitive-analysis`, does it
@@ -326,3 +456,9 @@ this pack; `write-site-narrative` may belong to `content-and-share`.
    repo's README list packs by hand, or generate the list?
 6. **Migration order.** `vc-skill-pack` first (the most duplication and the
    clearest outside audience), then `lossless-dev`?
+7. **Option D.** Make this repo a plugin marketplace with packs as folders,
+   and fold `astro-knots-skills-pack` back in? Or keep pack repos for packs a
+   product mounts?
+8. **What counts as a skill here.** Do the 18 `context-vigilance-kit` commands,
+   MemoPop's connector playbooks and the `twf-*` site skills belong in the
+   catalog, or stay with the products they serve?
